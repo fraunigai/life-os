@@ -81,11 +81,15 @@ export default function Dashboard({ awardXp, onOpenAI }) {
         ),
         window.electronAPI.tasks.getTopTasks(3),
         window.electronAPI.db.query(
-          `SELECT s.id, s.title, s.epic_id,
+          `SELECT s.id, s.title, s.epic_id, s.recurrence_days,
                   e.name as epic_name, e.color as epic_color
            FROM subtasks s
            JOIN epics e ON e.id = s.epic_id
            WHERE s.is_recurring = 1 AND e.status != 'done'
+             AND (
+               s.recurrence_days IS NULL OR s.recurrence_days = ''
+               OR (',' || s.recurrence_days || ',') LIKE ('%,' || CAST(strftime('%w', 'now', 'localtime') AS TEXT) || ',%')
+             )
            ORDER BY e.id, s.id`,
           []
         ),
