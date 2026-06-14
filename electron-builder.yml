@@ -3,6 +3,11 @@ productName: Life OS
 directories:
   output: dist-electron
 afterPack: scripts/afterPack.js
+publish:
+  provider: github
+  owner: frederickpolana-dotcom
+  repo: life-os
+  releaseType: release
 win:
   target:
     - target: nsis

@@ -6,6 +6,7 @@ const { routeAiChat }                    = require('./aiHandler')
 const { runScoringEngine, getTopTasks }  = require('./scoringEngine')
 const { runDailyMemoryUpdate }           = require('./assistantMemory')
 const { initNudgeEngine, recordActivity } = require('./nudgeEngine')
+const { autoUpdater }                    = require('electron-updater')
 
 // ── Single-instance lock ────────────────────────────────────────────────────
 const gotLock = app.requestSingleInstanceLock()
@@ -263,6 +264,64 @@ ipcMain.handle('widget:set-always-on-top', (_e, val) => {
   widgetWindow.setAlwaysOnTop(!!val)
 })
 
+// ── Auto-updater ──────────────────────────────────────────────────────────────
+function initAutoUpdater() {
+  if (!app.isPackaged) return // skip in dev
+
+  autoUpdater.autoDownload = false // ask user first
+  autoUpdater.autoInstallOnAppQuit = true
+
+  autoUpdater.on('checking-for-update', () => {
+    mainWindow?.webContents.send('update:checking')
+  })
+
+  autoUpdater.on('update-available', (info) => {
+    mainWindow?.webContents.send('update:available', {
+      version: info.version,
+      releaseNotes: info.releaseNotes || '',
+    })
+  })
+
+  autoUpdater.on('update-not-available', () => {
+    mainWindow?.webContents.send('update:not-available')
+  })
+
+  autoUpdater.on('download-progress', (progress) => {
+    mainWindow?.webContents.send('update:progress', {
+      percent:          Math.round(progress.percent),
+      transferred:      progress.transferred,
+      total:            progress.total,
+      bytesPerSecond:   progress.bytesPerSecond,
+    })
+  })
+
+  autoUpdater.on('update-downloaded', (info) => {
+    mainWindow?.webContents.send('update:downloaded', { version: info.version })
+  })
+
+  autoUpdater.on('error', (err) => {
+    mainWindow?.webContents.send('update:error', err.message)
+  })
+
+  // Check after 5 seconds so the window has time to load first
+  setTimeout(() => autoUpdater.checkForUpdates().catch(() => {}), 5000)
+
+  // Re-check every 2 hours
+  setInterval(() => autoUpdater.checkForUpdates().catch(() => {}), 2 * 60 * 60 * 1000)
+}
+
+ipcMain.handle('update:download', () => {
+  autoUpdater.downloadUpdate().catch(() => {})
+})
+
+ipcMain.handle('update:install', () => {
+  autoUpdater.quitAndInstall(false, true)
+})
+
+ipcMain.handle('update:check', () => {
+  if (app.isPackaged) autoUpdater.checkForUpdates().catch(() => {})
+})
+
 // ── App lifecycle ─────────────────────────────────────────────────────────────
 app.whenReady().then(() => {
   createWindow()
@@ -283,6 +342,9 @@ app.whenReady().then(() => {
 
   // Start nudge engine (desktop notifications)
   initNudgeEngine(db.getDb(), mainWindow)
+
+  // Auto-updater
+  initAutoUpdater()
 })
 
 app.on('window-all-closed', (e) => {

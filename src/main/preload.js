@@ -1,6 +1,17 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
 contextBridge.exposeInMainWorld('electronAPI', {
+  updater: {
+    onChecking:      (fn) => ipcRenderer.on('update:checking',      () => fn()),
+    onAvailable:     (fn) => ipcRenderer.on('update:available',     (_, info) => fn(info)),
+    onNotAvailable:  (fn) => ipcRenderer.on('update:not-available', () => fn()),
+    onProgress:      (fn) => ipcRenderer.on('update:progress',      (_, p) => fn(p)),
+    onDownloaded:    (fn) => ipcRenderer.on('update:downloaded',    (_, info) => fn(info)),
+    onError:         (fn) => ipcRenderer.on('update:error',         (_, msg) => fn(msg)),
+    download:        ()   => ipcRenderer.invoke('update:download'),
+    install:         ()   => ipcRenderer.invoke('update:install'),
+    check:           ()   => ipcRenderer.invoke('update:check'),
+  },
   db: {
     query: (sql, params) => ipcRenderer.invoke('db:query', sql, params),
     run:   (sql, params) => ipcRenderer.invoke('db:run',   sql, params),
