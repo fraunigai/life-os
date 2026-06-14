@@ -54,10 +54,11 @@ export default function EpicDetail({ awardXp }) {
   const [dailyTasks, setDailyTasks]       = useState([])
   const [todayDoneIds, setTodayDoneIds]   = useState(new Set())
   const [streakMap, setStreakMap]         = useState({})
-  const [addingTask, setAddingTask]       = useState(false)
-  const [newTitle, setNewTitle]           = useState('')
-  const [newDueDate, setNewDueDate]       = useState('')
+  const [addingTask, setAddingTask]         = useState(false)
+  const [newTitle, setNewTitle]             = useState('')
+  const [newDueDate, setNewDueDate]         = useState('')
   const [newIsRecurring, setNewIsRecurring] = useState(false)
+  const [newRecurrenceDays, setNewRecurrenceDays] = useState([]) // [] = every day
   const [editing, setEditing]             = useState(false)
   const [editForm, setEditForm]           = useState({})
   const [confetti, setConfetti]           = useState(0)
@@ -71,6 +72,10 @@ export default function EpicDetail({ awardXp }) {
          completed_date DATE NOT NULL,
          UNIQUE(subtask_id, completed_date)
        )`
+    ).catch(() => {})
+    // Migration: add recurrence_days column if not present
+    window.electronAPI.db.run(
+      'ALTER TABLE subtasks ADD COLUMN recurrence_days TEXT DEFAULT NULL'
     ).catch(() => {})
     load()
   }, [id])
@@ -127,13 +132,17 @@ export default function EpicDetail({ awardXp }) {
   async function addTask() {
     const title = newTitle.trim()
     if (!title) return
+    const recDays = (newIsRecurring && newRecurrenceDays.length > 0)
+      ? newRecurrenceDays.slice().sort((a, b) => a - b).join(',')
+      : null
     await window.electronAPI.db.run(
-      'INSERT INTO subtasks (epic_id, title, status, due_date, is_recurring) VALUES (?, ?, ?, ?, ?)',
-      [id, title, 'not_started', newIsRecurring ? null : (newDueDate || null), newIsRecurring ? 1 : 0]
+      'INSERT INTO subtasks (epic_id, title, status, due_date, is_recurring, recurrence_days) VALUES (?, ?, ?, ?, ?, ?)',
+      [id, title, 'not_started', newIsRecurring ? null : (newDueDate || null), newIsRecurring ? 1 : 0, recDays]
     )
     setNewTitle('')
     setNewDueDate('')
     setNewIsRecurring(false)
+    setNewRecurrenceDays([])
     setAddingTask(false)
     await load()
     if (!newIsRecurring) await recalcProgress()
@@ -199,6 +208,7 @@ export default function EpicDetail({ awardXp }) {
     setNewIsRecurring(true)
     setNewTitle('')
     setNewDueDate('')
+    setNewRecurrenceDays([])
     setAddingTask(true)
   }
 
@@ -206,6 +216,7 @@ export default function EpicDetail({ awardXp }) {
     setNewIsRecurring(false)
     setNewTitle('')
     setNewDueDate('')
+    setNewRecurrenceDays([])
     setAddingTask(true)
   }
 
@@ -214,6 +225,13 @@ export default function EpicDetail({ awardXp }) {
     setNewTitle('')
     setNewDueDate('')
     setNewIsRecurring(false)
+    setNewRecurrenceDays([])
+  }
+
+  function toggleRecurrenceDay(day) {
+    setNewRecurrenceDays(prev =>
+      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
+    )
   }
 
   function openEdit() {
@@ -392,7 +410,7 @@ export default function EpicDetail({ awardXp }) {
       </div>
 
       {dailyTasks.length > 0 && (
-        <p className="text-[10px] text-text-hint mb-2">These repeat every day · completing awards +10 XP</p>
+        <p className="text-[10px] text-text-hint mb-2">Tasks repeat on their scheduled days · completing awards +10 XP</p>
       )}
 
       <div className="flex flex-col gap-1.5 mb-6">
@@ -508,6 +526,10 @@ export default function EpicDetail({ awardXp }) {
             style={{ borderRadius: 4 }}
           />
 
+          {newIsRecurring && (
+            <DayPicker selected={newRecurrenceDays} onToggle={toggleRecurrenceDay} />
+          )}
+
           {!newIsRecurring && (
             <div>
               <label className="block text-[10px] font-bold text-text-muted uppercase tracking-wide mb-1.5">
@@ -612,30 +634,101 @@ export default function EpicDetail({ awardXp }) {
   )
 }
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+const DAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+const DAY_FULL   = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+function parseDays(recurrence_days) {
+  if (!recurrence_days) return null // null = every day
+  return recurrence_days.split(',').map(Number).filter(n => !isNaN(n))
+}
+
+function isScheduledToday(recurrence_days) {
+  const days = parseDays(recurrence_days)
+  if (!days) return true // every day
+  return days.includes(new Date().getDay())
+}
+
+function scheduleLabel(recurrence_days) {
+  const days = parseDays(recurrence_days)
+  if (!days || days.length === 7) return 'every day'
+  if (days.length === 0) return 'every day'
+  return days.map(d => DAY_FULL[d]).join(', ')
+}
+
+// ── DayPicker ─────────────────────────────────────────────────────────────────
+
+function DayPicker({ selected, onToggle }) {
+  return (
+    <div>
+      <label className="block text-[10px] font-bold text-text-muted uppercase tracking-wide mb-2">
+        Repeat on <span className="font-normal normal-case text-text-hint">(leave empty for every day)</span>
+      </label>
+      <div className="flex items-center gap-1.5">
+        {DAY_LABELS.map((label, i) => {
+          const active = selected.includes(i)
+          return (
+            <button
+              key={i}
+              type="button"
+              onClick={() => onToggle(i)}
+              className="flex items-center justify-center text-[11px] font-extrabold transition-all game-btn"
+              style={{
+                width: 32, height: 32,
+                borderRadius: 4,
+                background: active ? '#EF9F27' : '#f4fdf8',
+                color:      active ? '#fff'    : '#4a7060',
+                border:     active ? '2px solid #a65c00' : '2px solid #d4f0e6',
+                boxShadow:  active ? '2px 2px 0 #a65c00' : 'none',
+              }}
+            >
+              {label}
+            </button>
+          )
+        })}
+      </div>
+      {selected.length > 0 && (
+        <p className="text-[10px] text-text-muted mt-1.5">
+          Repeats on: <strong>{selected.slice().sort((a,b)=>a-b).map(d => DAY_FULL[d]).join(', ')}</strong>
+        </p>
+      )}
+      {selected.length === 0 && (
+        <p className="text-[10px] text-text-hint mt-1.5">No days selected — will repeat every day</p>
+      )}
+    </div>
+  )
+}
+
 // ── DailyCheckItem ────────────────────────────────────────────────────────────
 
 function DailyCheckItem({ task, done, streak, accentColor, shadowColor, onToggle, onDelete }) {
+  const scheduledToday = isScheduledToday(task.recurrence_days)
+  const label          = scheduleLabel(task.recurrence_days)
+
   return (
     <div
       className="flex items-center gap-3 px-4 py-3 bg-white"
       style={{
-        border: `1.5px solid ${done ? accentColor : '#e5f5ee'}`,
-        borderLeft: `3px solid ${done ? accentColor : '#d4f0e6'}`,
+        border:      `1.5px solid ${done ? accentColor : scheduledToday ? '#e5f5ee' : '#f0f0f0'}`,
+        borderLeft:  `3px solid ${done ? accentColor : scheduledToday ? '#d4f0e6' : '#e0e0e0'}`,
         borderRadius: 4,
-        transition: 'border-color 0.15s',
-        opacity: done ? 0.75 : 1,
+        transition:  'border-color 0.15s',
+        opacity:     !scheduledToday ? 0.45 : done ? 0.75 : 1,
       }}
     >
       {/* Checkbox */}
       <button
-        onClick={() => onToggle(task.id)}
+        onClick={() => scheduledToday && onToggle(task.id)}
+        disabled={!scheduledToday}
         className="flex-shrink-0 w-6 h-6 rounded flex items-center justify-center transition-all game-btn"
         style={{
           background:  done ? accentColor : 'transparent',
-          border:      `2px solid ${done ? accentColor : '#b3e8d3'}`,
+          border:      `2px solid ${done ? accentColor : scheduledToday ? '#b3e8d3' : '#d0d0d0'}`,
           boxShadow:   done ? `2px 2px 0 ${shadowColor}` : 'none',
+          cursor:      scheduledToday ? 'pointer' : 'default',
         }}
-        title={done ? 'Uncheck' : 'Mark done (+10 XP)'}
+        title={!scheduledToday ? `Not scheduled today (${label})` : done ? 'Uncheck' : 'Mark done (+10 XP)'}
       >
         {done && (
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
@@ -649,22 +742,27 @@ function DailyCheckItem({ task, done, streak, accentColor, shadowColor, onToggle
         <p className={`text-[12px] font-bold text-teal-dark truncate ${done ? 'line-through opacity-60' : ''}`}>
           {task.title}
         </p>
-        <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-[10px] text-text-hint">🔄 daily</span>
-          {streak > 0 && (
-            <span className="text-[10px] font-bold" style={{ color: '#EF9F27' }}>
-              🔥 {streak} day streak
+        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+          <span className="text-[10px] text-text-hint">{label}</span>
+          {!scheduledToday && (
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: '#f0f0f0', color: '#aaa' }}>
+              not today
             </span>
           )}
-          {streak === 0 && !done && (
-            <span className="text-[10px] text-text-hint">start your streak!</span>
+          {scheduledToday && streak > 0 && (
+            <span className="text-[10px] font-bold" style={{ color: '#EF9F27' }}>
+              {streak}d streak
+            </span>
+          )}
+          {scheduledToday && streak === 0 && !done && (
+            <span className="text-[10px] text-text-hint">start your streak</span>
           )}
         </div>
       </div>
 
       {/* XP + delete */}
       <div className="flex items-center gap-2 flex-shrink-0">
-        {!done && (
+        {scheduledToday && !done && (
           <span className="text-[10px] font-extrabold" style={{ color: '#EF9F27' }}>+10 XP</span>
         )}
         <button

@@ -128,6 +128,7 @@ export default function App() {
     if (!window.electronAPI) return
     // Runtime migration — safe to run every startup, errors mean column already exists
     window.electronAPI.db.run('ALTER TABLE epics ADD COLUMN end_date DATE').catch(() => {})
+    window.electronAPI.db.run('ALTER TABLE subtasks ADD COLUMN recurrence_days TEXT DEFAULT NULL').catch(() => {})
     loadProfile()
     generateBrief()
   }, [])
