@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
 import AIPanel from './components/AIPanel'
 import CommandPalette from './components/CommandPalette'
+import UpdateBanner from './components/UpdateBanner'
 import XPToast from './components/XPToast'
 import ConfettiCelebration from './components/ConfettiCelebration'
 import Dashboard from './pages/Dashboard'
@@ -260,6 +261,8 @@ export default function App() {
             onRefreshBrief={() => generateBrief(true)}
             onOpenCommand={() => setCmdOpen(true)}
           />
+
+          <UpdateBanner />
 
           <main
             className="flex-1 overflow-y-auto px-8 py-6"
