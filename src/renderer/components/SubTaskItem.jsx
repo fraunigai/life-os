@@ -7,8 +7,16 @@ const STATUS_COLOR = {
   done:        'border-green-done bg-green-done/10',
 }
 
+const WEIGHT_META = {
+  1: { label: 'Minor',    color: '#9bbdaa', bg: '#f0f8f4' },
+  2: { label: 'Standard', color: '#1D9E75', bg: '#eefaf4' },
+  3: { label: 'Major',    color: '#EF9F27', bg: '#fff8ec' },
+  5: { label: 'Critical', color: '#7F77DD', bg: '#f5f4ff' },
+}
+
 export default function SubTaskItem({ task, onStatusChange, onDelete }) {
   const [animating, setAnimating] = useState(false)
+  const wMeta = WEIGHT_META[task.weight] || WEIGHT_META[2]
 
   async function toggle() {
     const next = STATUS_CYCLE[task.status] || 'not_started'
@@ -45,6 +53,16 @@ export default function SubTaskItem({ task, onStatusChange, onDelete }) {
       }`}>
         {task.title}
       </span>
+
+      {/* Weight badge — shown for non-standard weights, always shown for Critical/Major */}
+      {task.weight && task.weight !== 2 && (
+        <span
+          className="text-[9px] font-extrabold px-1.5 py-0.5 rounded flex-shrink-0"
+          style={{ background: wMeta.bg, color: wMeta.color, border: `1px solid ${wMeta.color}30` }}
+        >
+          {wMeta.label}
+        </span>
+      )}
 
       {onDelete && (
         <button
