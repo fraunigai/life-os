@@ -21,6 +21,14 @@ const COLORS    = ['teal', 'amber', 'purple']
 const COLOR_HEX = { teal: '#1D9E75', amber: '#EF9F27', purple: '#7F77DD' }
 
 const RETRO_CARD_CLASS = { teal: 'retro-card', amber: 'retro-card-amber', purple: 'retro-card-purple' }
+
+const WEIGHTS = [
+  { value: 1, label: 'Minor',    xp: 10,  color: '#9bbdaa', dark: '#4a7060', desc: 'Small prep step' },
+  { value: 2, label: 'Standard', xp: 15,  color: '#1D9E75', dark: '#085041', desc: 'Normal task'     },
+  { value: 3, label: 'Major',    xp: 25,  color: '#EF9F27', dark: '#a65c00', desc: 'Big checkpoint'  },
+  { value: 5, label: 'Critical', xp: 50,  color: '#7F77DD', dark: '#3d3a9e', desc: 'Game changer'    },
+]
+const XP_BY_WEIGHT = { 1: 10, 2: 15, 3: 25, 5: 50 }
 const RETRO_BORDER = {
   teal:   { border: '#1D9E75', shadow: '#085041', bg: '#eefaf4', text: '#085041' },
   amber:  { border: '#EF9F27', shadow: '#a65c00', bg: '#fff8ec', text: '#7a4800' },
@@ -59,6 +67,7 @@ export default function EpicDetail({ awardXp }) {
   const [newDueDate, setNewDueDate]         = useState('')
   const [newIsRecurring, setNewIsRecurring] = useState(false)
   const [newRecurrenceDays, setNewRecurrenceDays] = useState([]) // [] = every day
+  const [newWeight, setNewWeight]           = useState(2)         // default Standard
   const [editing, setEditing]             = useState(false)
   const [editForm, setEditForm]           = useState({})
   const [confetti, setConfetti]           = useState(0)
@@ -73,10 +82,9 @@ export default function EpicDetail({ awardXp }) {
          UNIQUE(subtask_id, completed_date)
        )`
     ).catch(() => {})
-    // Migration: add recurrence_days column if not present
-    window.electronAPI.db.run(
-      'ALTER TABLE subtasks ADD COLUMN recurrence_days TEXT DEFAULT NULL'
-    ).catch(() => {})
+    // Migrations — safe to run every time, errors = column already exists
+    window.electronAPI.db.run('ALTER TABLE subtasks ADD COLUMN recurrence_days TEXT DEFAULT NULL').catch(() => {})
+    window.electronAPI.db.run('ALTER TABLE subtasks ADD COLUMN weight INTEGER DEFAULT 2').catch(() => {})
     load()
   }, [id])
 
@@ -135,14 +143,16 @@ export default function EpicDetail({ awardXp }) {
     const recDays = (newIsRecurring && newRecurrenceDays.length > 0)
       ? newRecurrenceDays.slice().sort((a, b) => a - b).join(',')
       : null
+    const weight = newIsRecurring ? 2 : newWeight
     await window.electronAPI.db.run(
-      'INSERT INTO subtasks (epic_id, title, status, due_date, is_recurring, recurrence_days) VALUES (?, ?, ?, ?, ?, ?)',
-      [id, title, 'not_started', newIsRecurring ? null : (newDueDate || null), newIsRecurring ? 1 : 0, recDays]
+      'INSERT INTO subtasks (epic_id, title, status, due_date, is_recurring, recurrence_days, weight) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [id, title, 'not_started', newIsRecurring ? null : (newDueDate || null), newIsRecurring ? 1 : 0, recDays, weight]
     )
     setNewTitle('')
     setNewDueDate('')
     setNewIsRecurring(false)
     setNewRecurrenceDays([])
+    setNewWeight(2)
     setAddingTask(false)
     await load()
     if (!newIsRecurring) await recalcProgress()
@@ -154,7 +164,9 @@ export default function EpicDetail({ awardXp }) {
       : 'UPDATE subtasks SET status = ?, completed_at = NULL WHERE id = ?'
     await window.electronAPI.db.run(sql, [nextStatus, taskId])
     if (nextStatus === 'done') {
-      const result = await awardXp(15)
+      const row    = await window.electronAPI.db.get('SELECT weight FROM subtasks WHERE id = ?', [taskId])
+      const xp     = XP_BY_WEIGHT[row?.weight || 2] ?? 15
+      const result = await awardXp(xp)
       if (result?.levelUp) setConfetti(c => c + 1)
     }
     await load()
@@ -168,13 +180,15 @@ export default function EpicDetail({ awardXp }) {
   }
 
   async function recalcProgress() {
-    // Only count one-time tasks (is_recurring = 0) toward epic progress
+    // Weighted sum: progress = sum(weight of done) / sum(all weights)
     const rows = await window.electronAPI.db.query(
-      "SELECT COUNT(*) as total, SUM(CASE WHEN status = 'done' THEN 1 ELSE 0 END) as done FROM subtasks WHERE epic_id = ? AND parent_id IS NULL AND is_recurring = 0",
+      `SELECT SUM(COALESCE(weight,2)) as total_w,
+              SUM(CASE WHEN status='done' THEN COALESCE(weight,2) ELSE 0 END) as done_w
+       FROM subtasks WHERE epic_id = ? AND parent_id IS NULL AND is_recurring = 0`,
       [id]
     )
     const row = rows[0]
-    const pct = row?.total > 0 ? Math.round((row.done / row.total) * 100) : 0
+    const pct = row?.total_w > 0 ? Math.round((row.done_w / row.total_w) * 100) : 0
     await window.electronAPI.db.run(
       'UPDATE epics SET progress = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
       [pct, id]
@@ -209,6 +223,7 @@ export default function EpicDetail({ awardXp }) {
     setNewTitle('')
     setNewDueDate('')
     setNewRecurrenceDays([])
+    setNewWeight(2)
     setAddingTask(true)
   }
 
@@ -217,6 +232,7 @@ export default function EpicDetail({ awardXp }) {
     setNewTitle('')
     setNewDueDate('')
     setNewRecurrenceDays([])
+    setNewWeight(2)
     setAddingTask(true)
   }
 
@@ -226,6 +242,7 @@ export default function EpicDetail({ awardXp }) {
     setNewDueDate('')
     setNewIsRecurring(false)
     setNewRecurrenceDays([])
+    setNewWeight(2)
   }
 
   function toggleRecurrenceDay(day) {
@@ -494,7 +511,7 @@ export default function EpicDetail({ awardXp }) {
                 {newIsRecurring ? '🔄 Repeats every day' : '📌 One-time milestone'}
               </p>
               <p className="text-[10px] text-text-hint mt-0.5">
-                {newIsRecurring ? '+10 XP each day you check it off' : '+15 XP when completed'}
+                {newIsRecurring ? '+10 XP each day you check it off' : `+${XP_BY_WEIGHT[newWeight] ?? 15} XP when completed`}
               </p>
             </div>
             <button
@@ -528,6 +545,10 @@ export default function EpicDetail({ awardXp }) {
 
           {newIsRecurring && (
             <DayPicker selected={newRecurrenceDays} onToggle={toggleRecurrenceDay} />
+          )}
+
+          {!newIsRecurring && (
+            <WeightPicker value={newWeight} onChange={setNewWeight} />
           )}
 
           {!newIsRecurring && (
@@ -655,6 +676,45 @@ function scheduleLabel(recurrence_days) {
   if (!days || days.length === 7) return 'every day'
   if (days.length === 0) return 'every day'
   return days.map(d => DAY_FULL[d]).join(', ')
+}
+
+// ── WeightPicker ──────────────────────────────────────────────────────────────
+
+function WeightPicker({ value, onChange }) {
+  return (
+    <div>
+      <label className="block text-[10px] font-bold text-text-muted uppercase tracking-wide mb-2">
+        Impact <span className="font-normal normal-case text-text-hint">— how much does this milestone matter?</span>
+      </label>
+      <div className="grid grid-cols-4 gap-1.5">
+        {WEIGHTS.map(w => {
+          const active = value === w.value
+          return (
+            <button
+              key={w.value}
+              type="button"
+              onClick={() => onChange(w.value)}
+              className="flex flex-col items-center gap-1 py-2 px-1 transition-all game-btn"
+              style={{
+                borderRadius: 5,
+                background: active ? w.color + '18' : '#f4fdf8',
+                border:     `2px solid ${active ? w.color : '#d4f0e6'}`,
+                boxShadow:  active ? `2px 2px 0 ${w.dark}` : 'none',
+              }}
+            >
+              <span className="text-[11px] font-extrabold" style={{ color: active ? w.color : '#4a7060' }}>
+                {w.label}
+              </span>
+              <span className="text-[9px] font-semibold" style={{ color: active ? w.dark : '#9bbdaa' }}>
+                +{w.xp} XP
+              </span>
+              <span className="text-[8px]" style={{ color: '#b3c4bb' }}>{w.desc}</span>
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
 }
 
 // ── DayPicker ─────────────────────────────────────────────────────────────────

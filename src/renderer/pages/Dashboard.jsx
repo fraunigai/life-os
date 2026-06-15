@@ -124,20 +124,26 @@ export default function Dashboard({ awardXp, onOpenAI }) {
     } catch {}
   }
 
+  const XP_BY_WEIGHT = { 1: 10, 2: 15, 3: 25, 5: 50 }
+
   async function completeTask(taskId, epicId) {
     try {
+      const taskRow = await window.electronAPI.db.get('SELECT weight FROM subtasks WHERE id = ?', [taskId])
+      const xp = XP_BY_WEIGHT[taskRow?.weight || 2] ?? 15
       await window.electronAPI.db.run(
         'UPDATE subtasks SET status = ?, completed_at = CURRENT_TIMESTAMP WHERE id = ?',
         ['done', taskId]
       )
-      // Recalc epic progress
+      // Weighted progress recalc
       const rows = await window.electronAPI.db.query(
-        "SELECT COUNT(*) as total, SUM(CASE WHEN status='done' THEN 1 ELSE 0 END) as done FROM subtasks WHERE epic_id = ? AND parent_id IS NULL",
+        `SELECT SUM(COALESCE(weight,2)) as total_w,
+                SUM(CASE WHEN status='done' THEN COALESCE(weight,2) ELSE 0 END) as done_w
+         FROM subtasks WHERE epic_id = ? AND parent_id IS NULL AND is_recurring = 0`,
         [epicId]
       )
-      const pct = rows[0]?.total > 0 ? Math.round((rows[0].done / rows[0].total) * 100) : 0
+      const pct = rows[0]?.total_w > 0 ? Math.round((rows[0].done_w / rows[0].total_w) * 100) : 0
       await window.electronAPI.db.run('UPDATE epics SET progress = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [pct, epicId])
-      const result = await awardXp(15)
+      const result = await awardXp(xp)
       if (result?.levelUp) setConfetti(c => c + 1)
       setDoneTaskIds(prev => new Set([...prev, taskId]))
       setDueTodayTasks(prev => prev.filter(t => t.id !== taskId))
