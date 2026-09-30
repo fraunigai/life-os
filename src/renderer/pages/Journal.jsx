@@ -1,14 +1,15 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { buildSystemPrompt, fetchMemories } from '../utils/systemPrompt'
+import { c, withAlpha } from '../utils/colors'
 
 // ── Mood system ────────────────────────────────────────────────────────────────
 
 const MOOD = {
-  1: { emoji: '😞', label: 'Rough', color: '#ef4444', soft: '#fdecec' },
-  2: { emoji: '😔', label: 'Low',   color: '#f97316', soft: '#fdf0e6' },
-  3: { emoji: '😐', label: 'Okay',  color: '#EF9F27', soft: '#fff7e8' },
-  4: { emoji: '🙂', label: 'Good',  color: '#1D9E75', soft: '#eafaf2' },
-  5: { emoji: '😄', label: 'Great', color: '#085041', soft: '#e3f4ec' },
+  1: { emoji: '😞', label: 'Rough', color: c('danger'),           soft: c('danger-tint') },
+  2: { emoji: '😔', label: 'Low',   color: c('x-journal-mood-2'), soft: c('amber-tint') },
+  3: { emoji: '😐', label: 'Okay',  color: c('amber'),            soft: c('amber-tint') },
+  4: { emoji: '🙂', label: 'Good',  color: c('primary'),          soft: c('x-journal-primary-tint') },
+  5: { emoji: '😄', label: 'Great', color: c('x-journal-mood-5'), soft: c('tint') },
 }
 
 // Stable daily writing prompt
@@ -356,9 +357,9 @@ export default function Journal({ awardXp }) {
         <div className="flex items-center gap-3">
           {streak > 0 && (
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
-              style={{ background: '#fff7e8', border: '1.5px solid #f5d28a' }}>
+              style={{ background: c('amber-tint'), border: `1.5px solid ${c('amber-line')}` }}>
               <span className="text-[13px]">🔥</span>
-              <span className="text-[12px] font-extrabold" style={{ color: '#a65c00' }}>{streak}-day streak</span>
+              <span className="text-[12px] font-extrabold" style={{ color: c('x-journal-amber-text') }}>{streak}-day streak</span>
             </div>
           )}
           <div className="text-right">
@@ -369,7 +370,7 @@ export default function Journal({ awardXp }) {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1.5 mb-5 p-1 rounded-[12px]" style={{ background: '#e8f5ee', width: 'fit-content' }}>
+      <div className="flex gap-1.5 mb-5 p-1 rounded-[12px]" style={{ background: c('tint'), width: 'fit-content' }}>
         <TabBtn active={tab === 'write'}   onClick={() => setTab('write')}   icon="✍️" label="Write" />
         <TabBtn active={tab === 'reflect'} onClick={() => setTab('reflect')} icon="🔮" label="AI Reflections" />
         <TabBtn active={tab === 'history'} onClick={() => setTab('history')} icon="📅" label="History" />
@@ -423,14 +424,14 @@ function WriteTab({ form, setForm, selectedDate, isToday, prompt, words, hasEntr
         </p>
         {hasEntry && (
           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-            style={{ background: '#eafaf2', color: '#1D9E75', border: '1px solid #b3e8d3' }}>
+            style={{ background: c('x-journal-primary-tint'), color: c('primary'), border: `1px solid ${c('line-strong')}` }}>
             saved entry
           </span>
         )}
       </div>
 
       {/* Mood selector */}
-      <div className="bg-white border border-teal-border rounded-card p-5">
+      <div className="bg-surface border border-teal-border rounded-card p-5">
         <p className="text-[13px] font-bold text-teal-dark mb-3">How did the day feel?</p>
         <div className="flex gap-2">
           {[1, 2, 3, 4, 5].map(n => {
@@ -442,16 +443,16 @@ function WriteTab({ form, setForm, selectedDate, isToday, prompt, words, hasEntr
                 onClick={() => setForm(f => ({ ...f, mood: active ? 0 : n }))}
                 className="flex-1 flex flex-col items-center py-3 rounded-[12px] transition-all border-2"
                 style={{
-                  borderColor: active ? m.color : '#e1f0e9',
-                  background:  active ? m.soft : '#f8fdfb',
+                  borderColor: active ? m.color : c('tint'),
+                  background:  active ? m.soft : c('surface-2'),
                   transform:   active ? 'translateY(-2px)' : 'none',
-                  boxShadow:   active ? `0 4px 0 ${m.color}33` : 'none',
+                  boxShadow:   active ? `0 4px 0 ${withAlpha(m.color, '33')}` : 'none',
                 }}
               >
                 <span className="text-[26px] leading-none mb-1.5" style={{ filter: active ? 'none' : 'grayscale(0.4)', opacity: active ? 1 : 0.7 }}>
                   {m.emoji}
                 </span>
-                <span className="text-[10px] font-bold" style={{ color: active ? m.color : '#9bbdaa' }}>
+                <span className="text-[10px] font-bold" style={{ color: active ? m.color : c('hint-alt') }}>
                   {m.label}
                 </span>
               </button>
@@ -461,7 +462,7 @@ function WriteTab({ form, setForm, selectedDate, isToday, prompt, words, hasEntr
       </div>
 
       {/* Free write */}
-      <div className="bg-white border border-teal-border rounded-card p-5">
+      <div className="bg-surface border border-teal-border rounded-card p-5">
         <div className="flex items-center justify-between mb-2">
           <p className="text-[12px] font-semibold text-text-muted italic">"{prompt}"</p>
           <span className="text-[10px] font-bold text-text-hint tabular-nums">
@@ -488,13 +489,13 @@ function WriteTab({ form, setForm, selectedDate, isToday, prompt, words, hasEntr
         </button>
       ) : (
         <div className="grid grid-cols-1 gap-3">
-          <MiniField icon="⭐" label="Highlight of the day" tint="#fff7e8" border="#f5d28a"
+          <MiniField icon="⭐" label="Highlight of the day" tint={c('amber-tint')} border={c('amber-line')}
             value={form.highlight} onChange={v => setForm(f => ({ ...f, highlight: v }))}
             placeholder="The one moment worth keeping…" />
-          <MiniField icon="🙏" label="Grateful for" tint="#eafaf2" border="#b3e8d3"
+          <MiniField icon="🙏" label="Grateful for" tint={c('x-journal-primary-tint')} border={c('line-strong')}
             value={form.gratitude} onChange={v => setForm(f => ({ ...f, gratitude: v }))}
             placeholder="Big or small — what are you thankful for?" />
-          <MiniField icon="🪨" label="What challenged you" tint="#f8f7ff" border="#cac8f5"
+          <MiniField icon="🪨" label="What challenged you" tint={c('purple-tint')} border={c('purple-line')}
             value={form.challenge} onChange={v => setForm(f => ({ ...f, challenge: v }))}
             placeholder="What was hard, and how did you handle it?" />
         </div>
@@ -504,7 +505,7 @@ function WriteTab({ form, setForm, selectedDate, isToday, prompt, words, hasEntr
       <button
         onClick={onSave}
         disabled={saving || !canSave}
-        className="w-full py-3 bg-primary text-white text-[13px] font-bold rounded-[12px] hover:bg-teal-med disabled:opacity-40 transition-colors"
+        className="w-full py-3 bg-primary text-on-primary text-[13px] font-bold rounded-[12px] hover:bg-teal-med disabled:opacity-40 transition-colors"
       >
         {saved ? (hasEntry ? '✓ Saved' : '✓ Entry saved! +8 XP') : saving ? 'Saving…' : hasEntry ? 'Update Entry' : 'Save Entry'}
       </button>
@@ -520,7 +521,7 @@ function MiniField({ icon, label, tint, border, value, onChange, placeholder }) 
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full px-3 py-2 text-[12px] bg-white/70 border border-white rounded-sm outline-none focus:border-primary text-text-pri placeholder:text-text-hint"
+        className="w-full px-3 py-2 text-[12px] bg-surface/70 border border-surface rounded-sm outline-none focus:border-primary text-text-pri placeholder:text-text-hint"
       />
     </div>
   )
@@ -533,15 +534,15 @@ function ReflectTab({ range, setRange, reflection, loading, error, confirmRegen,
     <div className="flex flex-col gap-4">
       {/* Range toggle */}
       <div className="flex items-center justify-between">
-        <div className="flex gap-1.5 p-1 rounded-[10px]" style={{ background: '#e8f5ee' }}>
+        <div className="flex gap-1.5 p-1 rounded-[10px]" style={{ background: c('tint') }}>
           {[7, 30].map(r => (
             <button
               key={r}
               onClick={() => setRange(r)}
               className="px-4 py-1.5 rounded-[8px] text-[11px] font-bold transition-all"
               style={range === r
-                ? { background: '#1D9E75', color: 'white', boxShadow: '0 1px 3px rgba(8,80,65,0.25)' }
-                : { background: 'transparent', color: '#4a7060' }}
+                ? { background: c('primary'), color: c('on-primary'), boxShadow: `0 1px 3px ${c('primary-shadow', 0.25)}` }
+                : { background: 'transparent', color: c('muted-alt') }}
             >
               Last {r} days
             </button>
@@ -550,13 +551,13 @@ function ReflectTab({ range, setRange, reflection, loading, error, confirmRegen,
         {reflection && !loading && (
           confirmRegen ? (
             <div className="flex items-center gap-1.5">
-              <span className="text-[10px] font-bold" style={{ color: '#a65c00' }}>Regenerate?</span>
+              <span className="text-[10px] font-bold" style={{ color: c('x-journal-amber-text') }}>Regenerate?</span>
               <button onClick={onConfirmRegen}
                 className="text-[10px] font-extrabold px-2 py-0.5 rounded"
-                style={{ background: '#EF9F27', color: 'white', border: '1.5px solid #a65c00' }}>Yes</button>
+                style={{ background: c('amber'), color: c('on-amber'), border: `1.5px solid ${c('amber-shadow')}` }}>Yes</button>
               <button onClick={onCancelRegen}
                 className="text-[10px] font-bold px-2 py-0.5 rounded"
-                style={{ background: '#f4fdf8', color: '#4a7060', border: '1.5px solid #b3e8d3' }}>Cancel</button>
+                style={{ background: c('screen'), color: c('muted-alt'), border: `1.5px solid ${c('line-strong')}` }}>Cancel</button>
             </div>
           ) : (
             <button onClick={onRequestRegen}
@@ -570,7 +571,7 @@ function ReflectTab({ range, setRange, reflection, loading, error, confirmRegen,
       {loading && <ReflectionSkeleton range={range} />}
 
       {!loading && error && (
-        <div className="bg-white border border-teal-border rounded-card p-6 text-center">
+        <div className="bg-surface border border-teal-border rounded-card p-6 text-center">
           <span className="text-[28px] block mb-2 opacity-40">🔮</span>
           <p className="text-[12px] font-semibold text-text-muted leading-relaxed max-w-[360px] mx-auto">{error}</p>
           <button onClick={onConfirmRegen} className="mt-3 text-[11px] font-bold text-primary hover:underline">
@@ -583,10 +584,10 @@ function ReflectTab({ range, setRange, reflection, loading, error, confirmRegen,
         <div className="flex flex-col gap-3">
           {/* Narrative */}
           <div className="p-5 rounded-[14px]"
-            style={{ background: 'linear-gradient(135deg, #ebfaf3 0%, #f2f6ff 100%)', border: '1.5px solid #b3e8d3' }}>
+            style={{ background: `linear-gradient(135deg, ${c('x-journal-primary-tint')} 0%, ${c('purple-tint')} 100%)`, border: `1.5px solid ${c('line-strong')}` }}>
             <div className="flex items-center gap-2 mb-3">
               <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-                <span className="text-white text-[9px] font-extrabold">AI</span>
+                <span className="text-on-primary text-[9px] font-extrabold">AI</span>
               </div>
               <div>
                 <p className="text-[12px] font-extrabold text-teal-dark leading-tight">Your last {range} days</p>
@@ -598,22 +599,22 @@ function ReflectTab({ range, setRange, reflection, loading, error, confirmRegen,
 
           {/* Mood arc */}
           {reflection.mood && (
-            <div className="p-4 rounded-[10px]" style={{ background: '#fff8ed', border: '1.5px solid #f5d28a' }}>
-              <p className="text-[9px] font-extrabold uppercase tracking-widest mb-2" style={{ color: '#a65c00' }}>Emotional arc</p>
-              <p className="text-[12px] font-semibold leading-snug" style={{ color: '#7a3f00' }}>{reflection.mood}</p>
+            <div className="p-4 rounded-[10px]" style={{ background: c('amber-tint'), border: `1.5px solid ${c('amber-line')}` }}>
+              <p className="text-[9px] font-extrabold uppercase tracking-widest mb-2" style={{ color: c('x-journal-amber-text') }}>Emotional arc</p>
+              <p className="text-[12px] font-semibold leading-snug" style={{ color: c('x-journal-arc-ink') }}>{reflection.mood}</p>
             </div>
           )}
 
           {/* Patterns */}
           {reflection.patterns?.length > 0 && (
-            <div className="p-4 rounded-[10px]" style={{ background: '#f8f7ff', border: '1.5px solid #cac8f5' }}>
-              <p className="text-[9px] font-extrabold uppercase tracking-widest mb-3" style={{ color: '#7F77DD' }}>Patterns noticed</p>
+            <div className="p-4 rounded-[10px]" style={{ background: c('purple-tint'), border: `1.5px solid ${c('purple-line')}` }}>
+              <p className="text-[9px] font-extrabold uppercase tracking-widest mb-3" style={{ color: c('purple') }}>Patterns noticed</p>
               <div className="flex flex-col gap-2.5">
                 {reflection.patterns.map((p, i) => (
                   <div key={i} className="flex gap-2.5 items-start">
                     <span className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[9px] font-extrabold mt-0.5"
-                      style={{ background: '#7F77DD20', color: '#7F77DD' }}>{i + 1}</span>
-                    <p className="text-[12px] leading-snug" style={{ color: '#3d3a9e' }}>{p}</p>
+                      style={{ background: c('purple', 0.125), color: c('purple') }}>{i + 1}</span>
+                    <p className="text-[12px] leading-snug" style={{ color: c('x-journal-purple-ink') }}>{p}</p>
                   </div>
                 ))}
               </div>
@@ -622,16 +623,16 @@ function ReflectTab({ range, setRange, reflection, loading, error, confirmRegen,
 
           {/* Insight */}
           {reflection.insight && (
-            <div className="p-4 rounded-[10px]" style={{ background: '#f0faf4', border: '1.5px solid #a8ddc4' }}>
-              <p className="text-[9px] font-extrabold uppercase tracking-widest mb-2" style={{ color: '#2a8a67' }}>Something to sit with</p>
-              <p className="text-[13px] font-semibold leading-snug" style={{ color: '#085041' }}>{reflection.insight}</p>
+            <div className="p-4 rounded-[10px]" style={{ background: c('surface-2'), border: `1.5px solid ${c('x-journal-insight-line')}` }}>
+              <p className="text-[9px] font-extrabold uppercase tracking-widest mb-2" style={{ color: c('primary-hover') }}>Something to sit with</p>
+              <p className="text-[13px] font-semibold leading-snug" style={{ color: c('ink') }}>{reflection.insight}</p>
             </div>
           )}
         </div>
       )}
 
       {!loading && !error && !reflection && (
-        <div className="bg-white border border-teal-border rounded-card p-6 text-center">
+        <div className="bg-surface border border-teal-border rounded-card p-6 text-center">
           <span className="text-[28px] block mb-2">🔮</span>
           <p className="text-[12px] text-text-muted">Generating your reflection…</p>
         </div>
@@ -642,10 +643,10 @@ function ReflectTab({ range, setRange, reflection, loading, error, confirmRegen,
 
 function ReflectionSkeleton({ range }) {
   return (
-    <div className="bg-white border border-teal-border rounded-card p-5">
+    <div className="bg-surface border border-teal-border rounded-card p-5">
       <div className="flex items-center gap-2.5 mb-4">
         <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={c('on-primary')} strokeWidth="2.5"
             strokeLinecap="round" style={{ animation: 'spin 1s linear infinite' }}>
             <path d="M21 12a9 9 0 1 1-6.219-8.56" />
           </svg>
@@ -655,7 +656,7 @@ function ReflectionSkeleton({ range }) {
       <div className="flex flex-col gap-2.5">
         {[70, 90, 55, 80].map((pct, i) => (
           <div key={i} className="h-3 rounded-full"
-            style={{ width: `${pct}%`, background: '#e8f5ee', animation: 'shimmer 1.5s ease-in-out infinite', animationDelay: `${i * 0.18}s` }} />
+            style={{ width: `${pct}%`, background: c('x-journal-skeleton'), animation: 'shimmer 1.5s ease-in-out infinite', animationDelay: `${i * 0.18}s` }} />
         ))}
       </div>
     </div>
@@ -699,7 +700,7 @@ function HistoryTab({ entries, selectedDate, onPickDate }) {
   return (
     <div className="flex flex-col gap-5">
       {/* Calendar */}
-      <div className="bg-white border border-teal-border rounded-card p-5">
+      <div className="bg-surface border border-teal-border rounded-card p-5">
         <div className="flex items-center justify-between mb-4">
           <button onClick={() => shift(-1)}
             className="w-8 h-8 rounded-[10px] bg-teal-light text-teal-med flex items-center justify-center hover:bg-teal-border transition-colors">
@@ -736,19 +737,19 @@ function HistoryTab({ entries, selectedDate, onPickDate }) {
                 title={entry ? `${fmtShort(dateStr)} · ${mood ? mood.label : 'written'}` : fmtShort(dateStr)}
                 className="aspect-square rounded-[8px] flex items-center justify-center text-[11px] font-bold transition-all relative"
                 style={{
-                  background: mood ? mood.soft : entry ? '#eafaf2' : isFuture ? '#fafdfb' : '#f4fbf8',
-                  border: isSelected ? '2px solid #1D9E75'
-                        : mood ? `1.5px solid ${mood.color}55`
-                        : entry ? '1.5px solid #b3e8d3'
-                        : '1.5px solid #eef6f2',
-                  color: mood ? mood.color : entry ? '#1D9E75' : isFuture ? '#cfe3da' : '#7da894',
+                  background: mood ? mood.soft : entry ? c('x-journal-primary-tint') : isFuture ? c('surface-2') : c('screen'),
+                  border: isSelected ? `2px solid ${c('primary')}`
+                        : mood ? `1.5px solid ${withAlpha(mood.color, '55')}`
+                        : entry ? `1.5px solid ${c('line-strong')}`
+                        : `1.5px solid ${c('screen')}`,
+                  color: mood ? mood.color : entry ? c('primary') : isFuture ? c('x-journal-day-future') : c('x-journal-day-text'),
                   cursor: isFuture ? 'default' : 'pointer',
                   opacity: isFuture ? 0.5 : 1,
                 }}
               >
                 {entry ? <span className="text-[14px] leading-none">{mood ? mood.emoji : '·'}</span> : d}
                 {isToday && (
-                  <span className="absolute bottom-1 w-1 h-1 rounded-full" style={{ background: '#1D9E75' }} />
+                  <span className="absolute bottom-1 w-1 h-1 rounded-full" style={{ background: c('primary') }} />
                 )}
               </button>
             )
@@ -756,7 +757,7 @@ function HistoryTab({ entries, selectedDate, onPickDate }) {
         </div>
 
         {/* Legend */}
-        <div className="flex items-center justify-center gap-3 mt-4 pt-3" style={{ borderTop: '1px solid #eef6f2' }}>
+        <div className="flex items-center justify-center gap-3 mt-4 pt-3" style={{ borderTop: `1px solid ${c('screen')}` }}>
           {[1, 2, 3, 4, 5].map(n => (
             <div key={n} className="flex items-center gap-1">
               <span className="text-[13px]">{MOOD[n].emoji}</span>
@@ -770,7 +771,7 @@ function HistoryTab({ entries, selectedDate, onPickDate }) {
       <div>
         <p className="text-[11px] font-extrabold uppercase tracking-widest text-text-hint mb-2">Recent entries</p>
         {recent.length === 0 ? (
-          <div className="bg-white border border-teal-border rounded-card p-6 text-center">
+          <div className="bg-surface border border-teal-border rounded-card p-6 text-center">
             <span className="text-[28px] block mb-2 opacity-40">📖</span>
             <p className="text-[12px] text-text-muted">No entries yet — your story starts today.</p>
           </div>
@@ -783,10 +784,10 @@ function HistoryTab({ entries, selectedDate, onPickDate }) {
                 <button
                   key={e.entry_date}
                   onClick={() => onPickDate(e.entry_date)}
-                  className="flex items-center gap-3 px-4 py-3 bg-white text-left hover-lift"
+                  className="flex items-center gap-3 px-4 py-3 bg-surface text-left hover-lift"
                   style={{
-                    border: '1.5px solid #e1f0e9',
-                    borderLeft: `3px solid ${mood ? mood.color : '#b3e8d3'}`,
+                    border: `1.5px solid ${c('tint')}`,
+                    borderLeft: `3px solid ${mood ? mood.color : c('line-strong')}`,
                     borderRadius: 8,
                   }}
                 >
@@ -795,7 +796,7 @@ function HistoryTab({ entries, selectedDate, onPickDate }) {
                     <p className="text-[11px] font-extrabold text-teal-dark">{fmtShort(e.entry_date)}</p>
                     <p className="text-[11px] text-text-muted truncate">{preview || 'No text — mood only'}{preview.length === 90 ? '…' : ''}</p>
                   </div>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9bbdaa" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={c('hint-alt')} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
                     <polyline points="9 18 15 12 9 6" />
                   </svg>
                 </button>
@@ -816,8 +817,8 @@ function TabBtn({ active, onClick, icon, label }) {
       onClick={onClick}
       className="px-3.5 py-2 rounded-[9px] text-[11px] font-bold transition-all flex items-center gap-1.5 whitespace-nowrap"
       style={active
-        ? { background: 'white', color: '#085041', boxShadow: '0 1px 4px rgba(8,80,65,0.12)' }
-        : { background: 'transparent', color: '#4a7060' }}
+        ? { background: c('surface'), color: c('ink'), boxShadow: `0 1px 4px ${c('primary-shadow', 0.12)}` }
+        : { background: 'transparent', color: c('muted-alt') }}
     >
       <span className="text-[13px] leading-none">{icon}</span> {label}
     </button>
@@ -826,7 +827,7 @@ function TabBtn({ active, onClick, icon, label }) {
 
 function FeatherIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c('primary')} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z" />
       <line x1="16" y1="8" x2="2" y2="22" /><line x1="17.5" y1="15" x2="9" y2="15" />
     </svg>

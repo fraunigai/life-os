@@ -7,6 +7,7 @@ import CommandPalette from './components/CommandPalette'
 import UpdateBanner from './components/UpdateBanner'
 import XPToast from './components/XPToast'
 import ConfettiCelebration from './components/ConfettiCelebration'
+import HolidayLights from './components/HolidayLights'
 import Dashboard from './pages/Dashboard'
 import Daily from './pages/Daily'
 import Journal from './pages/Journal'
@@ -23,8 +24,9 @@ import Settings from './pages/Settings'
 import Pomodoro from './pages/Pomodoro'
 import Welcome from './pages/Welcome'
 import { useAudio } from './hooks/useAudio'
-import { MarioFaceIcon } from './components/MarioSprite'
-import { computeBg } from './utils/themes'
+import { ReindeerFaceIcon } from './components/ReindeerSprite'
+import { computeBg, applyTheme, paletteFor } from './utils/themes'
+import { ThemeContext, c } from './utils/colors'
 import { generateBriefTemplate, generateBriefWithAI } from './utils/dailyBrief'
 import { fetchMemories } from './utils/systemPrompt'
 
@@ -42,20 +44,31 @@ export default function App() {
   const [confetti, setConfetti]       = useState(0)
   const [musicOn, setMusicOn]         = useState(false)
   const [appTheme, setAppTheme]       = useState('dynamic')
+  const [lightsPref, setLightsPref]   = useState(null) // 'true' | 'false' | null = never chosen (auto: on only in Neon Noel)
   const [bg, setBg]                   = useState(() => computeBg('dynamic'))
   const [brief, setBrief]             = useState('')
   const [briefLoading, setBriefLoading] = useState(false)
 
   const audio = useAudio()
 
+  // Holiday lights: an explicit choice is persisted in `holiday_lights`; unset = auto (on only in Neon Noel)
+  const lightsOn = lightsPref ? lightsPref === 'true' : appTheme === 'noel'
+  function setLights(on) {
+    const v = on ? 'true' : 'false'
+    setLightsPref(v)
+    window.electronAPI?.settings.set('holiday_lights', v).catch(() => {})
+  }
+  const toggleLights = () => setLights(!lightsOn)
+
   async function loadProfile() {
     try {
-      const [name, initials, xpVal, lvlVal, theme, epicRow] = await Promise.all([
+      const [name, initials, xpVal, lvlVal, theme, lights, epicRow] = await Promise.all([
         window.electronAPI.settings.get('user_name'),
         window.electronAPI.settings.get('user_initials'),
         window.electronAPI.settings.get('xp_total'),
         window.electronAPI.settings.get('xp_level'),
         window.electronAPI.settings.get('app_theme'),
+        window.electronAPI.settings.get('holiday_lights'),
         window.electronAPI.db.get('SELECT COUNT(*) as n FROM epics'),
       ])
       if (name)     setUserName(name)
@@ -65,17 +78,22 @@ export default function App() {
       // show onboarding only when no epics exist yet
       setOnboardingDone((epicRow?.n || 0) > 0)
       const t = theme || 'dynamic'
+      applyTheme(t)
       setAppTheme(t)
       setBg(computeBg(t))
+      setLightsPref(lights === 'true' || lights === 'false' ? lights : null)
     } catch {
       setOnboardingDone(true)
     }
   }
 
   function handleThemeChange(themeId) {
+    applyTheme(themeId)
     setAppTheme(themeId)
     setBg(computeBg(themeId))
     window.electronAPI?.settings.set('app_theme', themeId).catch(() => {})
+    // Switching INTO Neon Noel turns the holiday lights on (re-clicking the active card keeps the user's choice)
+    if (themeId === 'noel' && appTheme !== 'noel') setLights(true)
   }
 
   async function generateBrief(force = false) {
@@ -229,11 +247,11 @@ export default function App() {
   if (onboardingDone === null) {
     return (
       <div style={{
-        position: 'fixed', inset: 0, background: '#061710',
+        position: 'fixed', inset: 0, background: c('chrome'),
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontFamily: 'Nunito, sans-serif',
       }}>
-        <div style={{ fontSize: 11, letterSpacing: 6, color: '#4a7060' }}>LOADING...</div>
+        <div style={{ fontSize: 11, letterSpacing: 6, color: c('muted-alt') }}>LOADING...</div>
       </div>
     )
   }
@@ -245,6 +263,7 @@ export default function App() {
   }
 
   return (
+    <ThemeContext.Provider value={paletteFor(appTheme)}>
     <MemoryRouter initialEntries={['/dashboard']}>
       <div className="flex h-screen w-screen overflow-hidden" style={{ background: bg.shell, transition: 'background-color 2.5s ease' }}>
         <Sidebar />
@@ -257,6 +276,8 @@ export default function App() {
             level={level}
             musicOn={musicOn}
             onToggleMusic={toggleMusic}
+            lightsOn={lightsOn}
+            onToggleLights={toggleLights}
             brief={brief}
             briefLoading={briefLoading}
             onRefreshBrief={() => generateBrief(true)}
@@ -265,7 +286,10 @@ export default function App() {
 
           <UpdateBanner />
 
+          {/* data-hl-screen: HolidayLights hangs its garland from this element's top edge.
+              Never give <main> or its wrappers isolation/transform/filter/z-index: modals must stay above the lights. */}
           <main
+            data-hl-screen
             className="flex-1 overflow-y-auto px-8 py-6"
             style={{
               backgroundImage: bg.bgImage || 'none',
@@ -287,7 +311,7 @@ export default function App() {
               <Route path="/network"    element={<NetworkCRM />} />
               <Route path="/weekly"     element={<WeeklyReview awardXp={(n) => awardXp(n, 'complete')} />} />
               <Route path="/energy"     element={<EnergyLog    awardXp={(n) => awardXp(n, 'complete')} />} />
-              <Route path="/settings"   element={<Settings onProfileUpdate={(n, i) => { setUserName(n); setUserInitials(i) }} appTheme={appTheme} xp={xp} onThemeChange={handleThemeChange} />} />
+              <Route path="/settings"   element={<Settings onProfileUpdate={(n, i) => { setUserName(n); setUserInitials(i) }} appTheme={appTheme} xp={xp} onThemeChange={handleThemeChange} lightsOn={lightsOn} onLightsChange={setLights} />} />
             </Routes>
           </main>
         </div>
@@ -298,22 +322,24 @@ export default function App() {
           onClose={() => setCmdOpen(false)}
           onOpenAI={() => setAiOpen(true)}
           awardXp={awardXp}
+          lightsOn={lightsOn}
+          onToggleLights={toggleLights}
         />
 
         {/* AI Panel */}
         <AIPanel open={aiOpen} onClose={() => setAiOpen(false)} playSound={playSound} awardXp={awardXp} />
 
-        {/* Floating AI button — Mario face */}
+        {/* Floating AI button — Rudolph face */}
         <button
           onClick={() => setAiOpen(o => !o)}
-          className={`fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full shadow-lg flex items-center justify-center game-btn ${
-            aiOpen ? 'bg-teal-dark' : 'bg-primary mario-bob'
+          className={`nl-ai-fab fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full shadow-lg flex items-center justify-center game-btn ${
+            aiOpen ? 'bg-primary-shadow' : 'bg-primary sprite-bob'
           }`}
           title="AI Assistant"
         >
           {aiOpen
-            ? <span className="text-white text-[20px] font-bold leading-none">✕</span>
-            : <MarioFaceIcon px={5} />
+            ? <span className="text-[20px] font-bold leading-none" style={{ color: c('x-app-fab-icon') }}>✕</span>
+            : <ReindeerFaceIcon px={5} />
           }
         </button>
 
@@ -322,7 +348,11 @@ export default function App() {
 
         {/* Confetti for level-ups */}
         <ConfettiCelebration trigger={confetti} />
+
+        {/* Holiday lights (portals to <body> at z-30; off = unmounted) */}
+        {lightsOn && <HolidayLights />}
       </div>
     </MemoryRouter>
+    </ThemeContext.Provider>
   )
 }

@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import EpicCard from '../components/EpicCard'
 import ProgressBar from '../components/ProgressBar'
 import ConfettiCelebration from '../components/ConfettiCelebration'
-import { WalkingMario } from '../components/MarioSprite'
+import { WalkingReindeer } from '../components/ReindeerSprite'
 import { fmtDate, daysUntil } from '../utils/dates'
+import { c, withAlpha } from '../utils/colors'
 
 const HORIZON_TABS = [
   { key: 'all',     label: 'All' },
@@ -207,7 +208,7 @@ export default function Dashboard({ awardXp, onOpenAI }) {
   return (
     <div className="page-enter max-w-[900px]">
       <ConfettiCelebration trigger={confetti} />
-      <WalkingMario onOpenAI={onOpenAI} />
+      <WalkingReindeer onOpenAI={onOpenAI} />
 
       {/* Today's Focus strip — top 3 priority tasks */}
       <TopFocusStrip tasks={topTasks} onDone={completeTask} />
@@ -235,13 +236,13 @@ export default function Dashboard({ awardXp, onOpenAI }) {
           </h2>
           {focusTask && (
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-              style={{ background: '#EF9F2720', color: '#EF9F27' }}>
+              style={{ background: c('amber', 0.125), color: c('amber') }}>
               1 task
             </span>
           )}
           <svg
             className="ml-auto transition-transform duration-200"
-            style={{ transform: focusCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)', color: '#9bbdaa' }}
+            style={{ transform: focusCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)', color: c('hint-alt') }}
             width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
           >
             <polyline points="6 9 12 15 18 9" />
@@ -254,7 +255,7 @@ export default function Dashboard({ awardXp, onOpenAI }) {
             : (
               <div
                 className="px-5 py-4 flex items-center gap-3"
-                style={{ background: '#f4fdf8', border: '2px dashed #b3e8d3', borderRadius: 4 }}
+                style={{ background: c('screen'), border: `2px dashed ${c('line-strong')}`, borderRadius: 4 }}
               >
                 <span className="text-[20px] opacity-40">📋</span>
                 <div>
@@ -268,17 +269,17 @@ export default function Dashboard({ awardXp, onOpenAI }) {
 
       {/* Today's Schedule */}
       {(dueTodayTasks.length > 0 || overdueTasks.length > 0) && (
-        <div className="mb-6 p-5 bg-white bounce-in" style={{ border: '2px solid #1D9E75', boxShadow: '3px 3px 0 #085041', borderRadius: 4 }}>
+        <div className="mb-6 p-5 bg-surface bounce-in" style={{ border: `2px solid ${c('primary')}`, boxShadow: `3px 3px 0 ${c('primary-shadow')}`, borderRadius: 4 }}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <span className="text-[15px]">📅</span>
               <h2 className="text-[15px] font-extrabold text-teal-dark">Today's Schedule</h2>
               {dueTodayTasks.length > 0 && (
-                <span className="text-[10px] font-bold bg-primary text-white px-2 py-0.5 rounded-full">{dueTodayTasks.length} due</span>
+                <span className="text-[10px] font-bold bg-primary text-on-primary px-2 py-0.5 rounded-full">{dueTodayTasks.length} due</span>
               )}
             </div>
             {overdueTasks.length > 0 && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: '#fee2e2', color: '#ef4444', border: '1px solid #fecaca' }}>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: c('x-dashboard-overdue-tint'), color: c('danger'), border: `1px solid ${c('danger-line')}` }}>
                 ⚠️ {overdueTasks.length} overdue (bolos)
               </span>
             )}
@@ -300,7 +301,7 @@ export default function Dashboard({ awardXp, onOpenAI }) {
 
             {/* Overdue / Bolos */}
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wide mb-2" style={{ color: overdueTasks.length > 0 ? '#ef4444' : '#9bbdaa' }}>
+              <p className="text-[10px] font-bold uppercase tracking-wide mb-2" style={{ color: overdueTasks.length > 0 ? c('danger') : c('hint-alt') }}>
                 Overdue / Bolos
               </p>
               {overdueTasks.length === 0
@@ -335,7 +336,7 @@ export default function Dashboard({ awardXp, onOpenAI }) {
                 onClick={() => setHorizonTab(tab.key)}
                 className={`px-3 py-1 rounded-full text-[11px] font-bold transition-colors game-btn ${
                   horizonTab === tab.key
-                    ? 'bg-primary text-white'
+                    ? 'bg-primary text-on-primary'
                     : 'bg-teal-light text-teal-med hover:bg-teal-border'
                 }`}
               >
@@ -387,8 +388,8 @@ export default function Dashboard({ awardXp, onOpenAI }) {
                   return (
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
                       style={{
-                        background: doneCount === dailyEpicTasks.length ? '#22c55e20' : '#EF9F2720',
-                        color:      doneCount === dailyEpicTasks.length ? '#22c55e'   : '#EF9F27',
+                        background: doneCount === dailyEpicTasks.length ? c('success', 0.125) : c('amber', 0.125),
+                        color:      doneCount === dailyEpicTasks.length ? c('success')        : c('amber'),
                       }}>
                       {doneCount}/{dailyEpicTasks.length}
                     </span>
@@ -416,10 +417,10 @@ export default function Dashboard({ awardXp, onOpenAI }) {
 
 function StatCard({ label, value, color, icon }) {
   const S = {
-    teal:   { bg: '#eefaf4', text: '#085041', border: '#1D9E75', shadow: '#085041' },
-    amber:  { bg: '#fff8ec', text: '#7a4800', border: '#EF9F27', shadow: '#a65c00' },
-    purple: { bg: '#f5f4ff', text: '#3d3a9e', border: '#7F77DD', shadow: '#3d3a9e' },
-  }[color] || { bg: '#eefaf4', text: '#085041', border: '#1D9E75', shadow: '#085041' }
+    teal:   { bg: c('x-dashboard-stat-tint'), text: c('ink'),                         border: c('primary'), shadow: c('primary-shadow') },
+    amber:  { bg: c('amber-tint'),            text: c('amber-ink'),                   border: c('amber'),   shadow: c('amber-shadow') },
+    purple: { bg: c('purple-tint'),           text: c('x-dashboard-stat-purple-ink'), border: c('purple'),  shadow: c('purple-shadow') },
+  }[color] || { bg: c('x-dashboard-stat-tint'), text: c('ink'), border: c('primary'), shadow: c('primary-shadow') }
 
   return (
     <div
@@ -452,19 +453,21 @@ function StatCard({ label, value, color, icon }) {
   )
 }
 
-const EPIC_COLOR_HEX = { teal: '#1D9E75', amber: '#EF9F27', purple: '#7F77DD' }
+const EPIC_COLOR_HEX = { teal: c('primary'), amber: c('amber'), purple: c('purple') }
+// Text/icon color that sits on a solid fill of the matching epic color
+const EPIC_ON_COLOR  = { teal: c('on-primary'), amber: c('on-amber'), purple: c('on-purple') }
 
 function DailyTaskRow({ task, onDone, urgent }) {
   const days     = task.due_date ? daysUntil(task.due_date) : 0
   const overdue  = days < 0
-  const accentColor = urgent ? '#ef4444' : '#1D9E75'
-  const epicColor   = EPIC_COLOR_HEX[task.epic_color] || '#1D9E75'
+  const accentColor = urgent ? c('danger') : c('primary')
+  const epicColor   = EPIC_COLOR_HEX[task.epic_color] || c('primary')
 
   return (
     <div
-      className="flex items-center gap-2 mb-2 px-3 py-2 bg-white hover-lift"
+      className="flex items-center gap-2 mb-2 px-3 py-2 bg-surface hover-lift"
       style={{
-        border: `1.5px solid ${urgent ? '#fecaca' : '#d4f0e6'}`,
+        border: `1.5px solid ${urgent ? c('danger-line') : c('line')}`,
         borderLeft: `3px solid ${accentColor}`,
         borderRadius: 4,
       }}
@@ -472,7 +475,7 @@ function DailyTaskRow({ task, onDone, urgent }) {
       <div className="flex-1 min-w-0">
         <p className="text-[11px] font-bold text-teal-dark truncate">{task.title}</p>
         <div className="flex items-center gap-1.5 mt-0.5">
-          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: epicColor + '18', color: epicColor }}>
+          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: withAlpha(epicColor, '18'), color: epicColor }}>
             {task.epic_name}
           </span>
           {task.due_date && (
@@ -486,7 +489,7 @@ function DailyTaskRow({ task, onDone, urgent }) {
         onClick={() => onDone(task.id, task.epic_id)}
         className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-all game-btn"
         title="Mark done (+15 XP)"
-        style={{ background: accentColor + '18', border: `1.5px solid ${accentColor}`, color: accentColor }}
+        style={{ background: withAlpha(accentColor, '18'), border: `1.5px solid ${accentColor}`, color: accentColor }}
       >
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="20 6 9 17 4 12" />
@@ -497,19 +500,21 @@ function DailyTaskRow({ task, onDone, urgent }) {
 }
 
 function FocusCard({ task, onDone }) {
-  const epicColor = EPIC_COLOR_HEX[task.epic_color] || '#1D9E75'
+  const epicColor = EPIC_COLOR_HEX[task.epic_color] || c('primary')
   const deadlineDays = task.end_date ? daysUntil(task.end_date) : null
-  const urgency = deadlineDays !== null && deadlineDays <= 7  ? '#ef4444'
-                : deadlineDays !== null && deadlineDays <= 30 ? '#EF9F27'
-                : '#1D9E75'
+  const urgencyKey = deadlineDays !== null && deadlineDays <= 7  ? 'danger'
+                   : deadlineDays !== null && deadlineDays <= 30 ? 'amber'
+                   : 'primary'
+  const urgency   = c(urgencyKey)
+  const onUrgency = c(`on-${urgencyKey}`)
 
   return (
     <div
-      className="flex items-center gap-4 px-5 py-4 bg-white bounce-in"
+      className="flex items-center gap-4 px-5 py-4 bg-surface bounce-in"
       style={{
         border: `2px solid ${urgency}`,
         borderLeft: `5px solid ${urgency}`,
-        boxShadow: `3px 3px 0 ${urgency}40`,
+        boxShadow: `3px 3px 0 ${withAlpha(urgency, '40')}`,
         borderRadius: 4,
       }}
     >
@@ -517,12 +522,12 @@ function FocusCard({ task, onDone }) {
         <p className="text-[13px] font-extrabold text-teal-dark leading-snug">{task.title}</p>
         <div className="flex items-center gap-2 mt-1.5 flex-wrap">
           <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
-            style={{ background: epicColor + '18', color: epicColor }}>
+            style={{ background: withAlpha(epicColor, '18'), color: epicColor }}>
             {task.epic_name}
           </span>
           {deadlineDays !== null && (
             <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
-              style={{ background: urgency + '15', color: urgency }}>
+              style={{ background: withAlpha(urgency, '15'), color: urgency }}>
               {deadlineDays < 0
                 ? `Epic ${Math.abs(deadlineDays)}d overdue`
                 : deadlineDays === 0
@@ -534,8 +539,8 @@ function FocusCard({ task, onDone }) {
       </div>
       <button
         onClick={() => onDone(task.id, task.epic_id)}
-        className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-white flex-shrink-0 game-btn"
-        style={{ background: urgency, border: `2px solid ${urgency}cc`, boxShadow: `2px 2px 0 ${urgency}80`, borderRadius: 4 }}
+        className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold flex-shrink-0 game-btn"
+        style={{ background: urgency, color: onUrgency, border: `2px solid ${withAlpha(urgency, 'cc')}`, boxShadow: `2px 2px 0 ${withAlpha(urgency, '80')}`, borderRadius: 4 }}
       >
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="20 6 9 17 4 12" />
@@ -557,8 +562,8 @@ function TopFocusStrip({ tasks, onDone }) {
     <div
       className="mb-6 p-4"
       style={{
-        background: '#e8f5ee',
-        border: '1px solid #b3e8d3',
+        background: c('tint'),
+        border: `1px solid ${c('line-strong')}`,
         borderRadius: 6,
       }}
     >
@@ -579,36 +584,36 @@ function TopFocusStrip({ tasks, onDone }) {
 }
 
 function FocusTaskCard({ task, onDone }) {
-  const epicColor = EPIC_COLOR_HEX[task.epic_color] || '#1D9E75'
+  const epicColor = EPIC_COLOR_HEX[task.epic_color] || c('primary')
   const xp        = task.xp_value || 15
 
   return (
     <div
-      className="bg-white flex flex-col gap-2 p-3"
+      className="bg-surface flex flex-col gap-2 p-3"
       style={{
-        border: '1.5px solid #d4f0e6',
+        border: `1.5px solid ${c('line')}`,
         borderRadius: 4,
-        boxShadow: '2px 2px 0 rgba(29,158,117,0.14)',
+        boxShadow: `2px 2px 0 ${c('primary', 0.14)}`,
       }}
     >
       <div className="flex-1 min-w-0">
         <p className="text-[12px] font-bold text-teal-dark leading-snug line-clamp-2">{task.title}</p>
         <span
           className="text-[10px] font-bold px-1.5 py-0.5 rounded mt-1.5 inline-block"
-          style={{ background: epicColor + '18', color: epicColor }}
+          style={{ background: withAlpha(epicColor, '18'), color: epicColor }}
         >
           {task.epic_name}
         </span>
       </div>
-      <div className="flex items-center justify-between pt-1" style={{ borderTop: '1px solid #e8f5ee' }}>
-        <span className="text-[10px] font-extrabold" style={{ color: '#EF9F27' }}>+{xp} XP</span>
+      <div className="flex items-center justify-between pt-1" style={{ borderTop: `1px solid ${c('tint')}` }}>
+        <span className="text-[10px] font-extrabold" style={{ color: c('amber') }}>+{xp} XP</span>
         <button
           onClick={() => onDone(task.id, task.epic_id)}
-          className="px-2.5 py-1 text-[10px] font-extrabold text-white game-btn"
+          className="px-2.5 py-1 text-[10px] font-extrabold text-on-primary game-btn"
           style={{
-            background: '#1D9E75',
-            border: '1.5px solid #085041',
-            boxShadow: '2px 2px 0 #085041',
+            background: c('primary'),
+            border: `1.5px solid ${c('primary-shadow')}`,
+            boxShadow: `2px 2px 0 ${c('primary-shadow')}`,
             borderRadius: 3,
           }}
         >
@@ -626,26 +631,27 @@ function AddTaskPromptCard() {
       onClick={() => navigate('/epics')}
       className="flex flex-col items-center justify-center p-3 w-full transition-all hover:bg-teal-light/50"
       style={{
-        border: '1.5px dashed #b3e8d3',
+        border: `1.5px dashed ${c('line-strong')}`,
         borderRadius: 4,
         minHeight: 88,
         cursor: 'pointer',
       }}
     >
-      <span className="text-[20px] font-light" style={{ color: '#b3e8d3', lineHeight: 1 }}>+</span>
-      <p className="text-[10px] font-bold mt-1" style={{ color: '#9bbdaa' }}>Add a task</p>
+      <span className="text-[20px] font-light" style={{ color: c('line-strong'), lineHeight: 1 }}>+</span>
+      <p className="text-[10px] font-bold mt-1" style={{ color: c('hint-alt') }}>Add a task</p>
     </button>
   )
 }
 
 function DailyGrindRow({ task, done, onLog }) {
-  const epicColor = EPIC_COLOR_HEX[task.epic_color] || '#1D9E75'
+  const epicColor = EPIC_COLOR_HEX[task.epic_color] || c('primary')
+  const epicOn    = EPIC_ON_COLOR[task.epic_color] || c('on-primary')
   return (
     <div
-      className="bg-white px-3 py-2.5 flex items-center gap-2"
+      className="bg-surface px-3 py-2.5 flex items-center gap-2"
       style={{
-        border: done ? `1.5px solid ${epicColor}` : '1.5px solid #e5f5ee',
-        borderLeft: `3px solid ${done ? epicColor : '#d4f0e6'}`,
+        border: done ? `1.5px solid ${epicColor}` : `1.5px solid ${c('tint')}`,
+        borderLeft: `3px solid ${done ? epicColor : c('line')}`,
         borderRadius: 4,
         opacity: done ? 0.7 : 1,
         transition: 'all 0.15s',
@@ -657,12 +663,12 @@ function DailyGrindRow({ task, done, onLog }) {
         className="flex-shrink-0 w-5 h-5 rounded flex items-center justify-center transition-all game-btn"
         style={{
           background: done ? epicColor : 'transparent',
-          border:     `1.5px solid ${done ? epicColor : '#b3e8d3'}`,
+          border:     `1.5px solid ${done ? epicColor : c('line-strong')}`,
           cursor:     done ? 'default' : 'pointer',
         }}
       >
         {done && (
-          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke={epicOn} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="20 6 9 17 4 12" />
           </svg>
         )}
@@ -671,11 +677,11 @@ function DailyGrindRow({ task, done, onLog }) {
         <p className={`text-[11px] font-bold text-teal-dark truncate ${done ? 'line-through opacity-60' : ''}`}>
           {task.title}
         </p>
-        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: epicColor + '18', color: epicColor }}>
+        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: withAlpha(epicColor, '18'), color: epicColor }}>
           {task.epic_name}
         </span>
       </div>
-      {!done && <span className="text-[10px] font-extrabold flex-shrink-0" style={{ color: '#EF9F27' }}>+10</span>}
+      {!done && <span className="text-[10px] font-extrabold flex-shrink-0" style={{ color: c('amber') }}>+10</span>}
     </div>
   )
 }
@@ -683,11 +689,11 @@ function DailyGrindRow({ task, done, onLog }) {
 function StreakMini({ habit, logged, onLog }) {
   return (
     <div
-      className="bg-white px-4 py-3 flex items-center justify-between gap-3"
+      className="bg-surface px-4 py-3 flex items-center justify-between gap-3"
       style={{
-        border: logged ? '2px solid #1D9E75' : '2px solid #d4f0e6',
+        border: logged ? `2px solid ${c('primary')}` : `2px solid ${c('line')}`,
         borderRadius: 4,
-        boxShadow: logged ? '3px 3px 0 #085041' : '3px 3px 0 rgba(8,80,65,0.15)',
+        boxShadow: logged ? `3px 3px 0 ${c('primary-shadow')}` : `3px 3px 0 ${c('primary-shadow', 0.15)}`,
         transition: 'box-shadow 0.15s',
       }}
     >
@@ -701,7 +707,7 @@ function StreakMini({ habit, logged, onLog }) {
         className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-all game-btn ${
           logged
             ? 'bg-green-done/10 text-green-done cursor-default'
-            : 'bg-teal-light text-teal-med hover:bg-primary hover:text-white'
+            : 'bg-teal-light text-teal-med hover:bg-primary hover:text-on-primary'
         }`}
       >
         {logged ? (
@@ -744,43 +750,43 @@ function LiveClock({ now }) {
     <div
       className="mb-5 px-5 py-3 flex items-center gap-5 bounce-in"
       style={{
-        background: '#061710',
-        border: '2px solid rgba(29,158,117,0.22)',
+        background: c('chrome'),
+        border: `2px solid ${c('chrome-accent', 0.22)}`,
         borderRadius: 6,
-        boxShadow: '3px 3px 0 #031008',
+        boxShadow: `3px 3px 0 ${c('x-dashboard-clock-shadow')}`,
       }}
     >
       {/* Time */}
       <div className="flex items-baseline gap-1 font-mono flex-shrink-0">
         <span
           className="font-extrabold tracking-tight"
-          style={{ fontSize: 32, color: '#4dffb0', textShadow: '0 0 18px rgba(77,255,176,0.35)', lineHeight: 1 }}
+          style={{ fontSize: 32, color: c('chrome-text'), textShadow: `0 0 18px ${c('chrome-text', 0.35)}`, lineHeight: 1 }}
         >
           {h12}:{m}
         </span>
         <span
           className="font-extrabold animate-pulse"
-          style={{ fontSize: 32, color: '#1D9E75', lineHeight: 1 }}
+          style={{ fontSize: 32, color: c('chrome-accent'), lineHeight: 1 }}
         >
           :{s}
         </span>
         <span
           className="font-bold ml-1"
-          style={{ fontSize: 13, color: '#2a5c40', letterSpacing: 2 }}
+          style={{ fontSize: 13, color: c('chrome-dim'), letterSpacing: 2 }}
         >
           {ampm}
         </span>
       </div>
 
       {/* Divider */}
-      <div style={{ width: 1, height: 36, background: 'rgba(29,158,117,0.2)' }} />
+      <div style={{ width: 1, height: 36, background: c('chrome-accent', 0.2) }} />
 
       {/* Date */}
       <div className="flex flex-col gap-0.5">
-        <span className="font-extrabold" style={{ fontSize: 14, color: '#4dffb0', letterSpacing: 0.5 }}>
+        <span className="font-extrabold" style={{ fontSize: 14, color: c('chrome-text'), letterSpacing: 0.5 }}>
           {dayName}
         </span>
-        <span className="font-semibold" style={{ fontSize: 11, color: '#2a5c40' }}>
+        <span className="font-semibold" style={{ fontSize: 11, color: c('chrome-dim') }}>
           {monthName} {dayNum}{ord}, {year}
         </span>
       </div>

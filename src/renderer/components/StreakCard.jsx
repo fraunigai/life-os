@@ -1,4 +1,5 @@
 import React from 'react'
+import { c } from '../utils/colors'
 
 const TODAY = new Date().toISOString().split('T')[0]
 
@@ -21,8 +22,8 @@ function CalendarGrid({ recentDates }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-1.5">
-        <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: '#9bbdaa' }}>Last 28 days</span>
-        <span className="text-[9px] font-bold" style={{ color: '#1D9E75' }}>{loggedCount}/28</span>
+        <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: c('hint-alt') }}>Last 28 days</span>
+        <span className="text-[9px] font-bold" style={{ color: c('primary') }}>{loggedCount}/28</span>
       </div>
       <div className="flex flex-col gap-[3px]">
         {WEEKS.map((week, wi) => (
@@ -37,9 +38,9 @@ function CalendarGrid({ recentDates }) {
                   style={{
                     width: 9,
                     height: 9,
-                    background:   logged ? '#1D9E75' : '#E1F5EE',
+                    background:   logged ? c('primary') : c('x-streak-day-empty'),
                     borderRadius: 1,
-                    outline:      isToday ? '1.5px solid #085041' : 'none',
+                    outline:      isToday ? `1.5px solid ${c('ink')}` : 'none',
                     outlineOffset: isToday ? '1px' : '0',
                     opacity:      logged ? 1 : 0.55,
                   }}
@@ -58,7 +59,7 @@ export default function StreakCard({ habit, todayLogged, onLog, recentDates = ne
 
   return (
     <div
-      className="bg-white p-4 flex flex-col gap-3 retro-card"
+      className="bg-surface p-4 flex flex-col gap-3 retro-card"
       style={{ cursor: 'default' }}
     >
       {/* Header */}
@@ -74,7 +75,7 @@ export default function StreakCard({ habit, todayLogged, onLog, recentDates = ne
           <span style={{ fontSize: fireSize, lineHeight: 1 }}>🔥</span>
           <span
             className="font-extrabold leading-none"
-            style={{ fontSize: Math.min(24, 14 + habit.current_streak / 3), color: '#085041' }}
+            style={{ fontSize: Math.min(24, 14 + habit.current_streak / 3), color: c('ink') }}
           >
             {habit.current_streak}
           </span>
@@ -95,8 +96,8 @@ export default function StreakCard({ habit, todayLogged, onLog, recentDates = ne
           className="px-3 py-1 text-[11px] font-bold transition-all game-btn"
           style={
             todayLogged
-              ? { background: 'rgba(34,197,94,0.1)', color: '#16a34a', border: '2px solid #86efac', boxShadow: '2px 2px 0 rgba(22,163,74,0.2)', borderRadius: 4, cursor: 'default' }
-              : { background: '#1D9E75', color: '#fff', border: '2px solid #085041', boxShadow: '2px 2px 0 #085041', borderRadius: 4 }
+              ? { background: c('success', 0.1), color: c('x-streak-logged-ink'), border: `2px solid ${c('x-streak-logged-line')}`, boxShadow: `2px 2px 0 ${c('x-streak-logged-ink', 0.2)}`, borderRadius: 4, cursor: 'default' }
+              : { background: c('primary'), color: c('on-primary'), border: `2px solid ${c('primary-shadow')}`, boxShadow: `2px 2px 0 ${c('primary-shadow')}`, borderRadius: 4 }
           }
         >
           {todayLogged ? '✓ Logged' : 'Log today'}

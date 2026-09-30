@@ -1,0 +1,165 @@
+/*
+ * Neon Noel — theme-only finishes (holo borders, pearl sheen, glows).
+ * Colors come from tokens.css; this file only adds what a flat token can't express.
+ * Everything is scoped to html[data-theme="noel"], so the classic look never sees it.
+ *
+ * Components opt in with `nl-*` hook classes. Several hooks sit on elements whose colors are
+ * inline styles, so those rules use !important to win over the inline values.
+ */
+
+html[data-theme="noel"] {
+  /* oil-slick holo: pink → lilac → ice → lime → pearl → pink */
+  --g-holo: linear-gradient(120deg in oklch, #FF71CE 0%, #B98BFF 24%, #4FE6FF 48%, #C3F23A 70%, #FFF6D8 85%, #FF71CE 100%);
+  --g-holo-conic: conic-gradient(from 200deg in oklch, #FF71CE, #B98BFF, #4FE6FF, #C3F23A, #FFC83D, #FFF6D8, #FF71CE);
+  /* accent-led card borders: the card's own accent holds, then drifts through lilac into pearl */
+  --g-holo-pink: linear-gradient(135deg in oklch, #FF71CE 0%, #FF71CE 30%, #B98BFF 64%, #DCE8FF 100%);
+  --g-holo-ice:  linear-gradient(135deg in oklch, #4FE6FF 0%, #4FE6FF 30%, #B98BFF 68%, #FFE1F4 100%);
+  /* Christmas tinsel: Rudolph red → tang/gold → citron → laser green */
+  --g-tinsel: linear-gradient(120deg in oklch, #FF3D4A 0%, #FF3D4A 8%, #FFA53D 24%, #FFA53D 40%, #FFC83D 55%, #E8FF27 70%, #36F59A 90%, #36F59A 100%);
+  /* mother-of-pearl sheen for surfaces */
+  --g-pearl: linear-gradient(125deg, rgb(255 255 255 / .10) 0%, rgb(255 190 240 / .06) 16%, transparent 38%, rgb(185 139 255 / .08) 60%, rgb(79 230 255 / .11) 84%, rgb(195 242 58 / .05) 100%);
+  --g-sheen: linear-gradient(180deg, rgb(255 255 255 / .28), rgb(255 255 255 / 0) 60%);
+  --glow-primary: 0 0 0 1px rgb(255 113 206 / .35), 0 0 16px rgb(255 113 206 / .45);
+  /* the screen background (utils/themes.js noel preset): snow dots + oil-slick wash (violet top-left, teal bottom-right) */
+  --nl-screen-bg:
+    radial-gradient(circle, rgb(255 255 255 / .065) 1px, transparent 1px),
+    radial-gradient(ellipse 60% 55% at 8% 0%, rgb(166 107 255 / .22), transparent 70%),
+    radial-gradient(ellipse 55% 60% at 100% 100%, rgb(40 220 210 / .16), transparent 70%);
+  --nl-screen-bg-size: 22px 22px, 100% 100%, 100% 100%;
+}
+
+/* ── Chrome (bezel) ─────────────────────────────────────────── */
+
+html[data-theme="noel"] .nl-sidebar {
+  background: linear-gradient(180deg, rgb(var(--c-chrome)) 0%, #0E0A1D 60%, #0A0F1A 100%) !important;
+  border-right: 1px solid transparent !important;
+  border-image: linear-gradient(180deg, rgb(255 113 206 / .55), rgb(185 139 255 / .35) 40%, rgb(79 230 255 / .45) 75%, rgb(195 242 58 / .3)) 1 !important;
+}
+html[data-theme="noel"] .nl-navlabel { text-shadow: 0 0 8px rgb(232 255 39 / .5); }
+
+/* sidebar streak box: tinsel edge, so it's Christmas even with the lights off */
+html[data-theme="noel"] .nl-streak-box {
+  border: 1px solid transparent !important;
+  background:
+    var(--g-pearl) padding-box,
+    linear-gradient(rgb(var(--c-chrome-accent) / .07), rgb(var(--c-chrome-accent) / .07)) padding-box,
+    linear-gradient(rgb(var(--c-chrome)), rgb(var(--c-chrome))) padding-box,
+    var(--g-tinsel) border-box !important;
+}
+
+/* holo line under the topbar — it doubles as the string lights' wire */
+html[data-theme="noel"] .nl-topbar {
+  border-bottom: 1px solid transparent !important;
+  border-image: var(--g-holo) 1 !important;
+}
+
+html[data-theme="noel"] .nl-brand {
+  background: linear-gradient(90deg in oklch, #FF71CE, #B98BFF 50%, #7DF9FF);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+html[data-theme="noel"] .nl-logo {
+  background:
+    radial-gradient(circle at 30% 25%, rgb(255 255 255 / .6) 0 10%, transparent 42%),
+    var(--g-holo-conic) !important;
+  box-shadow: 2px 2px 0 rgb(var(--c-primary-shadow)) !important;
+}
+html[data-theme="noel"] .nl-logo svg { stroke: rgb(var(--c-on-primary)); }
+
+html[data-theme="noel"] .nl-nav-active {
+  border-left: 3px solid transparent !important;
+  border-image: linear-gradient(180deg, #FF71CE, #B98BFF, #4FE6FF) 1 !important;
+  background: linear-gradient(90deg, rgb(255 113 206 / .16), rgb(185 139 255 / .08) 60%, transparent) !important;
+  text-shadow: 0 0 8px rgb(125 249 255 / .55);
+}
+
+html[data-theme="noel"] .nl-xp-track { background: rgb(0 0 0 / .5) !important; border-color: rgb(185 139 255 / .45) !important; }
+html[data-theme="noel"] .nl-xp-fill {
+  background: repeating-linear-gradient(115deg, rgb(255 255 255 / .28) 0 2px, transparent 2px 7px), var(--g-holo) !important;
+  background-size: auto, 140px 100% !important;
+  box-shadow: 0 0 8px rgb(255 113 206 / .55);
+}
+
+/* level coin = pearlescent gold bauble with a holo rim */
+html[data-theme="noel"] .nl-coin {
+  border: 2px solid transparent;
+  background:
+    radial-gradient(circle at 32% 28%, rgb(255 255 255 / .8) 0 10%, transparent 26%) padding-box,
+    conic-gradient(from 200deg, #FFC83D 0%, #FFE38A 12%, #FFA53D 28%, #FF8AE6 38%, #FFB547 48%, #FFC83D 62%, #FFE38A 74%, #B9FFE4 84%, #FFC83D 100%) padding-box,
+    var(--g-holo-conic) border-box !important;
+  box-shadow: 0 2px 0 rgb(var(--c-amber-shadow)) !important;
+}
+html[data-theme="noel"] .nl-coin > * { color: rgb(var(--c-on-amber)) !important; text-shadow: 0 1px 0 rgb(255 255 255 / .35) !important; }
+html[data-theme="noel"] .nl-avatar { border-color: rgb(185 139 255 / .45) !important; }
+
+/* AI button = Rudolph's stage: a dark fill keeps the red nose the focal point */
+html[data-theme="noel"] .nl-ai-fab {
+  border: 2px solid transparent;
+  background:
+    radial-gradient(circle at 35% 28%, #221B36 0%, rgb(var(--c-chrome)) 72%) padding-box,
+    var(--g-holo-conic) border-box !important;
+  box-shadow: 0 4px 0 rgb(var(--c-primary-shadow)), var(--glow-primary) !important;
+}
+
+/* ── Screen ─────────────────────────────────────────────────── */
+
+html[data-theme="noel"] main h1 {
+  background: linear-gradient(90deg, #FFFFFF, #FBD9FF 45%, #CFF8FF 85%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+html[data-theme="noel"] .nl-brand::selection,
+html[data-theme="noel"] main h1::selection {
+  -webkit-text-fill-color: rgb(var(--c-ink)); background: rgb(var(--c-primary-shadow));
+}
+
+/* retro cards: holo border (border-image survives inline backgrounds), pearl sheen, hard pixel shadow kept */
+html[data-theme="noel"] .retro-card        { border-image: var(--g-holo-pink) 1 !important; }
+html[data-theme="noel"] .retro-card-amber  { border-image: var(--g-tinsel) 1 !important; }
+html[data-theme="noel"] .retro-card-purple { border-image: var(--g-holo-ice) 1 !important; }
+html[data-theme="noel"] :is(.retro-card, .retro-card-amber, .retro-card-purple, .bg-surface) {
+  background-image: var(--g-pearl) !important;
+}
+
+/* candy-cane progress over the holo */
+html[data-theme="noel"] .nl-progress-fill {
+  background:
+    repeating-linear-gradient(135deg, rgb(255 255 255 / .38) 0 5px, transparent 5px 11px),
+    linear-gradient(90deg, #FF71CE, #B98BFF 55%, #4FE6FF) !important;
+}
+
+/* primary game buttons: pearl finish + soft glow, hard drop kept */
+html[data-theme="noel"] .game-btn.bg-primary {
+  background-image: linear-gradient(135deg, #FFA3E0 0%, #FF71CE 45%, #C98BFF 100%);
+  box-shadow: 0 4px 0 rgb(var(--c-primary-shadow)), 0 0 14px rgb(255 113 206 / .35);
+}
+
+html[data-theme="noel"] :is(input, textarea, select):focus {
+  box-shadow: 0 0 0 3px rgb(var(--c-primary) / .18), 0 0 12px rgb(var(--c-primary) / .2);
+}
+
+html[data-theme="noel"] ::selection { background: rgb(var(--c-primary-shadow)); color: rgb(var(--c-ink)); }
+
+@media (forced-colors: active), (prefers-contrast: more) {
+  html[data-theme="noel"] :is(.nl-brand, main h1) { background: none; -webkit-text-fill-color: currentColor; }
+}
+
+/* lights on: scrolled content slips under the garland instead of showing through between the bulbs.
+   A zero-net-height sticky band (margins cancel its size) painted with the SAME background as the screen
+   (--nl-screen-bg, sized to main's box), solid under the bulbs and fading out below them. It's invisible at
+   scrollTop 0 and appears as the page scrolls (opacity follows main's scroll via a named timeline).
+   No mask/transform/z-context on <main> itself, so the layering contract holds. */
+html[data-theme="noel"] body:has(.hl-lights) main[data-hl-screen] { scroll-timeline: --nl-screen block; }
+html[data-theme="noel"] body:has(.hl-lights) main[data-hl-screen]::before {
+  content: ""; display: block; position: sticky; top: -24px; z-index: 10;  /* sticky insets from main's padding: -24px = its top edge */
+  height: 56px; margin: -24px -32px -32px;
+  background-color: rgb(var(--c-screen));
+  background-image: var(--nl-screen-bg);
+  background-size: 22px 22px, 100% calc(100vh - 70px), 100% calc(100vh - 70px);
+  -webkit-mask-image: linear-gradient(180deg, #000 0, #000 40px, transparent);
+  mask-image: linear-gradient(180deg, #000 0, #000 40px, transparent);
+  pointer-events: none;
+  opacity: 0;
+  animation: nl-top-fade linear both;
+  animation-timeline: --nl-screen;
+  animation-range: 0 24px;
+}
+@keyframes nl-top-fade { to { opacity: 1; } }

@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { c, withAlpha } from '../utils/colors'
 
 const STATUS_CYCLE = { not_started: 'in_progress', in_progress: 'done', done: 'not_started' }
 const STATUS_COLOR = {
@@ -8,10 +9,10 @@ const STATUS_COLOR = {
 }
 
 const WEIGHT_META = {
-  1: { label: 'Minor',    color: '#9bbdaa', bg: '#f0f8f4' },
-  2: { label: 'Standard', color: '#1D9E75', bg: '#eefaf4' },
-  3: { label: 'Major',    color: '#EF9F27', bg: '#fff8ec' },
-  5: { label: 'Critical', color: '#7F77DD', bg: '#f5f4ff' },
+  1: { label: 'Minor',    color: c('x-epicdetail-minor'), bg: c('screen') },
+  2: { label: 'Standard', color: c('primary'),  bg: c('screen')      },
+  3: { label: 'Major',    color: c('amber'),    bg: c('amber-tint')  },
+  5: { label: 'Critical', color: c('purple'),   bg: c('purple-tint') },
 }
 
 export default function SubTaskItem({ task, onStatusChange, onDelete }) {
@@ -39,7 +40,7 @@ export default function SubTaskItem({ task, onStatusChange, onDelete }) {
         } ${animating ? 'check-animate' : ''}`}
       >
         {task.status === 'done' && (
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={c('on-done')} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="20 6 9 17 4 12" />
           </svg>
         )}
@@ -58,7 +59,7 @@ export default function SubTaskItem({ task, onStatusChange, onDelete }) {
       {task.weight && task.weight !== 2 && (
         <span
           className="text-[9px] font-extrabold px-1.5 py-0.5 rounded flex-shrink-0"
-          style={{ background: wMeta.bg, color: wMeta.color, border: `1px solid ${wMeta.color}30` }}
+          style={{ background: wMeta.bg, color: wMeta.color, border: `1px solid ${withAlpha(wMeta.color, '30')}` }}
         >
           {wMeta.label}
         </span>
@@ -67,7 +68,7 @@ export default function SubTaskItem({ task, onStatusChange, onDelete }) {
       {onDelete && (
         <button
           onClick={() => onDelete(task.id)}
-          className="opacity-0 group-hover:opacity-100 text-text-hint hover:text-red-500 transition-all p-0.5"
+          className="opacity-0 group-hover:opacity-100 text-text-hint hover:text-danger transition-all p-0.5"
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />

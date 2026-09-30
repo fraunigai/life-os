@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import StreakCard from '../components/StreakCard'
 import Modal from '../components/Modal'
 import ConfettiCelebration from '../components/ConfettiCelebration'
+import { c } from '../utils/colors'
 
 const DEFAULT_FORM = { name: '', description: '', icon: 'flame' }
 
@@ -96,8 +97,8 @@ export default function Streaks({ awardXp }) {
         </div>
         <button
           onClick={() => setAdding(true)}
-          className="flex items-center gap-1.5 px-4 py-2 text-[12px] font-bold text-white game-btn"
-          style={{ background: '#1D9E75', border: '2px solid #085041', boxShadow: '3px 3px 0 #085041', borderRadius: 4 }}
+          className="flex items-center gap-1.5 px-4 py-2 text-[12px] font-bold text-on-primary game-btn"
+          style={{ background: c('primary'), border: `2px solid ${c('primary-shadow')}`, boxShadow: `3px 3px 0 ${c('primary-shadow')}`, borderRadius: 4 }}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
@@ -108,7 +109,7 @@ export default function Streaks({ awardXp }) {
 
       {/* Today progress bar */}
       {total > 0 && (
-        <div className="bg-white px-5 py-4 mb-6 retro-card">
+        <div className="bg-surface px-5 py-4 mb-6 retro-card">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[12px] font-bold text-teal-dark">Today's progress</span>
             <span className="text-[12px] font-extrabold text-primary">{total > 0 ? Math.round((totalLogged / total) * 100) : 0}%</span>
@@ -133,7 +134,7 @@ export default function Streaks({ awardXp }) {
             />
             <button
               onClick={() => deleteHabit(habit.id)}
-              className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 text-text-hint hover:text-red-500 transition-all p-1"
+              className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 text-text-hint hover:text-danger transition-all p-1"
               title="Delete habit"
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -180,7 +181,7 @@ export default function Streaks({ awardXp }) {
           <button
             onClick={saveHabit}
             disabled={saving || !form.name.trim()}
-            className="px-5 py-2 bg-primary text-white text-[12px] font-bold rounded-[10px] hover:bg-teal-med disabled:opacity-40 transition-colors"
+            className="px-5 py-2 bg-primary text-on-primary text-[12px] font-bold rounded-[10px] hover:bg-teal-med disabled:opacity-40 transition-colors"
           >
             {saving ? 'Saving…' : 'Create Habit'}
           </button>

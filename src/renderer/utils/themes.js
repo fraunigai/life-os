@@ -1,17 +1,38 @@
 export const THEMES = [
-  { id: 'dynamic',   label: 'Dynamic',   desc: 'Adapts to time of day',  xpRequired: 0    },
-  { id: 'forest',    label: 'Forest',    desc: 'Deep greens & earth',    xpRequired: 500  },
-  { id: 'ocean',     label: 'Ocean',     desc: 'Cool blues & teals',     xpRequired: 1000 },
-  { id: 'synthwave', label: 'Synthwave', desc: 'Dark purple & pink',     xpRequired: 2000 },
-  { id: 'pixel',     label: 'Pixel',     desc: '8-bit grid pattern',     xpRequired: 5000 },
+  { id: 'dynamic',   label: 'Dynamic',    desc: 'Adapts to time of day',            xpRequired: 0    },
+  { id: 'noel',      label: 'Neon Noel',  desc: 'Laser neon, pearl & fairy lights', xpRequired: 0    },
+  { id: 'forest',    label: 'Forest',     desc: 'Deep greens & earth',              xpRequired: 500  },
+  { id: 'ocean',     label: 'Ocean',      desc: 'Cool blues & teals',               xpRequired: 1000 },
+  { id: 'synthwave', label: 'Synthwave',  desc: 'Dark purple & pink',               xpRequired: 2000 },
+  { id: 'pixel',     label: 'Pixel',      desc: '8-bit grid pattern',               xpRequired: 5000 },
 ]
+
+// Themes that swap the whole color palette (tokens.css), not just the backgrounds.
+// Everything else uses the classic palette.
+const PALETTE_THEMES = { noel: 'noel' }
+
+export function paletteFor(themeId) {
+  return PALETTE_THEMES[themeId] || 'classic'
+}
+
+// Point <html data-theme> at the theme's palette. Call BEFORE the React state update that
+// re-renders with the new theme, so components reading token values see the new palette.
+export function applyTheme(themeId) {
+  if (typeof document === 'undefined') return
+  document.documentElement.dataset.theme = paletteFor(themeId)
+}
 
 export const THEME_PREVIEW_BG = {
   dynamic:   'linear-gradient(135deg, #fef9f0 0%, #f4fdf8 30%, #fdf5ea 65%, #161d2e 100%)',
+  noel:      'linear-gradient(120deg, #06050E 0%, #1A1627 35%, #FF71CE 62%, #4FE6FF 82%, #C3F23A 100%)',
   forest:    'linear-gradient(135deg, #081a0b 0%, #ecf5ec 100%)',
   ocean:     'linear-gradient(135deg, #051422 0%, #e8f4ff 100%)',
   synthwave: 'linear-gradient(135deg, #120820 0%, #3d1260 50%, #c026d322 100%)',
-  pixel:     null, // handled with special preview
+  pixel: [
+    'repeating-linear-gradient(0deg,transparent,transparent 7px,rgba(29,158,117,0.18) 8px) 0 0 / 8px 8px',
+    'repeating-linear-gradient(90deg,transparent,transparent 7px,rgba(29,158,117,0.18) 8px) 0 0 / 8px 8px',
+    '#f4fdf8',
+  ].join(', '),
 }
 
 function dot(color, size = 24) {
@@ -40,6 +61,8 @@ function getTimeBg() {
 }
 
 const STATIC_BG = {
+  // snow dots + oil-slick wash — defined once in styles/noel.css (the lights' scroll band reuses it)
+  noel: { shell: 'rgb(var(--c-shell))', content: 'rgb(var(--c-screen))', bgImage: 'var(--nl-screen-bg)', bgSize: 'var(--nl-screen-bg-size)' },
   forest:    { shell: '#081a0b', content: '#ecf5ec', ...dot('rgba(30,120,50,0.07)')    },
   ocean:     { shell: '#051422', content: '#e8f4ff', ...dot('rgba(20,100,200,0.08)')   },
   synthwave: { shell: '#120820', content: '#1a1030', ...dot('rgba(160,80,255,0.09)')   },

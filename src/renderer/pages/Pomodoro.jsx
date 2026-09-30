@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
+import { c, withAlpha } from '../utils/colors'
 
 // ── Audio chime on session complete ───────────────────────────────────────────
 function chime() {
@@ -22,9 +23,9 @@ function chime() {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const MODES = {
-  work:        { label: 'Focus Time',  defaultMin: 25, color: '#1D9E75', dark: '#085041' },
-  short_break: { label: 'Short Break', defaultMin: 5,  color: '#EF9F27', dark: '#a65c00' },
-  long_break:  { label: 'Long Break',  defaultMin: 15, color: '#7F77DD', dark: '#3d3a9e' },
+  work:        { label: 'Focus Time',  defaultMin: 25, color: c('primary'), dark: c('primary-shadow'), on: c('on-primary') },
+  short_break: { label: 'Short Break', defaultMin: 5,  color: c('amber'),   dark: c('amber-shadow'),   on: c('on-amber') },
+  long_break:  { label: 'Long Break',  defaultMin: 15, color: c('purple'),  dark: c('purple-shadow'),  on: c('on-purple') },
 }
 const CYCLE            = 4   // work sessions before long break
 const XP_PER_POMODORO  = 20
@@ -50,7 +51,7 @@ function Ring({ pct, color }) {
         strokeDasharray={CIRC} strokeDashoffset={offset}
         style={{
           transition: 'stroke-dashoffset 0.6s ease, stroke 0.4s ease',
-          filter: `drop-shadow(0 0 8px ${color}70)`,
+          filter: `drop-shadow(0 0 8px ${withAlpha(color, '70')})`,
         }}
       />
     </svg>
@@ -205,18 +206,18 @@ export default function Pomodoro({ awardXp }) {
         </div>
 
         <div className="flex items-center gap-3">
-          <StatChip value={todayCount} label="Sessions" color="#1D9E75" soft="#e8f8f1" border="#b3e8d3" />
-          <StatChip value={`${todayMins}m`} label="Focus time" color="#EF9F27" soft="#fff8ec" border="#EF9F2750" />
+          <StatChip value={todayCount} label="Sessions" color={c('primary')} soft={c('tint')} border={c('line-strong')} />
+          <StatChip value={`${todayMins}m`} label="Focus time" color={c('amber')} soft={c('amber-tint')} border={c('amber', 0.314)} />
           <button
             onClick={() => setShowSettings(s => !s)}
             title="Timer settings"
             className="w-9 h-9 flex items-center justify-center transition-all hover:scale-105 game-btn"
             style={{
-              background: showSettings ? '#1D9E75' : 'rgba(29,158,117,0.08)',
-              border: `2px solid ${showSettings ? '#085041' : 'rgba(29,158,117,0.25)'}`,
+              background: showSettings ? c('primary') : c('primary', 0.08),
+              border: `2px solid ${showSettings ? c('primary-shadow') : c('primary', 0.25)}`,
               borderRadius: 4,
-              color: showSettings ? '#fff' : '#1D9E75',
-              boxShadow: showSettings ? '2px 2px 0 #085041' : 'none',
+              color: showSettings ? c('on-primary') : c('primary'),
+              boxShadow: showSettings ? `2px 2px 0 ${c('primary-shadow')}` : 'none',
             }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -229,20 +230,20 @@ export default function Pomodoro({ awardXp }) {
 
       {/* Mode tabs */}
       <div className="flex gap-2 mb-6">
-        {Object.entries(MODES).map(([key, c]) => (
+        {Object.entries(MODES).map(([key, m]) => (
           <button
             key={key}
             onClick={() => switchMode(key)}
             className="px-4 py-1.5 text-[11px] font-bold transition-all game-btn"
             style={{
-              background: mode === key ? c.color : 'transparent',
-              color:      mode === key ? '#fff' : '#4a7060',
-              border:     `2px solid ${mode === key ? c.dark : '#d4f0e6'}`,
-              boxShadow:  mode === key ? `2px 2px 0 ${c.dark}` : 'none',
+              background: mode === key ? m.color : 'transparent',
+              color:      mode === key ? m.on : c('muted-alt'),
+              border:     `2px solid ${mode === key ? m.dark : c('line')}`,
+              boxShadow:  mode === key ? `2px 2px 0 ${m.dark}` : 'none',
               borderRadius: 4,
             }}
           >
-            {c.label}
+            {m.label}
           </button>
         ))}
       </div>
@@ -251,10 +252,10 @@ export default function Pomodoro({ awardXp }) {
       <div
         className="p-8 mb-6 flex flex-col items-center bounce-in"
         style={{
-          background: '#061710',
-          border: `2px solid ${cfg.color}35`,
+          background: c('chrome'),
+          border: `2px solid ${withAlpha(cfg.color, '35')}`,
           borderRadius: 8,
-          boxShadow: `4px 4px 0 #020e07, 0 0 50px ${cfg.color}0d`,
+          boxShadow: `4px 4px 0 ${c('x-pomodoro-card-shadow')}, 0 0 50px ${withAlpha(cfg.color, '0d')}`,
           transition: 'border-color 0.4s, box-shadow 0.4s',
         }}
       >
@@ -272,8 +273,8 @@ export default function Pomodoro({ awardXp }) {
               style={{
                 fontSize: 54,
                 lineHeight: 1,
-                color: '#f0fff8',
-                textShadow: `0 0 30px ${cfg.color}50`,
+                color: c('x-pomodoro-time'),
+                textShadow: `0 0 30px ${withAlpha(cfg.color, '50')}`,
               }}
             >
               {mins}:{secs}
@@ -285,7 +286,7 @@ export default function Pomodoro({ awardXp }) {
               {cfg.label}
             </span>
             {running && (
-              <span className="text-[9px] font-semibold animate-pulse" style={{ color: '#1a4032' }}>
+              <span className="text-[9px] font-semibold animate-pulse" style={{ color: c('x-pomodoro-dim') }}>
                 in progress
               </span>
             )}
@@ -303,12 +304,12 @@ export default function Pomodoro({ awardXp }) {
                 borderRadius: '50%',
                 background:   i < cycleDot ? cfg.color : 'rgba(255,255,255,0.07)',
                 border:       `1.5px solid ${i < cycleDot ? cfg.dark : 'rgba(255,255,255,0.1)'}`,
-                boxShadow:    i < cycleDot ? `0 0 8px ${cfg.color}80` : 'none',
+                boxShadow:    i < cycleDot ? `0 0 8px ${withAlpha(cfg.color, '80')}` : 'none',
                 transform:    i < cycleDot ? 'scale(1.15)' : 'scale(1)',
               }}
             />
           ))}
-          <span className="text-[10px] font-bold ml-1" style={{ color: '#2a5c40' }}>
+          <span className="text-[10px] font-bold ml-1" style={{ color: c('chrome-dim') }}>
             {cycleDot}/{CYCLE}
           </span>
         </div>
@@ -325,11 +326,12 @@ export default function Pomodoro({ awardXp }) {
           {/* Primary play/pause */}
           <button
             onClick={toggleTimer}
-            className="flex items-center gap-2 px-10 py-3 text-[14px] font-extrabold text-white game-btn transition-all hover:scale-[1.03]"
+            className="flex items-center gap-2 px-10 py-3 text-[14px] font-extrabold game-btn transition-all hover:scale-[1.03]"
             style={{
               background:  cfg.color,
+              color:       cfg.on,
               border:      `2.5px solid ${cfg.dark}`,
-              boxShadow:   `3px 3px 0 ${cfg.dark}, 0 0 20px ${cfg.color}35`,
+              boxShadow:   `3px 3px 0 ${cfg.dark}, 0 0 20px ${withAlpha(cfg.color, '35')}`,
               borderRadius: 6,
               minWidth: 150,
               justifyContent: 'center',
@@ -362,11 +364,11 @@ export default function Pomodoro({ awardXp }) {
         </div>
 
         {/* XP hint */}
-        <p className="mt-5 text-[10px] font-semibold text-center" style={{ color: '#1a4032' }}>
+        <p className="mt-5 text-[10px] font-semibold text-center" style={{ color: c('x-pomodoro-dim') }}>
           Complete a focus session to earn{' '}
-          <span style={{ color: '#EF9F27' }}>+{XP_PER_POMODORO} XP</span>
+          <span style={{ color: c('amber') }}>+{XP_PER_POMODORO} XP</span>
           {isLastWork && (
-            <span style={{ color: '#7F77DD' }}> + {XP_CYCLE_BONUS} cycle bonus</span>
+            <span style={{ color: c('purple') }}> + {XP_CYCLE_BONUS} cycle bonus</span>
           )}
         </p>
       </div>
@@ -376,23 +378,23 @@ export default function Pomodoro({ awardXp }) {
         <div
           className="p-5 mb-6 bounce-in"
           style={{
-            background: '#f4fdf8',
-            border: '2px solid #d4f0e6',
+            background: c('screen'),
+            border: `2px solid ${c('line')}`,
             borderRadius: 6,
-            boxShadow: '3px 3px 0 rgba(8,80,65,0.1)',
+            boxShadow: `3px 3px 0 ${c('primary-shadow', 0.1)}`,
           }}
         >
           <p className="text-[12px] font-extrabold text-teal-dark uppercase tracking-wide mb-4">
             Duration Settings
           </p>
           <div className="grid grid-cols-3 gap-5">
-            {Object.entries(MODES).map(([key, c]) => (
+            {Object.entries(MODES).map(([key, m]) => (
               <div key={key}>
                 <label
                   className="block text-[10px] font-bold uppercase tracking-wide mb-1.5"
-                  style={{ color: c.color }}
+                  style={{ color: m.color }}
                 >
-                  {c.label}
+                  {m.label}
                 </label>
                 <div className="flex items-center gap-2">
                   <input
@@ -401,10 +403,10 @@ export default function Pomodoro({ awardXp }) {
                     onChange={e => updateDuration(key, e.target.value)}
                     className="w-16 px-2 py-1.5 text-[14px] font-extrabold font-mono text-center outline-none"
                     style={{
-                      background: '#fff',
-                      border: `2px solid ${c.color}40`,
+                      background: c('surface'),
+                      border: `2px solid ${withAlpha(m.color, '40')}`,
                       borderRadius: 4,
-                      color: '#085041',
+                      color: c('ink'),
                     }}
                   />
                   <span className="text-[11px] text-text-muted">min</span>
@@ -422,23 +424,23 @@ export default function Pomodoro({ awardXp }) {
       <div
         className="px-5 py-4"
         style={{
-          background: '#f4fdf8',
-          border: '1px solid #d4f0e6',
+          background: c('screen'),
+          border: `1px solid ${c('line')}`,
           borderRadius: 6,
         }}
       >
         <p className="text-[11px] font-extrabold text-teal-dark mb-3">How the Pomodoro Technique works</p>
         <div className="flex items-center gap-2 flex-wrap">
-          <FlowStep n={1} label={`${durations.work}m Focus`}      color="#1D9E75" />
+          <FlowStep n={1} label={`${durations.work}m Focus`}      color={c('primary')} on={c('on-primary')} />
           <Arrow />
-          <FlowStep n={2} label={`${durations.short_break}m Break`} color="#EF9F27" />
+          <FlowStep n={2} label={`${durations.short_break}m Break`} color={c('amber')}   on={c('on-amber')} />
           <Arrow />
-          <FlowStep n={3} label={`Repeat x${CYCLE}`}              color="#7F77DD" />
+          <FlowStep n={3} label={`Repeat x${CYCLE}`}              color={c('purple')}  on={c('on-purple')} />
           <Arrow />
-          <FlowStep n={4} label={`${durations.long_break}m Rest`}  color="#1D9E75" />
+          <FlowStep n={4} label={`${durations.long_break}m Rest`}  color={c('primary')} on={c('on-primary')} />
         </div>
         <p className="text-[10px] text-text-hint mt-3">
-          After {CYCLE} focus sessions you earn a long break and a <span style={{ color: '#7F77DD', fontWeight: 700 }}>+{XP_CYCLE_BONUS} XP</span> cycle bonus.
+          After {CYCLE} focus sessions you earn a long break and a <span style={{ color: c('purple'), fontWeight: 700 }}>+{XP_CYCLE_BONUS} XP</span> cycle bonus.
         </p>
       </div>
     </div>
@@ -455,7 +457,7 @@ function StatChip({ value, label, color, soft, border }) {
         background: soft,
         border: `2px solid ${border}`,
         borderRadius: 4,
-        boxShadow: '2px 2px 0 rgba(8,80,65,0.06)',
+        boxShadow: `2px 2px 0 ${c('primary-shadow', 0.06)}`,
         minWidth: 64,
       }}
     >
@@ -475,7 +477,7 @@ function CtrlBtn({ onClick, title, children }) {
         background: 'rgba(255,255,255,0.05)',
         border: '1.5px solid rgba(255,255,255,0.1)',
         borderRadius: 6,
-        color: '#4a7060',
+        color: c('muted-alt'),
       }}
     >
       {children}
@@ -483,12 +485,12 @@ function CtrlBtn({ onClick, title, children }) {
   )
 }
 
-function FlowStep({ n, label, color }) {
+function FlowStep({ n, label, color, on }) {
   return (
     <div className="flex items-center gap-1.5">
       <span
-        className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-extrabold text-white flex-shrink-0"
-        style={{ background: color }}
+        className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-extrabold flex-shrink-0"
+        style={{ background: color, color: on }}
       >
         {n}
       </span>
@@ -500,7 +502,7 @@ function FlowStep({ n, label, color }) {
 function Arrow() {
   return (
     <svg width="14" height="10" viewBox="0 0 14 10" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M1 5h12M9 1l4 4-4 4" stroke="#b3e8d3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M1 5h12M9 1l4 4-4 4" stroke={c('line-strong')} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   )
 }

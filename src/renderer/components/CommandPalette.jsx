@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { c } from '../utils/colors'
 
 // ── Fuzzy matching ────────────────────────────────────────────────────────────────
 
@@ -35,7 +36,7 @@ const NAV_COMMANDS = [
 
 // ── Component ──────────────────────────────────────────────────────────────────────
 
-export default function CommandPalette({ open, onClose, onOpenAI, awardXp }) {
+export default function CommandPalette({ open, onClose, onOpenAI, awardXp, lightsOn, onToggleLights }) {
   const navigate = useNavigate()
   const [query, setQuery]   = useState('')
   const [active, setActive] = useState(0)
@@ -77,6 +78,10 @@ export default function CommandPalette({ open, onClose, onOpenAI, awardXp }) {
       { id: 'qa-reflect',  icon: '🔮', label: 'Reflect on my week',       sub: 'AI journal reflection', group: 'Actions', run: () => navigate('/journal') },
     ]
 
+    const appearanceCmds = [
+      { id: 'ap-lights',   icon: '🎄', label: 'Toggle holiday lights',    sub: lightsOn ? 'On now · turn string & fairy lights off' : 'Off now · turn string & fairy lights on', group: 'Appearance', run: () => onToggleLights?.() },
+    ]
+
     const navCmds = NAV_COMMANDS.map(c => ({ ...c, group: 'Navigate', run: () => navigate(c.to) }))
 
     const epicCmds = epics.map(e => ({
@@ -110,8 +115,8 @@ export default function CommandPalette({ open, onClose, onOpenAI, awardXp }) {
       keepOpen: true,
     }))
 
-    return [...quickActions, ...navCmds, ...epicCmds, ...habitCmds]
-  }, [epics, habits, todayLogged, navigate, onOpenAI, awardXp])
+    return [...quickActions, ...navCmds, ...epicCmds, ...habitCmds, ...appearanceCmds]
+  }, [epics, habits, todayLogged, navigate, onOpenAI, awardXp, lightsOn, onToggleLights])
 
   // ── Filter + group ──
   const filtered = useMemo(() => {
@@ -153,7 +158,7 @@ export default function CommandPalette({ open, onClose, onOpenAI, awardXp }) {
   // Group for rendering while keeping a flat index for keyboard nav
   let flatIdx = -1
   const groups = []
-  const order = ['Actions', 'Navigate', 'Epics', 'Log a streak']
+  const order = ['Actions', 'Navigate', 'Epics', 'Log a streak', 'Appearance']
   const seen = new Set()
   const ordered = [
     ...order.flatMap(g => filtered.filter(c => c.group === g)),
@@ -167,18 +172,19 @@ export default function CommandPalette({ open, onClose, onOpenAI, awardXp }) {
 
   return (
     <div
+      data-hl-pause
       className="fixed inset-0 z-[100] flex items-start justify-center"
-      style={{ background: 'rgba(6,23,16,0.55)', backdropFilter: 'blur(4px)', paddingTop: '12vh' }}
+      style={{ background: c('chrome', 0.55), backdropFilter: 'blur(4px)', paddingTop: '12vh' }}
       onMouseDown={onClose}
     >
       <div
-        className="w-[600px] max-w-[92vw] bg-white overflow-hidden flex flex-col"
-        style={{ borderRadius: 14, border: '2px solid #1D9E75', boxShadow: '0 24px 60px rgba(4,35,26,0.45), 5px 5px 0 #085041', maxHeight: '70vh', animation: 'popIn 0.18s cubic-bezier(0.34,1.56,0.64,1)' }}
+        className="w-[600px] max-w-[92vw] bg-surface overflow-hidden flex flex-col"
+        style={{ borderRadius: 14, border: `2px solid ${c('primary')}`, boxShadow: `0 24px 60px ${c('x-cmdpalette-shadow', 0.45)}, 5px 5px 0 ${c('primary-shadow')}`, maxHeight: '70vh', animation: 'popIn 0.18s cubic-bezier(0.34,1.56,0.64,1)' }}
         onMouseDown={e => e.stopPropagation()}
       >
         {/* Search row */}
-        <div className="flex items-center gap-3 px-4 py-3.5" style={{ borderBottom: '1.5px solid #e8f5ee' }}>
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <div className="flex items-center gap-3 px-4 py-3.5" style={{ borderBottom: `1.5px solid ${c('tint')}` }}>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={c('primary')} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
           <input
@@ -189,12 +195,12 @@ export default function CommandPalette({ open, onClose, onOpenAI, awardXp }) {
             placeholder="Search pages, epics, habits, or run an action…"
             className="flex-1 text-[14px] font-semibold outline-none text-text-pri placeholder:text-text-hint bg-transparent"
           />
-          <kbd className="text-[9px] font-bold px-1.5 py-1 rounded" style={{ background: '#e8f5ee', color: '#4a7060', border: '1px solid #b3e8d3' }}>ESC</kbd>
+          <kbd className="text-[9px] font-bold px-1.5 py-1 rounded" style={{ background: c('tint'), color: c('muted-alt'), border: `1px solid ${c('line-strong')}` }}>ESC</kbd>
         </div>
 
         {/* Flash confirmation */}
         {flash && (
-          <div className="px-4 py-2 text-[11px] font-bold" style={{ background: '#eafaf2', color: '#085041', borderBottom: '1px solid #d4f0e6' }}>
+          <div className="px-4 py-2 text-[11px] font-bold" style={{ background: c('x-cmdpalette-active'), color: c('ink'), borderBottom: `1px solid ${c('line')}` }}>
             {flash}
           </div>
         )}
@@ -223,8 +229,8 @@ export default function CommandPalette({ open, onClose, onOpenAI, awardXp }) {
                       onClick={() => execute(cmd)}
                       className="w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors"
                       style={{
-                        background: isActive ? '#eafaf2' : 'transparent',
-                        borderLeft: isActive ? '3px solid #1D9E75' : '3px solid transparent',
+                        background: isActive ? c('x-cmdpalette-active') : 'transparent',
+                        borderLeft: isActive ? `3px solid ${c('primary')}` : '3px solid transparent',
                         opacity: cmd.disabled ? 0.45 : 1,
                         cursor: cmd.disabled ? 'default' : 'pointer',
                       }}
@@ -235,7 +241,7 @@ export default function CommandPalette({ open, onClose, onOpenAI, awardXp }) {
                         {cmd.sub && <p className="text-[10px] text-text-hint truncate">{cmd.sub}</p>}
                       </div>
                       {isActive && !cmd.disabled && (
-                        <kbd className="text-[9px] font-bold px-1.5 py-0.5 rounded flex-shrink-0" style={{ background: '#fff', color: '#1D9E75', border: '1px solid #b3e8d3' }}>↵</kbd>
+                        <kbd className="text-[9px] font-bold px-1.5 py-0.5 rounded flex-shrink-0" style={{ background: c('surface'), color: c('primary'), border: `1px solid ${c('line-strong')}` }}>↵</kbd>
                       )}
                     </button>
                   )
@@ -246,7 +252,7 @@ export default function CommandPalette({ open, onClose, onOpenAI, awardXp }) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-4 py-2" style={{ borderTop: '1.5px solid #e8f5ee', background: '#f8fdfb' }}>
+        <div className="flex items-center justify-between px-4 py-2" style={{ borderTop: `1.5px solid ${c('tint')}`, background: c('surface-2') }}>
           <div className="flex items-center gap-3">
             <FooterHint k="↑↓" label="navigate" />
             <FooterHint k="↵" label="select" />
@@ -263,7 +269,7 @@ export default function CommandPalette({ open, onClose, onOpenAI, awardXp }) {
 function FooterHint({ k, label }) {
   return (
     <span className="flex items-center gap-1 text-[9px] font-bold text-text-hint">
-      <kbd className="px-1 py-0.5 rounded" style={{ background: '#e8f5ee', color: '#4a7060', border: '1px solid #b3e8d3' }}>{k}</kbd>
+      <kbd className="px-1 py-0.5 rounded" style={{ background: c('tint'), color: c('muted-alt'), border: `1px solid ${c('line-strong')}` }}>{k}</kbd>
       {label}
     </span>
   )

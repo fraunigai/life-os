@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import ProgressBar from './ProgressBar'
 import StatusPill from './StatusPill'
 import { getHorizonDeadline, getQuarterLabel, daysUntil, fmtDate, deadlineColor } from '../utils/dates'
+import { withAlpha } from '../utils/colors'
 
 function DeadlineBadge({ horizon, endDate }) {
   if (horizon === 'done') return null
@@ -24,10 +25,10 @@ function DeadlineBadge({ horizon, endDate }) {
 
   return (
     <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: color + '18', color }}>
+      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: withAlpha(color, '18'), color }}>
         {label}
       </span>
-      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: color + '18', color }}>
+      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: withAlpha(color, '18'), color }}>
         {fmtDate(deadline)} · {daysLabel}
       </span>
     </div>
@@ -39,7 +40,7 @@ export default function EpicCard({ epic }) {
   return (
     <div
       onClick={() => navigate(`/epics/${epic.id}`)}
-      className="bg-white p-5 cursor-pointer group retro-card"
+      className="bg-surface p-5 cursor-pointer group retro-card"
     >
       <div className="flex items-start justify-between gap-2 mb-3">
         <div className="flex-1 min-w-0">

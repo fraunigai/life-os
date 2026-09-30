@@ -1,0 +1,409 @@
+/*
+ * Theme color tokens.
+ *
+ * Every token holds space-separated RGB channels so it works everywhere:
+ *   CSS / inline styles:  rgb(var(--c-primary))   rgb(var(--c-primary) / 0.2)
+ *   Tailwind:             bg-primary  text-ink  border-line/50   (see tailwind.config.js)
+ *   JS helpers:           c('primary'), c('primary', 0.2), withAlpha(color, 0.2)  (utils/colors.js)
+ *
+ * `:root` is the classic palette and must reproduce the original look exactly.
+ * A theme overrides the tokens under `html[data-theme="<palette>"]` (set by applyTheme() in utils/themes.js).
+ */
+
+:root {
+  /* Chrome — the dark "bezel" (sidebar + topbar) */
+  --c-chrome:         6 23 16;      /* #061710 */
+  --c-shell:          13 31 20;     /* #0d1f14 */
+  --c-chrome-accent:  29 158 117;   /* #1D9E75 */
+  --c-chrome-text:    77 255 176;   /* #4dffb0 */
+  --c-chrome-soft:    125 196 164;  /* #7dc4a4 */
+  --c-chrome-hover:   168 232 200;  /* #a8e8c8 */
+  --c-chrome-mid:     61 112 88;    /* #3d7058 */
+  --c-chrome-dim:     42 92 64;     /* #2a5c40 */
+  --c-chrome-label:   239 159 39;   /* #EF9F27 */
+
+  /* Content surfaces — the "screen" */
+  --c-screen:         244 253 248;  /* #f4fdf8 */
+  --c-surface:        255 255 255;  /* #ffffff */
+  --c-surface-2:      247 253 251;  /* #f7fdfb */
+  --c-tint:           225 245 238;  /* #E1F5EE */
+  --c-line:           212 240 230;  /* #d4f0e6 */
+  --c-line-strong:    179 232 211;  /* #b3e8d3 */
+
+  /* Text */
+  --c-ink:            8 80 65;      /* #085041 */
+  --c-text:           68 68 65;     /* #444441 */
+  --c-muted:          136 135 128;  /* #888780 */
+  --c-hint:           180 178 169;  /* #B4B2A9 */
+  --c-muted-alt:      74 112 96;    /* #4a7060 */
+  --c-hint-alt:       155 189 170;  /* #9bbdaa */
+
+  /* Brand accents */
+  --c-primary:        29 158 117;   /* #1D9E75 */
+  --c-primary-deep:   15 110 86;    /* #0F6E56 */
+  --c-primary-hover:  42 138 103;   /* #2a8a67 */
+  --c-primary-shadow: 8 80 65;      /* #085041 */
+  --c-on-primary:     255 255 255;  /* #ffffff */
+
+  --c-amber:          239 159 39;   /* #EF9F27 */
+  --c-amber-shadow:   166 92 0;     /* #a65c00 */
+  --c-amber-ink:      122 72 0;     /* #7a4800 */
+  --c-amber-tint:     255 248 236;  /* #fff8ec */
+  --c-amber-line:     245 210 138;  /* #f5d28a */
+  --c-on-amber:       255 255 255;  /* #ffffff */
+
+  --c-purple:         127 119 221;  /* #7F77DD */
+  --c-purple-shadow:  61 58 158;    /* #3d3a9e */
+  --c-purple-tint:    245 244 255;  /* #f5f4ff */
+  --c-purple-line:    202 200 245;  /* #cac8f5 */
+  --c-on-purple:      255 255 255;  /* #ffffff */
+
+  --c-danger:         239 68 68;    /* #ef4444 */
+  --c-danger-deep:    185 28 28;    /* #b91c1c */
+  --c-danger-tint:    254 242 242;  /* #fef2f2 */
+  --c-danger-line:    254 202 202;  /* #fecaca */
+  --c-on-danger:      255 255 255;  /* #ffffff */
+
+  --c-success:        34 197 94;    /* #22c55e */
+  --c-on-success:     255 255 255;  /* #ffffff */
+  --c-done:           99 153 34;    /* #639922 */
+  --c-on-done:        255 255 255;  /* #ffffff */
+
+  /*
+   * Extension tokens: one-off colors that a single component needs and no base token reproduces
+   * (no base token within 8 per RGB channel of the original literal). Named x-<area>-<role> and used as
+   * c('x-…') or rgb(var(--c-x-…)). Every palette must define every one of them.
+   */
+  /* App shell */
+  --c-x-app-fab-icon:               255 255 255;  /* #ffffff — close glyph on the open AI FAB */
+  --c-x-nav-pulse-hi:               38 201 140;   /* #26c98c — bright phase of the .nav-active-glow pulse */
+
+  /* Topbar XP bar + level coin */
+  --c-x-xp-high-end:                45 212 160;   /* #2dd4a0 — XP fill gradient end, pct > 70 */
+  --c-x-xp-mid-end:                 245 192 68;   /* #f5c044 — XP fill gradient end, 35 < pct <= 70 */
+  --c-x-xp-low-start:               229 37 33;    /* #e52521 — XP fill gradient start, pct <= 35 */
+  --c-x-xp-low-end:                 245 85 83;    /* #f55553 — XP fill gradient end, pct <= 35 */
+  --c-x-xp-coin-hi:                 245 200 66;   /* #f5c842 — level coin gradient highlight */
+  --c-x-xp-coin-shadow:             179 106 0;    /* #b36a00 — level coin hard drop shadow */
+
+  /* UpdateBanner */
+  --c-x-update-error-bg:            26 10 10;     /* #1a0a0a — error-state strip background */
+
+  /* CommandPalette */
+  --c-x-cmdpalette-shadow:          4 35 26;      /* #04231a — soft panel shadow (used at alpha 0.45) */
+  --c-x-cmdpalette-active:          234 250 242;  /* #eafaf2 — active result row + flash bar background */
+
+  /* AIPanel */
+  --c-x-aipanel-openai:             116 170 156;  /* #74aa9c — active GPT provider pill / model badge fill */
+  --c-x-aipanel-gemini:             66 133 244;   /* #4285f4 — active Gemini provider pill / model badge fill */
+  --c-x-aipanel-danger-soft:        248 113 113;  /* #f87171 — hover text of destructive icon buttons */
+
+  /* StatusPill */
+  --c-x-statuspill-idle-tint:       243 244 246;  /* #f3f4f6 — "Not started" pill background */
+
+  /* StreakCard */
+  --c-x-streak-logged-ink:          22 163 74;    /* #16a34a — "Logged" button text (+ its shadow at alpha 0.2) */
+  --c-x-streak-logged-line:         134 239 172;  /* #86efac — "Logged" button border */
+  --c-x-streak-day-empty:           225 245 238;  /* #e1f5ee — 28-day grid: day not logged (used at opacity 0.55) */
+
+  /* Shared Recharts overrides */
+  --c-x-chart-cursor:               204 204 204;  /* #cccccc — BarChart tooltip hover band (Recharts default #ccc) */
+  --c-x-chart-tooltip-ink:          0 0 0;        /* #000000 — tooltip item text for fill-less Bars (Recharts default #000) */
+
+  /* Dashboard */
+  --c-x-dashboard-overdue-tint:     254 226 226;  /* #fee2e2 — "N overdue" pill background */
+  --c-x-dashboard-stat-tint:        238 250 244;  /* #eefaf4 — teal StatCard fill */
+  --c-x-dashboard-stat-purple-ink:  61 58 158;    /* #3d3a9e — text on the purple StatCard */
+  --c-x-dashboard-clock-shadow:     3 16 8;       /* #031008 — LiveClock bezel hard shadow */
+
+  /* Daily */
+  --c-x-daily-amber-text:           166 92 0;     /* #a65c00 — "Replace schedule?" text on amber-tint */
+  --c-x-daily-delete-hover:         248 113 113;  /* #f87171 — reminder delete icon hover */
+  --c-x-daily-error:                224 80 80;    /* #e05050 — schedule-generation error text */
+  --c-x-daily-break-bar:            200 230 217;  /* #c8e6d9 — left bar of AI-schedule break blocks */
+
+  /* Calendar */
+  --c-x-calendar-day-outside:       197 223 210;  /* #c5dfd2 — month grid: day number outside the month */
+  --c-x-calendar-mini-outside:      212 232 220;  /* #d4e8dc — year view mini-month: day number outside the month */
+  --c-x-calendar-today-cell:        244 253 248;  /* #f4fdf8 — month grid: today's cell background (unselected) */
+
+  /* EpicDetail */
+  --c-x-epicdetail-amber-text:      166 92 0;     /* #a65c00 — "+XP" text on the active Major impact chip */
+  --c-x-epicdetail-purple-ink:      61 58 158;    /* #3d3a9e — text on purple-tint header / active Critical chip */
+  --c-x-epicdetail-minor-shadow:    74 112 96;    /* #4a7060 — hard shadow of the active Minor impact chip */
+  --c-x-epicdetail-weight-desc:     179 196 187;  /* #b3c4bb — faded impact description text in WeightPicker */
+  --c-x-epicdetail-delete-fill:     220 38 38;    /* #dc2626 — confirm "Delete" button fill */
+  --c-x-epicdetail-hover-shade:     0 0 0;        /* #000000 — edit-icon hover wash (used at alpha 0.05) */
+  --c-x-epicdetail-offday-tint:     240 240 240;  /* #f0f0f0 — not-scheduled-today row border + chip bg */
+  --c-x-epicdetail-offday-line:     224 224 224;  /* #e0e0e0 — not-scheduled-today row left accent */
+  --c-x-epicdetail-offday-box:      208 208 208;  /* #d0d0d0 — not-scheduled-today disabled checkbox border */
+  --c-x-epicdetail-offday-text:     170 170 170;  /* #aaaaaa — "not today" chip text */
+  --c-x-epicdetail-minor:           155 189 170;  /* #9bbdaa — "Minor" impact accent (WeightPicker chip + SubTaskItem badge) */
+  --c-x-epicdetail-toggle-hint:     180 178 169;  /* #b4b2a9 — "+N XP …" sub-line in the add-task recurring toggle box */
+
+  /* Journal */
+  --c-x-journal-mood-2:             249 115 22;   /* #f97316 — mood 2 "Low" accent */
+  --c-x-journal-mood-5:             8 80 65;      /* #085041 — mood 5 "Great" accent */
+  --c-x-journal-primary-tint:       234 250 242;  /* #eafaf2 — soft primary-tinted backgrounds */
+  --c-x-journal-amber-text:         166 92 0;     /* #a65c00 — amber label text (streak pill, arc heading) */
+  --c-x-journal-arc-ink:            122 63 0;     /* #7a3f00 — Emotional-arc body text on amber-tint */
+  --c-x-journal-purple-ink:         61 58 158;    /* #3d3a9e — Patterns body text on purple-tint */
+  --c-x-journal-insight-line:       168 221 196;  /* #a8ddc4 — insight card border */
+  --c-x-journal-day-text:           125 168 148;  /* #7da894 — history calendar: past day without entry */
+  --c-x-journal-day-future:         207 227 218;  /* #cfe3da — history calendar: future day (disabled, opacity 0.5) */
+  --c-x-journal-skeleton:           225 245 238;  /* #e1f5ee — loading-skeleton bars while a reflection generates */
+
+  /* Insights */
+  --c-x-insights-heat-0:            244 253 248;  /* #f4fdf8 — activity heatmap: no activity (fill) */
+  --c-x-insights-heat-0-line:       225 245 238;  /* #e1f5ee — activity heatmap: no-activity cell outline */
+  --c-x-insights-heat-1:            205 235 221;  /* #cdebdd — activity heatmap intensity 1 */
+  --c-x-insights-heat-2:            143 217 183;  /* #8fd9b7 — activity heatmap intensity 2 */
+  --c-x-insights-heat-3:            63 181 137;   /* #3fb589 — activity heatmap intensity 3 */
+  --c-x-insights-heat-4:            29 158 117;   /* #1d9e75 — activity heatmap max intensity */
+  --c-x-insights-level-from:        6 58 44;      /* #063a2c — Level/XP hero card gradient start */
+  --c-x-insights-level-to:          10 94 68;     /* #0a5e44 — Level/XP hero card gradient end */
+  --c-x-insights-level-shadow:      4 35 26;      /* #04231a — Level/XP hero card hard shadow */
+  --c-x-insights-level-ink:         255 255 255;  /* #ffffff — level number + XP text on the hero card */
+  --c-x-insights-level-label:       111 220 174;  /* #6fdcae — "Level N" label on the hero card */
+  --c-x-insights-teal-tint:         234 250 242;  /* #eafaf2 — "Tasks Completed" tile + "Peak" chip bg */
+  --c-x-insights-amber-text:        166 92 0;     /* #a65c00 — text on the amber "Longest Streak" tile */
+  --c-x-insights-purple-text:       61 58 158;    /* #3d3a9e — text on the purple "Journal Entries" tile */
+  --c-x-insights-bar-low:           205 235 221;  /* #cdebdd — habit-consistency bar below 40% */
+  --c-x-insights-bar-rest:          168 221 196;  /* #a8ddc4 — non-peak weekday-productivity bars */
+  --c-x-insights-axis:              102 102 102;  /* #666666 — Recharts axis + tick lines (library default) */
+
+  /* Pomodoro */
+  --c-x-pomodoro-card-shadow:       2 14 7;       /* #020e07 — timer card hard shadow */
+  --c-x-pomodoro-time:              240 255 248;  /* #f0fff8 — mm:ss digits on the chrome timer card */
+  --c-x-pomodoro-dim:               26 64 50;     /* #1a4032 — dim text on the chrome timer card */
+
+  /* WeeklyReview */
+  --c-x-review-error:               192 57 43;    /* #c0392b — AI-error message text */
+  --c-x-review-summary-from:        235 250 243;  /* #ebfaf3 — AI summary card gradient start */
+  --c-x-review-amber-text:          166 92 0;     /* #a65c00 — amber label text ("Regenerate?", "Biggest Gap") */
+  --c-x-review-win-line:            168 221 196;  /* #a8ddc4 — "Biggest Win" panel border */
+  --c-x-review-gap-ink:             122 63 0;     /* #7a3f00 — "Biggest Gap" body text on amber-tint */
+  --c-x-review-question-ink:        61 58 158;    /* #3d3a9e — reflective-question text on purple-tint */
+  --c-x-review-skeleton:            225 245 238;  /* #e1f5ee — loading-skeleton bars while the AI review generates */
+
+  /* EnergyLog */
+  --c-x-energy-level-2:             249 115 22;   /* #f97316 — level-2 dot in the energy scale */
+  --c-x-energy-grid:                225 245 238;  /* #e1f5ee — trend chart dashed gridlines */
+  --c-x-energy-dot-empty:           225 245 238;  /* #e1f5ee — unfilled dots of the Recent 5-dot scale */
+
+  /* TimeAudit */
+  --c-x-timeaudit-social:           8 80 65;      /* #085041 — "Social" chart series + legend dot */
+
+  /* Settings */
+  --c-x-settings-toggle-knob:       255 255 255;  /* #ffffff — toggle switch knob */
+
+  /* Welcome onboarding (dark bezel) */
+  --c-x-welcome-on-primary:         8 80 65;      /* #085041 — label on the solid primary NEXT button */
+  --c-x-welcome-text:               244 253 248;  /* #f4fdf8 — light heading/body text on the bezel */
+  --c-x-welcome-muted:              74 112 96;    /* #4a7060 — dimmest bezel text (must stay below hint-alt) */
+
+  /* Desktop widget */
+  --c-x-widget-xpbar-bg:            8 80 65;      /* #085041 — dark XP strip under the widget header */
+  --c-x-widget-xpbar-text:          179 232 211;  /* #b3e8d3 — "{xp} XP" count on the XP strip */
+  --c-x-widget-done-line:           134 239 172;  /* #86efac — completed habit row border */
+  --c-x-widget-flash:               209 250 229;  /* #d1fae5 — +10 XP tick flash background */
+
+  color-scheme: light;
+}
+
+/*
+ * Neon Noel — dark oil-slick / pearlescent vaporwave with laser neon and Christmas accents.
+ * On a dark UI the "deep"/"hover" variants are the MORE luminous ones, and every on-* color is near-black.
+ */
+html[data-theme="noel"] {
+  --c-chrome:         11 9 21;      /* #0B0915 */
+  --c-shell:          6 5 14;       /* #06050E */
+  --c-chrome-accent:  166 107 255;  /* #A66BFF */
+  --c-chrome-text:    125 249 255;  /* #7DF9FF */
+  --c-chrome-soft:    201 184 240;  /* #C9B8F0 */
+  --c-chrome-hover:   255 168 232;  /* #FFA8E8 */
+  --c-chrome-mid:     141 130 174;  /* #8D82AE */
+  --c-chrome-dim:     117 108 152;  /* #756C98 */
+  --c-chrome-label:   232 255 39;   /* #E8FF27 */
+
+  --c-screen:         17 14 27;     /* #110E1B */
+  --c-surface:        26 22 39;     /* #1A1627 */
+  --c-surface-2:      21 18 31;     /* #15121F */
+  --c-tint:           43 31 66;     /* #2B1F42 */
+  --c-line:           56 49 82;     /* #383152 */
+  --c-line-strong:    113 103 156;  /* #71679C */
+
+  --c-ink:            247 241 255;  /* #F7F1FF */
+  --c-text:           220 212 238;  /* #DCD4EE */
+  --c-muted:          163 154 191;  /* #A39ABF */
+  --c-hint:           133 124 171;  /* #857CAB */
+  --c-muted-alt:      140 185 212;  /* #8CB9D4 */
+  --c-hint-alt:       106 139 166;  /* #6A8BA6 */
+
+  --c-primary:        255 113 206;  /* #FF71CE */
+  --c-primary-deep:   255 163 224;  /* #FFA3E0 */
+  --c-primary-hover:  255 138 214;  /* #FF8AD6 */
+  --c-primary-shadow: 156 53 225;   /* #9C35E1 */
+  --c-on-primary:     26 8 32;      /* #1A0820 */
+
+  --c-amber:          255 165 61;   /* #FFA53D */
+  --c-amber-shadow:   176 98 10;    /* #B0620A */
+  --c-amber-ink:      255 224 143;  /* #FFE08F */
+  --c-amber-tint:     42 32 16;     /* #2A2010 */
+  --c-amber-line:     110 84 32;    /* #6E5420 */
+  --c-on-amber:       28 18 4;      /* #1C1204 */
+
+  --c-purple:         79 230 255;   /* #4FE6FF */
+  --c-purple-shadow:  26 102 184;   /* #1A66B8 */
+  --c-purple-tint:    16 38 58;     /* #10263A */
+  --c-purple-line:    31 92 122;    /* #1F5C7A */
+  --c-on-purple:      6 18 28;      /* #06121C */
+
+  --c-danger:         255 61 74;    /* #FF3D4A */
+  --c-danger-deep:    255 122 133;  /* #FF7A85 */
+  --c-danger-tint:    46 16 24;     /* #2E1018 */
+  --c-danger-line:    122 32 52;    /* #7A2034 */
+  --c-on-danger:      26 5 8;       /* #1A0508 */
+
+  --c-success:        54 245 154;   /* #36F59A */
+  --c-on-success:     4 20 12;      /* #04140C */
+  --c-done:           195 242 58;   /* #C3F23A */
+  --c-on-done:        20 26 4;      /* #141A04 */
+
+  /* Extension tokens (roles are documented in the :root block). Text tokens reach 4.5:1 on their backgrounds. */
+  /* App shell */
+  --c-x-app-fab-icon:               247 241 255;  /* #F7F1FF */
+  --c-x-nav-pulse-hi:               255 168 232;  /* #FFA8E8 */
+
+  /* Topbar XP bar + level coin */
+  --c-x-xp-high-end:                185 139 255;  /* #B98BFF */
+  --c-x-xp-mid-end:                 255 200 61;   /* #FFC83D */
+  --c-x-xp-low-start:               255 61 74;    /* #FF3D4A */
+  --c-x-xp-low-end:                 255 122 133;  /* #FF7A85 */
+  --c-x-xp-coin-hi:                 255 227 138;  /* #FFE38A */
+  --c-x-xp-coin-shadow:             176 98 10;    /* #B0620A */
+
+  /* UpdateBanner */
+  --c-x-update-error-bg:            34 10 20;     /* #220A14 */
+
+  /* CommandPalette */
+  --c-x-cmdpalette-shadow:          3 2 8;        /* #030208 */
+  --c-x-cmdpalette-active:          53 33 59;     /* #35213B */
+
+  /* AIPanel */
+  --c-x-aipanel-openai:             104 255 214;  /* #68FFD6 */
+  --c-x-aipanel-gemini:             113 154 252;  /* #719AFC */
+  --c-x-aipanel-danger-soft:        255 122 133;  /* #FF7A85 */
+
+  /* StatusPill */
+  --c-x-statuspill-idle-tint:       42 37 64;     /* #2A2540 */
+
+  /* StreakCard */
+  --c-x-streak-logged-ink:          123 255 190;  /* #7BFFBE */
+  --c-x-streak-logged-line:         30 158 99;    /* #1E9E63 */
+  --c-x-streak-day-empty:           98 87 143;    /* #62578F (tint vanished on surface at 0.55) */
+
+  /* Shared Recharts overrides */
+  --c-x-chart-cursor:               38 32 54;     /* #262036 */
+  --c-x-chart-tooltip-ink:          247 241 255;  /* #F7F1FF */
+
+  /* Dashboard */
+  --c-x-dashboard-overdue-tint:     61 21 34;     /* #3D1522 */
+  --c-x-dashboard-stat-tint:        43 31 66;     /* #2B1F42 */
+  --c-x-dashboard-stat-purple-ink:  181 243 255;  /* #B5F3FF */
+  --c-x-dashboard-clock-shadow:     58 34 117;    /* #3A2275 */
+
+  /* Daily */
+  --c-x-daily-amber-text:           255 200 61;   /* #FFC83D */
+  --c-x-daily-delete-hover:         255 122 133;  /* #FF7A85 */
+  --c-x-daily-error:                255 90 102;   /* #FF5A66 */
+  --c-x-daily-break-bar:            87 78 125;    /* #574E7D */
+
+  /* Calendar */
+  --c-x-calendar-day-outside:       136 128 173;  /* #8880AD (lightened to 4.5:1 on surface) */
+  --c-x-calendar-mini-outside:      132 124 172;  /* #847CAC (lightened to 4.5:1 on surface) */
+  --c-x-calendar-today-cell:        37 27 58;     /* #251B3A (lifted above surface; screen would read as a hole) */
+
+  /* EpicDetail */
+  --c-x-epicdetail-amber-text:      255 196 107;  /* #FFC46B */
+  --c-x-epicdetail-purple-ink:      168 243 255;  /* #A8F3FF */
+  --c-x-epicdetail-minor-shadow:    69 96 122;    /* #45607A */
+  --c-x-epicdetail-weight-desc:     138 130 176;  /* #8A82B0 */
+  --c-x-epicdetail-delete-fill:     255 61 74;    /* #FF3D4A */
+  --c-x-epicdetail-hover-shade:     255 255 255;  /* #FFFFFF */
+  --c-x-epicdetail-offday-tint:     34 29 49;     /* #221D31 */
+  --c-x-epicdetail-offday-line:     46 40 66;     /* #2E2842 */
+  --c-x-epicdetail-offday-box:      74 67 102;    /* #4A4366 */
+  --c-x-epicdetail-offday-text:     138 130 176;  /* #8A82B0 */
+  --c-x-epicdetail-minor:           183 204 224;  /* #B7CCE0 (silver-ice: brighter than the muted-alt inactive labels) */
+  --c-x-epicdetail-toggle-hint:     154 146 188;  /* #9A92BC (5.5:1 on amber-tint, 6.5:1 on screen) */
+
+  /* Journal */
+  --c-x-journal-mood-2:             255 123 58;   /* #FF7B3A */
+  --c-x-journal-mood-5:             54 245 154;   /* #36F59A */
+  --c-x-journal-primary-tint:       58 24 56;     /* #3A1838 */
+  --c-x-journal-amber-text:         255 200 61;   /* #FFC83D */
+  --c-x-journal-arc-ink:            255 224 143;  /* #FFE08F */
+  --c-x-journal-purple-ink:         207 248 255;  /* #CFF8FF */
+  --c-x-journal-insight-line:       124 79 150;   /* #7C4F96 */
+  --c-x-journal-day-text:           154 143 192;  /* #9A8FC0 */
+  --c-x-journal-day-future:         134 123 168;  /* #867BA8 (lightened to 4.5:1 on surface) */
+  --c-x-journal-skeleton:           74 63 110;    /* #4A3F6E (tint was 1.16:1 on surface — bars vanished) */
+
+  /* Insights */
+  --c-x-insights-heat-0:            34 28 51;     /* #221C33 */
+  --c-x-insights-heat-0-line:       62 53 90;     /* #3E355A */
+  --c-x-insights-heat-1:            59 33 80;     /* #3B2150 */
+  --c-x-insights-heat-2:            107 44 127;   /* #6B2C7F */
+  --c-x-insights-heat-3:            168 64 159;   /* #A8409F */
+  --c-x-insights-heat-4:            221 99 181;   /* #DD63B5 */
+  --c-x-insights-level-from:        27 16 48;     /* #1B1030 */
+  --c-x-insights-level-to:          58 23 96;     /* #3A1760 */
+  --c-x-insights-level-shadow:      90 31 140;    /* #5A1F8C */
+  --c-x-insights-level-ink:         247 241 255;  /* #F7F1FF */
+  --c-x-insights-level-label:       185 139 255;  /* #B98BFF */
+  --c-x-insights-teal-tint:         42 26 58;     /* #2A1A3A */
+  --c-x-insights-amber-text:        255 200 112;  /* #FFC870 */
+  --c-x-insights-purple-text:       158 240 255;  /* #9EF0FF */
+  --c-x-insights-bar-low:           74 63 110;    /* #4A3F6E */
+  --c-x-insights-bar-rest:          106 58 114;   /* #6A3A72 */
+  --c-x-insights-axis:              122 111 160;  /* #7A6FA0 */
+
+  /* Pomodoro */
+  --c-x-pomodoro-card-shadow:       52 18 92;     /* #34125C */
+  --c-x-pomodoro-time:              255 244 252;  /* #FFF4FC */
+  --c-x-pomodoro-dim:               133 123 172;  /* #857BAC (lightened to 4.5:1 on surface) */
+
+  /* WeeklyReview */
+  --c-x-review-error:               255 122 133;  /* #FF7A85 */
+  --c-x-review-summary-from:        42 23 51;     /* #2A1733 */
+  --c-x-review-amber-text:          255 194 102;  /* #FFC266 */
+  --c-x-review-win-line:            140 74 126;   /* #8C4A7E */
+  --c-x-review-gap-ink:             255 226 168;  /* #FFE2A8 */
+  --c-x-review-question-ink:        200 246 255;  /* #C8F6FF */
+  --c-x-review-skeleton:            74 63 110;    /* #4A3F6E (tint was 1.16:1 on surface — bars vanished) */
+
+  /* EnergyLog */
+  --c-x-energy-level-2:             255 122 61;   /* #FF7A3D */
+  --c-x-energy-grid:                87 78 125;    /* #574E7D (tint was 1.16:1 on surface — gridlines vanished) */
+  --c-x-energy-dot-empty:           74 63 110;    /* #4A3F6E (tint was 1.16:1 on surface — empty dots vanished) */
+
+  /* TimeAudit */
+  --c-x-timeaudit-social:           185 139 255;  /* #B98BFF */
+
+  /* Settings */
+  --c-x-settings-toggle-knob:       247 241 255;  /* #F7F1FF */
+
+  /* Welcome onboarding (dark bezel) */
+  --c-x-welcome-on-primary:         26 8 32;      /* #1A0820 */
+  --c-x-welcome-text:               247 241 255;  /* #F7F1FF */
+  --c-x-welcome-muted:              133 125 164;  /* #857DA4 (lightened to 4.5:1 on surface) */
+
+  /* Desktop widget */
+  --c-x-widget-xpbar-bg:            28 20 51;     /* #1C1433 */
+  --c-x-widget-xpbar-text:          201 184 240;  /* #C9B8F0 */
+  --c-x-widget-done-line:           31 122 80;    /* #1F7A50 */
+  --c-x-widget-flash:               21 74 51;     /* #154A33 */
+
+  color-scheme: dark;
+}

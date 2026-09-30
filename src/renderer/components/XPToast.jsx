@@ -20,10 +20,10 @@ function ToastItem({ toast, onDone }) {
   }, [])
 
   const COLOR = {
-    xp:     'bg-primary text-white',
-    streak: 'bg-amber text-white',
-    level:  'bg-purple text-white',
-  }[toast.type] || 'bg-primary text-white'
+    xp:     'bg-primary text-on-primary',
+    streak: 'bg-amber text-on-amber',
+    level:  'bg-purple text-on-purple',
+  }[toast.type] || 'bg-primary text-on-primary'
 
   const STYLES = {
     idle:  { opacity: 0, transform: 'scale(0.6) translateY(10px)' },

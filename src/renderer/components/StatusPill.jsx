@@ -1,10 +1,10 @@
 import React from 'react'
 
 const STATUS_MAP = {
-  not_started:  { label: 'Not started', bg: 'bg-gray-100',      text: 'text-text-muted' },
+  not_started:  { label: 'Not started', bg: 'bg-[rgb(var(--c-x-statuspill-idle-tint))]', text: 'text-text-muted' },
   in_progress:  { label: 'In progress', bg: 'bg-teal-light',    text: 'text-teal-med'   },
   done:         { label: 'Done',        bg: 'bg-green-done/10', text: 'text-green-done' },
-  blocked:      { label: 'Blocked',     bg: 'bg-red-50',        text: 'text-red-500'    },
+  blocked:      { label: 'Blocked',     bg: 'bg-danger-tint',   text: 'text-danger'     },
 }
 
 export default function StatusPill({ status }) {

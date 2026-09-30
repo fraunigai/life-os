@@ -13,7 +13,7 @@ export default function ProgressBar({ value = 0, color = 'teal', className = '' 
     <div className={`w-full ${className}`}>
       <div className="w-full h-2 bg-teal-border rounded-full overflow-hidden">
         <div
-          className={`h-full rounded-full progress-fill ${barColor}`}
+          className={`h-full rounded-full progress-fill nl-progress-fill ${barColor}`}
           style={{ width: `${pct}%` }}
         />
       </div>

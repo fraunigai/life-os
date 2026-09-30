@@ -81,7 +81,7 @@ export default function NetworkCRM() {
           <h1 className="text-[20px] font-extrabold text-teal-dark">Network CRM</h1>
           <p className="text-[12px] text-text-muted mt-0.5">{contacts.length} contacts · {overdue.length} follow-ups overdue</p>
         </div>
-        <button onClick={openAdd} className="flex items-center gap-1.5 px-4 py-2 bg-primary text-white text-[12px] font-bold rounded-[10px] hover:bg-teal-med transition-colors">
+        <button onClick={openAdd} className="flex items-center gap-1.5 px-4 py-2 bg-primary text-on-primary text-[12px] font-bold rounded-[10px] hover:bg-teal-med transition-colors">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
           </svg>
@@ -98,7 +98,7 @@ export default function NetworkCRM() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search contacts…"
-          className="w-full pl-9 pr-3 py-2 text-[12px] bg-white border border-teal-border rounded-[10px] outline-none focus:border-primary text-text-pri placeholder:text-text-hint"
+          className="w-full pl-9 pr-3 py-2 text-[12px] bg-surface border border-teal-border rounded-[10px] outline-none focus:border-primary text-text-pri placeholder:text-text-hint"
         />
       </div>
 
@@ -151,7 +151,7 @@ export default function NetworkCRM() {
         </div>
         <div className="flex justify-end gap-3 mt-6">
           <button onClick={() => setAdding(false)} className="px-4 py-2 text-[12px] font-bold text-text-sec hover:text-teal-dark transition-colors">Cancel</button>
-          <button onClick={save} disabled={saving || !form.name.trim()} className="px-5 py-2 bg-primary text-white text-[12px] font-bold rounded-[10px] hover:bg-teal-med disabled:opacity-40 transition-colors">
+          <button onClick={save} disabled={saving || !form.name.trim()} className="px-5 py-2 bg-primary text-on-primary text-[12px] font-bold rounded-[10px] hover:bg-teal-med disabled:opacity-40 transition-colors">
             {saving ? 'Saving…' : editing ? 'Save Changes' : 'Add Contact'}
           </button>
         </div>
@@ -165,7 +165,7 @@ function ContactRow({ contact: c, onEdit, onDelete }) {
   const overdue = c.next_action_date && c.next_action_date < today
 
   return (
-    <div className="bg-white border border-teal-border rounded-card px-5 py-4 flex items-center gap-4 hover:border-primary/30 hover:shadow-sm transition-all group">
+    <div className="bg-surface border border-teal-border rounded-card px-5 py-4 flex items-center gap-4 hover:border-primary/30 hover:shadow-sm transition-all group">
       <div className="w-9 h-9 rounded-full bg-teal-light flex items-center justify-center flex-shrink-0">
         <span className="text-[13px] font-extrabold text-teal-dark">
           {c.name.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase()}
@@ -180,7 +180,7 @@ function ContactRow({ contact: c, onEdit, onDelete }) {
           <p className="text-[11px] text-text-muted">{[c.role, c.company].filter(Boolean).join(' · ')}</p>
         )}
         {c.next_action && (
-          <p className={`text-[11px] mt-0.5 font-medium ${overdue ? 'text-red-500' : 'text-text-sec'}`}>
+          <p className={`text-[11px] mt-0.5 font-medium ${overdue ? 'text-danger' : 'text-text-sec'}`}>
             {overdue ? '⚠ ' : '→ '}{c.next_action}
             {c.next_action_date && <span className="text-text-hint ml-1">({c.next_action_date})</span>}
           </p>
@@ -193,7 +193,7 @@ function ContactRow({ contact: c, onEdit, onDelete }) {
             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
           </svg>
         </button>
-        <button onClick={() => onDelete(c.id)} className="p-1.5 text-text-hint hover:text-red-500 transition-colors">
+        <button onClick={() => onDelete(c.id)} className="p-1.5 text-text-hint hover:text-danger transition-colors">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="3 6 5 6 21 6" />
             <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />

@@ -21,7 +21,7 @@ function modelsFor(provider) {
 
 const inputCls = 'w-full px-3 py-2 text-[12px] bg-teal-pale border border-teal-border rounded-sm outline-none focus:border-primary text-text-pri placeholder:text-text-hint'
 
-export default function Settings({ onProfileUpdate, appTheme = 'dynamic', xp = 0, onThemeChange }) {
+export default function Settings({ onProfileUpdate, appTheme = 'dynamic', xp = 0, onThemeChange, lightsOn = false, onLightsChange }) {
   const [profile, setProfile] = useState({ name: '', initials: '' })
   const [ai, setAi]           = useState({ provider: 'anthropic', model: 'claude-sonnet-4-20250514', key: '', ollamaEndpoint: 'http://localhost:11434', ollamaModel: 'llama3' })
   const [prefs, setPrefs]     = useState({ launch_on_startup: 'true', start_minimized: 'false', nudge_dnd: 'false' })
@@ -142,7 +142,7 @@ export default function Settings({ onProfileUpdate, appTheme = 'dynamic', xp = 0
                     }}
                     className={`px-3 py-1.5 rounded-[10px] text-[11px] font-bold transition-all border ${
                       ai.provider === p.value
-                        ? 'bg-primary text-white border-primary'
+                        ? 'bg-primary text-on-primary border-primary'
                         : 'bg-teal-pale text-text-sec border-teal-border hover:border-primary/40'
                     }`}
                   >
@@ -239,20 +239,13 @@ export default function Settings({ onProfileUpdate, appTheme = 'dynamic', xp = 0
                   onClick={() => unlocked && onThemeChange?.(t.id)}
                   disabled={!unlocked}
                   className={`relative p-3 rounded-[10px] border-2 text-left transition-all overflow-hidden ${
-                    active   ? 'border-primary shadow-[0_0_0_3px_rgba(29,158,117,0.18)]' :
+                    active   ? 'border-primary shadow-[0_0_0_3px_rgb(var(--c-primary)_/_0.18)]' :
                     unlocked ? 'border-teal-border hover:border-primary/50' :
                                'border-teal-border opacity-50 cursor-not-allowed'
                   }`}
                 >
                   {/* Preview swatch */}
-                  {t.id === 'pixel' ? (
-                    <div className="w-full h-10 rounded mb-2 bg-[#f4fdf8]" style={{
-                      backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 7px,rgba(29,158,117,0.18) 8px),repeating-linear-gradient(90deg,transparent,transparent 7px,rgba(29,158,117,0.18) 8px)',
-                      backgroundSize: '8px 8px',
-                    }} />
-                  ) : (
-                    <div className="w-full h-10 rounded mb-2" style={{ background: preview }} />
-                  )}
+                  <div className="w-full h-10 rounded mb-2" style={{ background: preview }} />
                   <p className={`text-[12px] font-bold ${active ? 'text-primary' : 'text-teal-dark'}`}>{t.label}</p>
                   <p className="text-[10px] text-text-muted leading-snug">{t.desc}</p>
                   {!unlocked && (
@@ -260,12 +253,21 @@ export default function Settings({ onProfileUpdate, appTheme = 'dynamic', xp = 0
                   )}
                   {active && (
                     <div className="absolute top-2 right-2 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
-                      <span className="text-white text-[8px] font-extrabold">✓</span>
+                      <span className="text-on-primary text-[8px] font-extrabold">✓</span>
                     </div>
                   )}
                 </button>
               )
             })}
+          </div>
+          {/* Applies immediately (no Save button), like the theme cards */}
+          <div className="mt-4">
+            <Toggle
+              label="Holiday lights"
+              hint="String lights & fairy lights around the app frame"
+              value={lightsOn}
+              onChange={v => onLightsChange?.(v)}
+            />
           </div>
         </Section>
 
@@ -287,7 +289,7 @@ export default function Settings({ onProfileUpdate, appTheme = 'dynamic', xp = 0
 
 function Section({ title, children }) {
   return (
-    <div className="bg-white border border-teal-border rounded-card p-5">
+    <div className="bg-surface border border-teal-border rounded-card p-5">
       <p className="text-[14px] font-extrabold text-teal-dark mb-4">{title}</p>
       {children}
     </div>
@@ -307,7 +309,7 @@ function SaveBtn({ onClick, saved }) {
   return (
     <button
       onClick={onClick}
-      className="px-4 py-1.5 bg-primary text-white text-[11px] font-bold rounded-[10px] hover:bg-teal-med transition-colors"
+      className="px-4 py-1.5 bg-primary text-on-primary text-[11px] font-bold rounded-[10px] hover:bg-teal-med transition-colors"
     >
       {saved ? '✓ Saved!' : 'Save'}
     </button>
@@ -325,7 +327,7 @@ function Toggle({ label, hint, value, onChange }) {
         onClick={() => onChange(!value)}
         className={`relative w-10 h-5 rounded-full transition-colors flex-shrink-0 ${value ? 'bg-primary' : 'bg-teal-border'}`}
       >
-        <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all ${value ? 'left-5' : 'left-0.5'}`} />
+        <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-[rgb(var(--c-x-settings-toggle-knob))] shadow transition-all ${value ? 'left-5' : 'left-0.5'}`} />
       </button>
     </div>
   )

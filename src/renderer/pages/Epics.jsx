@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import EpicCard from '../components/EpicCard'
 import Modal from '../components/Modal'
 import { presetToEndDate, endDateToHorizon, daysUntil } from '../utils/dates'
+import { c, useThemePalette } from '../utils/colors'
 
 const PRESETS = ['2 weeks', '1 month', '2 months', '3 months', '6 months', '1 year', 'long term', 'custom']
 
@@ -12,7 +13,9 @@ const HORIZONS = [
   { value: 'longterm', label: 'Long Term'    },
 ]
 const COLORS  = ['teal', 'amber', 'purple']
-const COLOR_HEX = { teal: '#1D9E75', amber: '#EF9F27', purple: '#7F77DD' }
+const COLOR_HEX = { teal: c('primary'), amber: c('amber'), purple: c('purple') }
+// Swatch names as Neon Noel paints them (teal → pink, purple → ice); the stored value stays 'teal' | 'amber' | 'purple'
+const COLOR_NAME_NOEL = { teal: 'pink', amber: 'amber', purple: 'ice' }
 
 const inputCls = 'w-full px-3 py-2 text-[12px] bg-teal-pale border border-teal-border outline-none focus:border-primary text-text-pri placeholder:text-text-hint transition-colors'
 
@@ -41,10 +44,10 @@ function TimeframePicker({ endDate, onChange }) {
             onClick={() => pick(p)}
             className="px-2.5 py-1 text-[10px] font-bold rounded transition-all"
             style={{
-              background: selected === p ? '#1D9E75' : '#eefaf4',
-              color:      selected === p ? '#fff'    : '#0F6E56',
-              border:     selected === p ? '1.5px solid #085041' : '1.5px solid #d4f0e6',
-              boxShadow:  selected === p ? '2px 2px 0 #085041' : 'none',
+              background: selected === p ? c('primary')    : c('screen'),
+              color:      selected === p ? c('on-primary') : c('primary-deep'),
+              border:     selected === p ? `1.5px solid ${c('primary-shadow')}` : `1.5px solid ${c('line')}`,
+              boxShadow:  selected === p ? `2px 2px 0 ${c('primary-shadow')}` : 'none',
             }}
           >
             {p === 'long term' ? 'Long term' : p}
@@ -79,6 +82,8 @@ export default function Epics({ awardXp }) {
   const [form, setForm]     = useState(DEFAULT_FORM)
   const [saving, setSaving] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
+  const noel      = useThemePalette() === 'noel'
+  const colorName = col => (noel ? COLOR_NAME_NOEL[col] : col)
 
   useEffect(() => { if (window.electronAPI) load() }, [])
 
@@ -130,8 +135,8 @@ export default function Epics({ awardXp }) {
         </div>
         <button
           onClick={() => setAdding(true)}
-          className="flex items-center gap-1.5 px-4 py-2 text-[12px] font-bold text-white game-btn"
-          style={{ background: '#1D9E75', border: '2px solid #085041', boxShadow: '3px 3px 0 #085041', borderRadius: 4 }}
+          className="flex items-center gap-1.5 px-4 py-2 text-[12px] font-bold text-on-primary game-btn"
+          style={{ background: c('primary'), border: `2px solid ${c('primary-shadow')}`, boxShadow: `3px 3px 0 ${c('primary-shadow')}`, borderRadius: 4 }}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
@@ -148,13 +153,13 @@ export default function Epics({ awardXp }) {
             onClick={() => setFilter(tab.key)}
             className={`px-3 py-1 text-[11px] font-bold transition-colors game-btn ${
               filter === tab.key
-                ? 'bg-primary text-white'
+                ? 'bg-primary text-on-primary'
                 : 'bg-teal-light text-teal-med hover:bg-teal-border'
             }`}
             style={{
-              border: `2px solid ${filter === tab.key ? '#085041' : '#d4f0e6'}`,
+              border: `2px solid ${filter === tab.key ? c('primary-shadow') : c('line')}`,
               borderRadius: 4,
-              boxShadow: `2px 2px 0 ${filter === tab.key ? '#085041' : 'rgba(8,80,65,0.12)'}`,
+              boxShadow: `2px 2px 0 ${filter === tab.key ? c('primary-shadow') : c('primary-shadow', 0.12)}`,
             }}
           >
             {tab.label}
@@ -216,28 +221,28 @@ export default function Epics({ awardXp }) {
           </Field>
           <Field label="Color">
             <div className="flex gap-3 items-center">
-              {COLORS.map(c => (
+              {COLORS.map(col => (
                 <button
-                  key={c}
-                  onClick={() => setForm(f => ({ ...f, color: c }))}
+                  key={col}
+                  onClick={() => setForm(f => ({ ...f, color: col }))}
                   className="w-8 h-8 rounded-full transition-all"
                   style={{
-                    background: COLOR_HEX[c],
-                    border: form.color === c ? '3px solid #085041' : '3px solid transparent',
-                    boxShadow: form.color === c ? '0 0 0 2px ' + COLOR_HEX[c] : 'none',
-                    transform: form.color === c ? 'scale(1.15)' : 'scale(1)',
+                    background: COLOR_HEX[col],
+                    border: form.color === col ? `3px solid ${c('ink')}` : '3px solid transparent',
+                    boxShadow: form.color === col ? '0 0 0 2px ' + COLOR_HEX[col] : 'none',
+                    transform: form.color === col ? 'scale(1.15)' : 'scale(1)',
                   }}
-                  title={c}
+                  title={colorName(col)}
                 />
               ))}
-              <span className="text-[11px] text-text-muted ml-1 capitalize">{form.color}</span>
+              <span className="text-[11px] text-text-muted ml-1 capitalize">{colorName(form.color)}</span>
             </div>
           </Field>
         </div>
 
         <div
           className="mt-5 px-3 py-2 text-[11px] text-text-muted flex items-center gap-1.5"
-          style={{ background: '#eefaf4', border: '1px solid #d4f0e6', borderRadius: 4 }}
+          style={{ background: c('screen'), border: `1px solid ${c('line')}`, borderRadius: 4 }}
         >
           <span>⭐</span> Creating an Epic awards <strong>+20 XP</strong>
         </div>
@@ -249,8 +254,8 @@ export default function Epics({ awardXp }) {
           <button
             onClick={save}
             disabled={saving || !form.name.trim()}
-            className="px-5 py-2 text-[12px] font-bold text-white game-btn disabled:opacity-40"
-            style={{ background: '#1D9E75', border: '2px solid #085041', boxShadow: '3px 3px 0 #085041', borderRadius: 4 }}
+            className="px-5 py-2 text-[12px] font-bold text-on-primary game-btn disabled:opacity-40"
+            style={{ background: c('primary'), border: `2px solid ${c('primary-shadow')}`, boxShadow: `3px 3px 0 ${c('primary-shadow')}`, borderRadius: 4 }}
           >
             {saving ? 'Saving…' : 'Create Epic'}
           </button>

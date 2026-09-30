@@ -6,6 +6,7 @@ import StatusPill from '../components/StatusPill'
 import Modal from '../components/Modal'
 import ConfettiCelebration from '../components/ConfettiCelebration'
 import { getHorizonDeadline, getQuarterLabel, daysUntil, fmtDate, fmtDateFull, deadlineColor, presetToEndDate, endDateToHorizon } from '../utils/dates'
+import { c, withAlpha } from '../utils/colors'
 
 const HORIZONS = [
   { value: 'quarter',  label: 'This Quarter' },
@@ -18,21 +19,22 @@ const STATUSES = [
   { value: 'done',        label: 'Done'        },
 ]
 const COLORS    = ['teal', 'amber', 'purple']
-const COLOR_HEX = { teal: '#1D9E75', amber: '#EF9F27', purple: '#7F77DD' }
+const COLOR_HEX = { teal: c('primary'), amber: c('amber'), purple: c('purple') }
 
 const RETRO_CARD_CLASS = { teal: 'retro-card', amber: 'retro-card-amber', purple: 'retro-card-purple' }
 
+// dark = hard offset shadow, ink = "+XP" text on the active chip
 const WEIGHTS = [
-  { value: 1, label: 'Minor',    xp: 10,  color: '#9bbdaa', dark: '#4a7060', desc: 'Small prep step' },
-  { value: 2, label: 'Standard', xp: 15,  color: '#1D9E75', dark: '#085041', desc: 'Normal task'     },
-  { value: 3, label: 'Major',    xp: 25,  color: '#EF9F27', dark: '#a65c00', desc: 'Big checkpoint'  },
-  { value: 5, label: 'Critical', xp: 50,  color: '#7F77DD', dark: '#3d3a9e', desc: 'Game changer'    },
+  { value: 1, label: 'Minor',    xp: 10,  color: c('x-epicdetail-minor'), dark: c('x-epicdetail-minor-shadow'), ink: c('muted-alt'),         desc: 'Small prep step' },
+  { value: 2, label: 'Standard', xp: 15,  color: c('primary'),  dark: c('primary-shadow'),            ink: c('ink'),                     desc: 'Normal task'     },
+  { value: 3, label: 'Major',    xp: 25,  color: c('amber'),    dark: c('amber-shadow'),              ink: c('x-epicdetail-amber-text'), desc: 'Big checkpoint'  },
+  { value: 5, label: 'Critical', xp: 50,  color: c('purple'),   dark: c('purple-shadow'),             ink: c('x-epicdetail-purple-ink'), desc: 'Game changer'    },
 ]
 const XP_BY_WEIGHT = { 1: 10, 2: 15, 3: 25, 5: 50 }
 const RETRO_BORDER = {
-  teal:   { border: '#1D9E75', shadow: '#085041', bg: '#eefaf4', text: '#085041' },
-  amber:  { border: '#EF9F27', shadow: '#a65c00', bg: '#fff8ec', text: '#7a4800' },
-  purple: { border: '#7F77DD', shadow: '#3d3a9e', bg: '#f5f4ff', text: '#3d3a9e' },
+  teal:   { border: c('primary'), shadow: c('primary-shadow'), bg: c('screen'),      text: c('ink'),                     on: c('on-primary') },
+  amber:  { border: c('amber'),   shadow: c('amber-shadow'),   bg: c('amber-tint'),  text: c('amber-ink'),               on: c('on-amber')   },
+  purple: { border: c('purple'),  shadow: c('purple-shadow'),  bg: c('purple-tint'), text: c('x-epicdetail-purple-ink'), on: c('on-purple')  },
 }
 
 function calcStreak(dates) {
@@ -323,7 +325,7 @@ export default function EpicDetail({ awardXp }) {
           <h1 className="text-[18px] font-extrabold leading-tight" style={{ color: C.text }}>{epic.name}</h1>
           <div className="flex items-center gap-2 flex-shrink-0">
             <StatusPill status={epic.status} />
-            <button onClick={openEdit} className="p-1.5 rounded transition-colors hover:bg-black/5" title="Edit epic" style={{ color: C.text, opacity: 0.6 }}>
+            <button onClick={openEdit} className="p-1.5 rounded transition-colors hover:bg-[rgb(var(--c-x-epicdetail-hover-shade)/0.05)]" title="Edit epic" style={{ color: C.text, opacity: 0.6 }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
@@ -331,21 +333,21 @@ export default function EpicDetail({ awardXp }) {
             </button>
             {confirmDelete ? (
               <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg"
-                style={{ background: '#FEF2F2', border: '1.5px solid #b91c1c40' }}>
-                <span className="text-[10px] font-bold" style={{ color: '#b91c1c' }}>Delete epic and all its tasks?</span>
+                style={{ background: c('danger-tint'), border: `1.5px solid ${c('danger-deep', 0.25)}` }}>
+                <span className="text-[10px] font-bold" style={{ color: c('danger-deep') }}>Delete epic and all its tasks?</span>
                 <button onClick={deleteEpic}
                   className="text-[10px] font-extrabold px-2 py-0.5 rounded transition-all"
-                  style={{ background: '#dc2626', color: 'white', border: '1.5px solid #b91c1c' }}>
+                  style={{ background: c('x-epicdetail-delete-fill'), color: c('on-danger'), border: `1.5px solid ${c('danger-deep')}` }}>
                   Delete
                 </button>
                 <button onClick={() => setConfirmDelete(false)}
                   className="text-[10px] font-bold px-2 py-0.5 rounded transition-all"
-                  style={{ background: '#f4fdf8', color: '#4a7060', border: '1.5px solid #b3e8d3' }}>
+                  style={{ background: c('screen'), color: c('muted-alt'), border: `1.5px solid ${c('line-strong')}` }}>
                   Cancel
                 </button>
               </div>
             ) : (
-              <button onClick={() => setConfirmDelete(true)} className="p-1.5 rounded transition-colors hover:bg-red-50" title="Delete epic" style={{ color: '#b91c1c', opacity: 0.55 }}>
+              <button onClick={() => setConfirmDelete(true)} className="p-1.5 rounded transition-colors hover:bg-danger-tint" title="Delete epic" style={{ color: c('danger-deep'), opacity: 0.55 }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="3 6 5 6 21 6" />
                   <path d="M19 6l-1 14H6L5 6" />
@@ -385,9 +387,9 @@ export default function EpicDetail({ awardXp }) {
           }
           const daysLabel = days < 0 ? `${Math.abs(days)} days overdue!` : days === 0 ? 'Due today!' : `${days} days remaining`
           return (
-            <div className="flex items-center gap-3 flex-wrap mt-1 pt-2" style={{ borderTop: `1px solid ${dColor}30` }}>
+            <div className="flex items-center gap-3 flex-wrap mt-1 pt-2" style={{ borderTop: `1px solid ${withAlpha(dColor, '30')}` }}>
               <span className="text-[10px] font-bold" style={{ color: C.text, opacity: 0.5 }}>{rangeLabel}</span>
-              <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full" style={{ background: dColor + '1a', color: dColor }}>
+              <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full" style={{ background: withAlpha(dColor, '1a'), color: dColor }}>
                 ⏱ {daysLabel}
               </span>
             </div>
@@ -397,8 +399,8 @@ export default function EpicDetail({ awardXp }) {
         {epic.status !== 'done' && (
           <button
             onClick={markComplete}
-            className="mt-4 flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-white game-btn"
-            style={{ background: C.border, border: `2px solid ${C.shadow}`, boxShadow: `3px 3px 0 ${C.shadow}`, borderRadius: 4 }}
+            className="mt-4 flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold game-btn"
+            style={{ background: C.border, color: C.on, border: `2px solid ${C.shadow}`, boxShadow: `3px 3px 0 ${C.shadow}`, borderRadius: 4 }}
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="20 6 9 17 4 12" />
@@ -421,8 +423,8 @@ export default function EpicDetail({ awardXp }) {
             <span
               className="text-[10px] font-bold px-2 py-0.5 rounded-full"
               style={{
-                background: dailyDoneCount === dailyTasks.length ? '#22c55e20' : '#EF9F2720',
-                color:      dailyDoneCount === dailyTasks.length ? '#22c55e'   : '#EF9F27',
+                background: dailyDoneCount === dailyTasks.length ? c('success', 0.125) : c('amber', 0.125),
+                color:      dailyDoneCount === dailyTasks.length ? c('success')        : c('amber'),
               }}
             >
               {dailyDoneCount}/{dailyTasks.length} today
@@ -433,8 +435,8 @@ export default function EpicDetail({ awardXp }) {
           onClick={openAddDailyTask}
           className="flex items-center gap-1 px-3 py-1.5 text-[11px] font-bold game-btn"
           style={{
-            color: '#EF9F27', background: '#fff8ec',
-            border: '2px solid #f5d68a', boxShadow: '2px 2px 0 rgba(166,92,0,0.2)',
+            color: c('amber'), background: c('amber-tint'),
+            border: `2px solid ${c('amber-line')}`, boxShadow: `2px 2px 0 ${c('amber-shadow', 0.2)}`,
             borderRadius: 4,
           }}
         >
@@ -458,12 +460,13 @@ export default function EpicDetail({ awardXp }) {
             streak={streakMap[task.id] || 0}
             accentColor={C.border}
             shadowColor={C.shadow}
+            onAccentColor={C.on}
             onToggle={toggleDailyTask}
             onDelete={deleteDailyTask}
           />
         ))}
         {dailyTasks.length === 0 && (
-          <div className="py-8 flex flex-col items-center gap-2" style={{ border: '2px dashed #f5d68a', borderRadius: 4 }}>
+          <div className="py-8 flex flex-col items-center gap-2" style={{ border: `2px dashed ${c('amber-line')}`, borderRadius: 4 }}>
             <span className="text-[28px] select-none opacity-30">🔄</span>
             <p className="text-[12px] text-text-hint text-center">
               Add daily tasks — habits that repeat every day to build momentum toward this goal.
@@ -479,8 +482,8 @@ export default function EpicDetail({ awardXp }) {
           onClick={openAddTask}
           className="flex items-center gap-1 px-3 py-1.5 text-[11px] font-bold game-btn"
           style={{
-            color: '#1D9E75', background: '#eefaf4',
-            border: '2px solid #b3e8d3', boxShadow: '2px 2px 0 rgba(8,80,65,0.15)',
+            color: c('primary'), background: c('screen'),
+            border: `2px solid ${c('line-strong')}`, boxShadow: `2px 2px 0 ${c('primary-shadow', 0.15)}`,
             borderRadius: 4,
           }}
         >
@@ -523,13 +526,13 @@ export default function EpicDetail({ awardXp }) {
           {/* Recurring toggle */}
           <div
             className="flex items-center justify-between px-3 py-2.5 rounded"
-            style={{ background: newIsRecurring ? '#fff8ec' : '#f4fdf8', border: `1.5px solid ${newIsRecurring ? '#f5d68a' : '#b3e8d3'}` }}
+            style={{ background: newIsRecurring ? c('amber-tint') : c('screen'), border: `1.5px solid ${newIsRecurring ? c('amber-line') : c('line-strong')}` }}
           >
             <div>
-              <p className="text-[12px] font-bold" style={{ color: newIsRecurring ? '#7a4800' : '#085041' }}>
+              <p className="text-[12px] font-bold" style={{ color: newIsRecurring ? c('amber-ink') : c('ink') }}>
                 {newIsRecurring ? '🔄 Repeats every day' : '📌 One-time milestone'}
               </p>
-              <p className="text-[10px] text-text-hint mt-0.5">
+              <p className="text-[10px] mt-0.5" style={{ color: c('x-epicdetail-toggle-hint') }}>
                 {newIsRecurring ? '+10 XP each day you check it off' : `+${XP_BY_WEIGHT[newWeight] ?? 15} XP when completed`}
               </p>
             </div>
@@ -537,8 +540,8 @@ export default function EpicDetail({ awardXp }) {
               onClick={() => setNewIsRecurring(r => !r)}
               style={{
                 width: 40, height: 22, borderRadius: 11, position: 'relative', flexShrink: 0,
-                background: newIsRecurring ? '#EF9F27' : '#d4f0e6',
-                border: `2px solid ${newIsRecurring ? '#a65c00' : '#b3e8d3'}`,
+                background: newIsRecurring ? c('amber') : c('line'),
+                border: `2px solid ${newIsRecurring ? c('amber-shadow') : c('line-strong')}`,
                 transition: 'background 0.15s, border-color 0.15s',
               }}
             >
@@ -546,7 +549,7 @@ export default function EpicDetail({ awardXp }) {
                 position: 'absolute', top: 2,
                 left: newIsRecurring ? 18 : 2,
                 width: 14, height: 14, borderRadius: '50%',
-                background: newIsRecurring ? '#fff' : '#9bbdaa',
+                background: newIsRecurring ? c('on-amber') : c('hint-alt'),
                 transition: 'left 0.15s',
               }} />
             </button>
@@ -593,11 +596,11 @@ export default function EpicDetail({ awardXp }) {
           <button
             onClick={addTask}
             disabled={!newTitle.trim()}
-            className="px-4 py-2 text-[12px] font-bold text-white game-btn disabled:opacity-40"
+            className={`px-4 py-2 text-[12px] font-bold ${newIsRecurring ? 'text-on-amber' : 'text-on-primary'} game-btn disabled:opacity-40`}
             style={{
-              background: newIsRecurring ? '#EF9F27' : '#1D9E75',
-              border: `2px solid ${newIsRecurring ? '#a65c00' : '#085041'}`,
-              boxShadow: `3px 3px 0 ${newIsRecurring ? '#a65c00' : '#085041'}`,
+              background: newIsRecurring ? c('amber') : c('primary'),
+              border: `2px solid ${newIsRecurring ? c('amber-shadow') : c('primary-shadow')}`,
+              boxShadow: `3px 3px 0 ${newIsRecurring ? c('amber-shadow') : c('primary-shadow')}`,
               borderRadius: 4,
             }}
           >
@@ -639,18 +642,18 @@ export default function EpicDetail({ awardXp }) {
           </Field>
           <Field label="Color">
             <div className="flex gap-3 items-center">
-              {COLORS.map(c => (
+              {COLORS.map(col => (
                 <button
-                  key={c}
-                  onClick={() => setEditForm(f => ({ ...f, color: c }))}
+                  key={col}
+                  onClick={() => setEditForm(f => ({ ...f, color: col }))}
                   className="w-8 h-8 rounded-full transition-all"
                   style={{
-                    background: COLOR_HEX[c],
-                    border: editForm.color === c ? '3px solid #085041' : '3px solid transparent',
-                    boxShadow: editForm.color === c ? '0 0 0 2px ' + COLOR_HEX[c] : 'none',
-                    transform: editForm.color === c ? 'scale(1.15)' : 'scale(1)',
+                    background: COLOR_HEX[col],
+                    border: editForm.color === col ? `3px solid ${c('ink')}` : '3px solid transparent',
+                    boxShadow: editForm.color === col ? '0 0 0 2px ' + COLOR_HEX[col] : 'none',
+                    transform: editForm.color === col ? 'scale(1.15)' : 'scale(1)',
                   }}
-                  title={c}
+                  title={col}
                 />
               ))}
             </div>
@@ -663,8 +666,8 @@ export default function EpicDetail({ awardXp }) {
           <button
             onClick={saveEdit}
             disabled={!editForm.name?.trim()}
-            className="px-5 py-2 text-[12px] font-bold text-white game-btn disabled:opacity-40"
-            style={{ background: '#1D9E75', border: '2px solid #085041', boxShadow: '3px 3px 0 #085041', borderRadius: 4 }}
+            className="px-5 py-2 text-[12px] font-bold text-on-primary game-btn disabled:opacity-40"
+            style={{ background: c('primary'), border: `2px solid ${c('primary-shadow')}`, boxShadow: `3px 3px 0 ${c('primary-shadow')}`, borderRadius: 4 }}
           >
             Save Changes
           </button>
@@ -716,18 +719,18 @@ function WeightPicker({ value, onChange }) {
               className="flex flex-col items-center gap-1 py-2 px-1 transition-all game-btn"
               style={{
                 borderRadius: 5,
-                background: active ? w.color + '18' : '#f4fdf8',
-                border:     `2px solid ${active ? w.color : '#d4f0e6'}`,
+                background: active ? withAlpha(w.color, '18') : c('screen'),
+                border:     `2px solid ${active ? w.color : c('line')}`,
                 boxShadow:  active ? `2px 2px 0 ${w.dark}` : 'none',
               }}
             >
-              <span className="text-[11px] font-extrabold" style={{ color: active ? w.color : '#4a7060' }}>
+              <span className="text-[11px] font-extrabold" style={{ color: active ? w.color : c('muted-alt') }}>
                 {w.label}
               </span>
-              <span className="text-[9px] font-semibold" style={{ color: active ? w.dark : '#9bbdaa' }}>
+              <span className="text-[9px] font-semibold" style={{ color: active ? w.ink : c('hint-alt') }}>
                 +{w.xp} XP
               </span>
-              <span className="text-[8px]" style={{ color: '#b3c4bb' }}>{w.desc}</span>
+              <span className="text-[8px]" style={{ color: c('x-epicdetail-weight-desc') }}>{w.desc}</span>
             </button>
           )
         })}
@@ -756,10 +759,10 @@ function DayPicker({ selected, onToggle }) {
               style={{
                 width: 32, height: 32,
                 borderRadius: 4,
-                background: active ? '#EF9F27' : '#f4fdf8',
-                color:      active ? '#fff'    : '#4a7060',
-                border:     active ? '2px solid #a65c00' : '2px solid #d4f0e6',
-                boxShadow:  active ? '2px 2px 0 #a65c00' : 'none',
+                background: active ? c('amber')    : c('screen'),
+                color:      active ? c('on-amber') : c('muted-alt'),
+                border:     `2px solid ${active ? c('amber-shadow') : c('line')}`,
+                boxShadow:  active ? `2px 2px 0 ${c('amber-shadow')}` : 'none',
               }}
             >
               {label}
@@ -781,16 +784,16 @@ function DayPicker({ selected, onToggle }) {
 
 // ── DailyCheckItem ────────────────────────────────────────────────────────────
 
-function DailyCheckItem({ task, done, streak, accentColor, shadowColor, onToggle, onDelete }) {
+function DailyCheckItem({ task, done, streak, accentColor, shadowColor, onAccentColor, onToggle, onDelete }) {
   const scheduledToday = isScheduledToday(task.recurrence_days)
   const label          = scheduleLabel(task.recurrence_days)
 
   return (
     <div
-      className="flex items-center gap-3 px-4 py-3 bg-white"
+      className="flex items-center gap-3 px-4 py-3 bg-surface"
       style={{
-        border:      `1.5px solid ${done ? accentColor : scheduledToday ? '#e5f5ee' : '#f0f0f0'}`,
-        borderLeft:  `3px solid ${done ? accentColor : scheduledToday ? '#d4f0e6' : '#e0e0e0'}`,
+        border:      `1.5px solid ${done ? accentColor : scheduledToday ? c('tint') : c('x-epicdetail-offday-tint')}`,
+        borderLeft:  `3px solid ${done ? accentColor : scheduledToday ? c('line') : c('x-epicdetail-offday-line')}`,
         borderRadius: 4,
         transition:  'border-color 0.15s',
         opacity:     !scheduledToday ? 0.45 : done ? 0.75 : 1,
@@ -803,14 +806,14 @@ function DailyCheckItem({ task, done, streak, accentColor, shadowColor, onToggle
         className="flex-shrink-0 w-6 h-6 rounded flex items-center justify-center transition-all game-btn"
         style={{
           background:  done ? accentColor : 'transparent',
-          border:      `2px solid ${done ? accentColor : scheduledToday ? '#b3e8d3' : '#d0d0d0'}`,
+          border:      `2px solid ${done ? accentColor : scheduledToday ? c('line-strong') : c('x-epicdetail-offday-box')}`,
           boxShadow:   done ? `2px 2px 0 ${shadowColor}` : 'none',
           cursor:      scheduledToday ? 'pointer' : 'default',
         }}
         title={!scheduledToday ? `Not scheduled today (${label})` : done ? 'Uncheck' : 'Mark done (+10 XP)'}
       >
         {done && (
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={onAccentColor} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="20 6 9 17 4 12" />
           </svg>
         )}
@@ -824,12 +827,12 @@ function DailyCheckItem({ task, done, streak, accentColor, shadowColor, onToggle
         <div className="flex items-center gap-2 mt-0.5 flex-wrap">
           <span className="text-[10px] text-text-hint">{label}</span>
           {!scheduledToday && (
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: '#f0f0f0', color: '#aaa' }}>
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: c('x-epicdetail-offday-tint'), color: c('x-epicdetail-offday-text') }}>
               not today
             </span>
           )}
           {scheduledToday && streak > 0 && (
-            <span className="text-[10px] font-bold" style={{ color: '#EF9F27' }}>
+            <span className="text-[10px] font-bold" style={{ color: c('amber') }}>
               {streak}d streak
             </span>
           )}
@@ -842,12 +845,12 @@ function DailyCheckItem({ task, done, streak, accentColor, shadowColor, onToggle
       {/* XP + delete */}
       <div className="flex items-center gap-2 flex-shrink-0">
         {scheduledToday && !done && (
-          <span className="text-[10px] font-extrabold" style={{ color: '#EF9F27' }}>+10 XP</span>
+          <span className="text-[10px] font-extrabold" style={{ color: c('amber') }}>+10 XP</span>
         )}
         <button
           onClick={() => onDelete(task.id)}
           className="p-1 rounded transition-opacity opacity-30 hover:opacity-80"
-          style={{ color: '#b91c1c' }}
+          style={{ color: c('danger-deep') }}
           title="Remove"
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -900,10 +903,10 @@ function TimeframePicker({ endDate, onChange }) {
             onClick={() => pick(p)}
             className="px-2.5 py-1 text-[10px] font-bold rounded transition-all"
             style={{
-              background: selected === p ? '#1D9E75' : '#eefaf4',
-              color:      selected === p ? '#fff'    : '#0F6E56',
-              border:     selected === p ? '1.5px solid #085041' : '1.5px solid #d4f0e6',
-              boxShadow:  selected === p ? '2px 2px 0 #085041' : 'none',
+              background: selected === p ? c('primary')    : c('screen'),
+              color:      selected === p ? c('on-primary') : c('primary-deep'),
+              border:     `1.5px solid ${selected === p ? c('primary-shadow') : c('line')}`,
+              boxShadow:  selected === p ? `2px 2px 0 ${c('primary-shadow')}` : 'none',
             }}
           >
             {p === 'long term' ? 'Long term' : p}

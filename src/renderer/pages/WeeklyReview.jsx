@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { buildSystemPrompt, fetchMemories } from '../utils/systemPrompt'
+import { c } from '../utils/colors'
 
 const ENERGY_LABELS = { 1: '😩 Drained', 2: '😕 Low', 3: '😐 Neutral', 4: '😊 Good', 5: '🔥 Peak' }
 
@@ -384,7 +385,7 @@ export default function WeeklyReview({ awardXp }) {
         </div>
 
         {/* Energy rating */}
-        <div className="bg-white border border-teal-border rounded-card p-5">
+        <div className="bg-surface border border-teal-border rounded-card p-5">
           <p className="text-[13px] font-bold text-teal-dark mb-3">Overall energy this week</p>
           <div className="flex gap-2">
             {[1, 2, 3, 4, 5].map(n => (
@@ -393,7 +394,7 @@ export default function WeeklyReview({ awardXp }) {
                 onClick={() => setForm(f => ({ ...f, energy_rating: n }))}
                 className={`flex-1 py-2 rounded-[10px] text-[11px] font-bold transition-all ${
                   form.energy_rating === n
-                    ? 'bg-primary text-white shadow-sm scale-105'
+                    ? 'bg-primary text-on-primary shadow-sm scale-105'
                     : 'bg-teal-pale text-text-muted hover:bg-teal-light'
                 }`}
               >
@@ -422,7 +423,7 @@ export default function WeeklyReview({ awardXp }) {
         <button
           onClick={saveNotes}
           disabled={saving}
-          className="w-full py-2.5 bg-primary text-white text-[13px] font-bold rounded-[10px] hover:bg-teal-med disabled:opacity-40 transition-colors"
+          className="w-full py-2.5 bg-primary text-on-primary text-[13px] font-bold rounded-[10px] hover:bg-teal-med disabled:opacity-40 transition-colors"
         >
           {saved ? '✓ Notes Saved! +25 XP' : saving ? 'Saving…' : 'Save My Notes'}
         </button>
@@ -436,7 +437,7 @@ export default function WeeklyReview({ awardXp }) {
 function AIReviewPanel({ review, loading, error, confirmRegen, onRequestRegen, onConfirmRegen, onCancelRegen }) {
   if (loading) {
     return (
-      <div className="bg-white border border-teal-border rounded-card p-5">
+      <div className="bg-surface border border-teal-border rounded-card p-5">
         <div className="flex items-center gap-2.5 mb-4">
           <SpinBadge />
           <p className="text-[13px] font-bold text-teal-dark">Analysing your week…</p>
@@ -444,7 +445,7 @@ function AIReviewPanel({ review, loading, error, confirmRegen, onRequestRegen, o
         <div className="flex flex-col gap-2.5">
           {[55, 40, 70].map((pct, i) => (
             <div key={i} className="h-3 rounded-full"
-              style={{ width: `${pct}%`, background: '#e8f5ee', animation: 'shimmer 1.5s ease-in-out infinite', animationDelay: `${i * 0.2}s` }} />
+              style={{ width: `${pct}%`, background: c('x-review-skeleton'), animation: 'shimmer 1.5s ease-in-out infinite', animationDelay: `${i * 0.2}s` }} />
           ))}
         </div>
       </div>
@@ -453,11 +454,11 @@ function AIReviewPanel({ review, loading, error, confirmRegen, onRequestRegen, o
 
   if (error && !review) {
     return (
-      <div className="bg-white border border-teal-border rounded-card p-5">
+      <div className="bg-surface border border-teal-border rounded-card p-5">
         <div className="flex items-start gap-2">
           <span className="text-[16px] mt-0.5">⚠️</span>
           <div>
-            <p className="text-[12px] font-bold mb-1" style={{ color: '#c0392b' }}>{error}</p>
+            <p className="text-[12px] font-bold mb-1" style={{ color: c('x-review-error') }}>{error}</p>
             <button onClick={onRequestRegen} className="text-[11px] font-bold text-primary hover:underline">
               Try again →
             </button>
@@ -473,30 +474,30 @@ function AIReviewPanel({ review, loading, error, confirmRegen, onRequestRegen, o
     <div className="flex flex-col gap-3">
       {/* Summary card */}
       <div className="p-4 rounded-[12px]"
-        style={{ background: 'linear-gradient(135deg, #ebfaf3 0%, #f2f6ff 100%)', border: '1.5px solid #b3e8d3' }}>
+        style={{ background: `linear-gradient(135deg, ${c('x-review-summary-from')} 0%, ${c('purple-tint')} 100%)`, border: `1.5px solid ${c('line-strong')}` }}>
         {/* Card header */}
         <div className="flex items-center justify-between gap-3 mb-3">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-              <span className="text-white text-[9px] font-extrabold">AI</span>
+              <span className="text-on-primary text-[9px] font-extrabold">AI</span>
             </div>
             <p className="text-[12px] font-extrabold text-teal-dark">Performance summary</p>
           </div>
           <div className="flex items-center gap-1.5">
             {error && (
-              <span className="text-[10px] font-bold" style={{ color: '#EF9F27' }}>using cached</span>
+              <span className="text-[10px] font-bold" style={{ color: c('amber') }}>using cached</span>
             )}
             {confirmRegen ? (
               <>
-                <span className="text-[10px] font-bold" style={{ color: '#a65c00' }}>Regenerate?</span>
+                <span className="text-[10px] font-bold" style={{ color: c('x-review-amber-text') }}>Regenerate?</span>
                 <button onClick={onConfirmRegen}
                   className="text-[10px] font-extrabold px-2 py-0.5 rounded transition-all hover:opacity-80"
-                  style={{ background: '#EF9F27', color: 'white', border: '1.5px solid #a65c00' }}>
+                  style={{ background: c('amber'), color: c('on-amber'), border: `1.5px solid ${c('amber-shadow')}` }}>
                   Yes
                 </button>
                 <button onClick={onCancelRegen}
                   className="text-[10px] font-bold px-2 py-0.5 rounded transition-all"
-                  style={{ background: '#f4fdf8', color: '#4a7060', border: '1.5px solid #b3e8d3' }}>
+                  style={{ background: c('screen'), color: c('muted-alt'), border: `1.5px solid ${c('line-strong')}` }}>
                   Cancel
                 </button>
               </>
@@ -515,18 +516,18 @@ function AIReviewPanel({ review, loading, error, confirmRegen, onRequestRegen, o
       {/* Win & Gap */}
       <div className="grid grid-cols-2 gap-3">
         <div className="p-4 rounded-[10px]"
-          style={{ background: '#f0faf4', border: '1.5px solid #a8ddc4' }}>
+          style={{ background: c('surface-2'), border: `1.5px solid ${c('x-review-win-line')}` }}>
           <p className="text-[9px] font-extrabold uppercase tracking-widest mb-2"
-            style={{ color: '#2a8a67' }}>Biggest Win</p>
-          <p className="text-[12px] font-semibold leading-snug" style={{ color: '#085041' }}>
+            style={{ color: c('primary-hover') }}>Biggest Win</p>
+          <p className="text-[12px] font-semibold leading-snug" style={{ color: c('ink') }}>
             {review.win || '—'}
           </p>
         </div>
         <div className="p-4 rounded-[10px]"
-          style={{ background: '#fff8ed', border: '1.5px solid #f5d28a' }}>
+          style={{ background: c('amber-tint'), border: `1.5px solid ${c('amber-line')}` }}>
           <p className="text-[9px] font-extrabold uppercase tracking-widest mb-2"
-            style={{ color: '#a65c00' }}>Biggest Gap</p>
-          <p className="text-[12px] font-semibold leading-snug" style={{ color: '#7a3f00' }}>
+            style={{ color: c('x-review-amber-text') }}>Biggest Gap</p>
+          <p className="text-[12px] font-semibold leading-snug" style={{ color: c('x-review-gap-ink') }}>
             {review.gap || '—'}
           </p>
         </div>
@@ -535,17 +536,17 @@ function AIReviewPanel({ review, loading, error, confirmRegen, onRequestRegen, o
       {/* Reflective questions */}
       {review.questions?.length > 0 && (
         <div className="p-4 rounded-[10px]"
-          style={{ background: '#f8f7ff', border: '1.5px solid #cac8f5' }}>
+          style={{ background: c('purple-tint'), border: `1.5px solid ${c('purple-line')}` }}>
           <p className="text-[9px] font-extrabold uppercase tracking-widest mb-3"
-            style={{ color: '#7F77DD' }}>Reflect on this</p>
+            style={{ color: c('purple') }}>Reflect on this</p>
           <div className="flex flex-col gap-2.5">
             {review.questions.map((q, i) => (
               <div key={i} className="flex gap-2.5 items-start">
                 <span className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[9px] font-extrabold mt-0.5"
-                  style={{ background: '#7F77DD20', color: '#7F77DD' }}>
+                  style={{ background: c('purple', 0.125), color: c('purple') }}>
                   {i + 1}
                 </span>
-                <p className="text-[12px] leading-snug" style={{ color: '#3d3a9e' }}>{q}</p>
+                <p className="text-[12px] leading-snug" style={{ color: c('x-review-question-ink') }}>{q}</p>
               </div>
             ))}
           </div>
@@ -560,7 +561,7 @@ function AIReviewPanel({ review, loading, error, confirmRegen, onRequestRegen, o
 function SpinBadge() {
   return (
     <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={c('on-primary')} strokeWidth="2.5"
         strokeLinecap="round" style={{ animation: 'spin 1s linear infinite' }}>
         <path d="M21 12a9 9 0 1 1-6.219-8.56" />
       </svg>
@@ -581,7 +582,7 @@ function RefreshSvg() {
 
 function ReviewSection({ label, hint, children }) {
   return (
-    <div className="bg-white border border-teal-border rounded-card p-5">
+    <div className="bg-surface border border-teal-border rounded-card p-5">
       <p className="text-[13px] font-bold text-teal-dark mb-0.5">{label}</p>
       {hint && <p className="text-[11px] text-text-hint mb-3">{hint}</p>}
       {children}

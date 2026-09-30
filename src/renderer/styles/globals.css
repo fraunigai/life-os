@@ -1,22 +1,12 @@
+@import './tokens.css';
+@import './noel.css';
+@import './holiday-lights.css';
+@import './reindeer.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --color-primary:      #1D9E75;
-  --color-teal-dark:    #085041;
-  --color-teal-med:     #0F6E56;
-  --color-teal-light:   #E1F5EE;
-  --color-teal-border:  #d4f0e6;
-  --color-teal-pale:    #f7fdfb;
-  --color-amber:        #EF9F27;
-  --color-purple:       #7F77DD;
-  --color-green-done:   #639922;
-  --color-text-pri:     #085041;
-  --color-text-sec:     #444441;
-  --color-text-muted:   #888780;
-  --color-text-hint:    #B4B2A9;
-}
 
 * {
   box-sizing: border-box;
@@ -27,16 +17,16 @@
 html, body, #root {
   height: 100%;
   font-family: 'Nunito', sans-serif;
-  background-color: #f7fdfb;
-  color: #085041;
+  background-color: rgb(var(--c-surface-2));
+  color: rgb(var(--c-ink));
   -webkit-font-smoothing: antialiased;
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar        { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track  { background: transparent; }
-::-webkit-scrollbar-thumb  { background: #d4f0e6; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #1D9E75; }
+::-webkit-scrollbar-thumb  { background: rgb(var(--c-line)); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgb(var(--c-primary)); }
 
 /* Checkbox animation */
 @keyframes checkBounce {
@@ -75,8 +65,8 @@ html, body, #root {
 
 /* Streak fire glow */
 @keyframes fireGlow {
-  0%, 100% { text-shadow: 0 0 4px rgba(239,159,39,0.4); }
-  50%       { text-shadow: 0 0 14px rgba(239,159,39,1); }
+  0%, 100% { text-shadow: 0 0 4px rgb(var(--c-amber) / 0.4); }
+  50%       { text-shadow: 0 0 14px rgb(var(--c-amber) / 1); }
 }
 .fire-glow { animation: fireGlow 1.8s ease-in-out infinite; }
 
@@ -95,7 +85,7 @@ html, body, #root {
   100% { background-position: 200% center; }
 }
 .xp-shimmer {
-  background: linear-gradient(90deg, #1D9E75 0%, #E1F5EE 50%, #1D9E75 100%);
+  background: linear-gradient(90deg, rgb(var(--c-primary)) 0%, rgb(var(--c-tint)) 50%, rgb(var(--c-primary)) 100%);
   background-size: 200% auto;
   animation: shimmer 1s linear 3;
 }
@@ -104,7 +94,7 @@ html, body, #root {
 
 /* Subtle pixel-dot grid behind content */
 .game-bg {
-  background-image: radial-gradient(circle, rgba(29,158,117,0.07) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgb(var(--c-primary) / 0.07) 1px, transparent 1px);
   background-size: 22px 22px;
 }
 
@@ -136,7 +126,7 @@ button, [role="button"] {
 
 /* Retro press effect on buttons */
 .game-btn {
-  box-shadow: 0 4px 0 rgba(8,80,65,0.28);
+  box-shadow: 0 4px 0 rgb(var(--c-primary-shadow) / 0.28);
   transition: transform 0.06s, box-shadow 0.06s, filter 0.06s;
 }
 .game-btn:hover {
@@ -144,21 +134,14 @@ button, [role="button"] {
 }
 .game-btn:active {
   transform: translateY(4px) scale(0.96);
-  box-shadow: 0 0px 0 rgba(8,80,65,0.28);
+  box-shadow: 0 0px 0 rgb(var(--c-primary-shadow) / 0.28);
   filter: brightness(0.94);
 }
 
 /* Soft glow on primary elements */
 .game-glow {
-  box-shadow: 0 0 14px rgba(29,158,117,0.45), 0 0 4px rgba(29,158,117,0.25);
+  box-shadow: 0 0 14px rgb(var(--c-primary) / 0.45), 0 0 4px rgb(var(--c-primary) / 0.25);
 }
-
-/* Mario AI button bob */
-@keyframes marioBob {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50%       { transform: translateY(-4px) scale(1.04); }
-}
-.mario-bob { animation: marioBob 1.6s ease-in-out infinite; }
 
 /* Coin wobble for level badge */
 @keyframes coinWobble {
@@ -175,12 +158,12 @@ button, [role="button"] {
 
 /* Active nav glow */
 @keyframes navPulse {
-  0%, 100% { box-shadow: inset 3px 0 0 #1D9E75; }
-  50%       { box-shadow: inset 3px 0 0 #26c98c, 4px 0 12px rgba(29,158,117,0.3); }
+  0%, 100% { box-shadow: inset 3px 0 0 rgb(var(--c-chrome-accent)); }
+  50%       { box-shadow: inset 3px 0 0 rgb(var(--c-x-nav-pulse-hi)), 4px 0 12px rgb(var(--c-chrome-accent) / 0.3); }
 }
 .nav-active-glow { animation: navPulse 2s ease-in-out infinite; }
 
-/* Mario confused shake */
+/* Sprite confused shake (WalkingReindeer hover) */
 @keyframes confusedShake {
   0%, 100% { transform: translateX(0)    rotate(0deg); }
   25%       { transform: translateX(-2px) rotate(-6deg); }
@@ -197,42 +180,42 @@ button, [role="button"] {
 
 /* Hard 3-pixel drop shadow = instant retro game UI energy */
 .retro-card {
-  border: 2px solid #1D9E75;
-  box-shadow: 3px 3px 0 #085041;
+  border: 2px solid rgb(var(--c-primary));
+  box-shadow: 3px 3px 0 rgb(var(--c-primary-shadow));
   border-radius: 3px;
   transition: transform 0.08s, box-shadow 0.08s;
 }
 .retro-card:hover {
   transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 #085041, 0 0 14px rgba(29,158,117,0.2);
+  box-shadow: 4px 4px 0 rgb(var(--c-primary-shadow)), 0 0 14px rgb(var(--c-primary) / 0.2);
 }
 
 .retro-card-amber {
-  border: 2px solid #EF9F27;
-  box-shadow: 3px 3px 0 #a65c00;
+  border: 2px solid rgb(var(--c-amber));
+  box-shadow: 3px 3px 0 rgb(var(--c-amber-shadow));
   border-radius: 3px;
   transition: transform 0.08s, box-shadow 0.08s;
 }
 .retro-card-amber:hover {
   transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 #a65c00, 0 0 14px rgba(239,159,39,0.25);
+  box-shadow: 4px 4px 0 rgb(var(--c-amber-shadow)), 0 0 14px rgb(var(--c-amber) / 0.25);
 }
 
 .retro-card-purple {
-  border: 2px solid #7F77DD;
-  box-shadow: 3px 3px 0 #3d3a9e;
+  border: 2px solid rgb(var(--c-purple));
+  box-shadow: 3px 3px 0 rgb(var(--c-purple-shadow));
   border-radius: 3px;
   transition: transform 0.08s, box-shadow 0.08s;
 }
 .retro-card-purple:hover {
   transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 #3d3a9e, 0 0 14px rgba(127,119,221,0.25);
+  box-shadow: 4px 4px 0 rgb(var(--c-purple-shadow)), 0 0 14px rgb(var(--c-purple) / 0.25);
 }
 
 /* Active click press for retro cards */
-.retro-card:active       { transform: translate(1px, 1px) !important; box-shadow: 1px 1px 0 #085041 !important; }
-.retro-card-amber:active { transform: translate(1px, 1px) !important; box-shadow: 1px 1px 0 #a65c00 !important; }
-.retro-card-purple:active{ transform: translate(1px, 1px) !important; box-shadow: 1px 1px 0 #3d3a9e !important; }
+.retro-card:active       { transform: translate(1px, 1px) !important; box-shadow: 1px 1px 0 rgb(var(--c-primary-shadow)) !important; }
+.retro-card-amber:active { transform: translate(1px, 1px) !important; box-shadow: 1px 1px 0 rgb(var(--c-amber-shadow)) !important; }
+.retro-card-purple:active{ transform: translate(1px, 1px) !important; box-shadow: 1px 1px 0 rgb(var(--c-purple-shadow)) !important; }
 
 /* Modal / panel pop-in */
 @keyframes popIn {
@@ -248,14 +231,14 @@ button, [role="button"] {
 }
 .hover-lift:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(29,158,117,0.12);
+  box-shadow: 0 4px 12px rgb(var(--c-primary) / 0.12);
 }
 
 /* Pulse ring on XP award */
 @keyframes pulseRing {
-  0%   { box-shadow: 0 0 0 0 rgba(29,158,117,0.55); }
-  70%  { box-shadow: 0 0 0 10px rgba(29,158,117,0); }
-  100% { box-shadow: 0 0 0 0 rgba(29,158,117,0); }
+  0%   { box-shadow: 0 0 0 0 rgb(var(--c-primary) / 0.55); }
+  70%  { box-shadow: 0 0 0 10px rgb(var(--c-primary) / 0); }
+  100% { box-shadow: 0 0 0 0 rgb(var(--c-primary) / 0); }
 }
 .pulse-ring { animation: pulseRing 0.6s ease-out; }
 

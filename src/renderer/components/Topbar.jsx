@@ -1,4 +1,5 @@
 import React from 'react'
+import { c } from '../utils/colors'
 
 const LEVEL_THRESHOLDS = [0, 200, 500, 1000, 2000]
 function xpForLevel(level) {
@@ -23,34 +24,60 @@ function RefreshIcon() {
   )
 }
 
-export default function Topbar({ userName, userInitials, xp, level, musicOn, onToggleMusic, brief, briefLoading, onRefreshBrief, onOpenCommand }) {
+// Mini C9 bulb for the holiday-lights toggle: lit glass + halo when on, outline when off.
+// The lit glass/socket colours are the garland's decorative bulb colours (--hl-icon-* in holiday-lights.css);
+// the off state follows the theme.
+function LightsIcon({ on }) {
+  return (
+    <svg className="hl-icon" width="14" height="18" viewBox="0 0 14 18" aria-hidden="true" style={{ overflow: 'visible' }}>
+      <defs>
+        <radialGradient id="hlTg" cx="40%" cy="42%" r="62%">
+          <stop offset="0" style={{ stopColor: 'var(--hl-icon-hi)' }} />
+          <stop offset=".45" style={{ stopColor: 'var(--hl-icon-glass)' }} />
+          <stop offset="1" style={{ stopColor: 'var(--hl-icon-deep)' }} />
+        </radialGradient>
+        <radialGradient id="hlTh">
+          <stop offset="0" style={{ stopColor: 'var(--hl-icon-glass)', stopOpacity: 0.55 }} />
+          <stop offset="1" style={{ stopColor: 'var(--hl-icon-glass)', stopOpacity: 0 }} />
+        </radialGradient>
+      </defs>
+      {on && <circle cx="7" cy="11.5" r="9" fill="url(#hlTh)" />}
+      <rect x="4.6" y=".5" width="4.8" height="4.6" rx="1" fill={on ? 'var(--hl-icon-socket)' : c('chrome-mid')} />
+      <path d="M4.9 5.1h4.2c0 1.6 3.4 2.8 3.4 6 0 2.9-2.6 4.8-5.5 6.4-2.9-1.6-5.5-3.5-5.5-6.4 0-3.2 3.4-4.4 3.4-6z"
+            fill={on ? 'url(#hlTg)' : 'none'} stroke={on ? 'none' : c('chrome-mid')} strokeWidth="1.2" />
+      {on && <ellipse cx="5.4" cy="10" rx=".9" ry="1.3" fill="rgba(255,255,255,0.9)" />}
+    </svg>
+  )
+}
+
+export default function Topbar({ userName, userInitials, xp, level, musicOn, onToggleMusic, lightsOn, onToggleLights, brief, briefLoading, onRefreshBrief, onOpenCommand }) {
   const current = xp - xpForLevel(level)
   const needed  = xpForNextLevel(level) - xpForLevel(level)
   const pct     = level >= 5 ? 100 : Math.min(100, Math.round((current / needed) * 100))
 
   return (
     <header
-      className="h-[70px] min-h-[70px] flex items-center justify-between px-8"
-      style={{ background: '#061710', borderBottom: '1px solid rgba(29,158,117,0.22)' }}
+      className="nl-topbar h-[70px] min-h-[70px] flex items-center justify-between px-8"
+      style={{ background: c('chrome'), borderBottom: `1px solid ${c('chrome-accent', 0.22)}` }}
     >
       {/* Left: daily brief + date */}
       <div className="flex flex-col justify-center gap-0.5 max-w-[520px] min-w-0">
         {briefLoading ? (
-          <span className="text-[11px] font-medium animate-pulse" style={{ color: '#2a5c40' }}>
+          <span className="text-[11px] font-medium animate-pulse" style={{ color: c('chrome-dim') }}>
             Generating daily brief…
           </span>
         ) : (
           <p
             className="text-[11px] font-semibold line-clamp-3 leading-snug"
-            style={{ color: '#4dffb0' }}
+            style={{ color: c('chrome-text') }}
           >
-            {brief || <span style={{ color: '#2a5c40' }}>Loading…</span>}
+            {brief || <span style={{ color: c('chrome-dim') }}>Loading…</span>}
           </p>
         )}
-        <span className="text-[10px] font-medium" style={{ color: '#2a5c40' }}>{formatDate()}</span>
+        <span className="text-[10px] font-medium" style={{ color: c('chrome-dim') }}>{formatDate()}</span>
       </div>
 
-      {/* Right: command + music + XP bar + level badge + avatar */}
+      {/* Right: command + lights + music + XP bar + level badge + avatar */}
       <div className="flex items-center gap-4">
 
         {/* Command palette trigger (⌘K) */}
@@ -59,16 +86,16 @@ export default function Topbar({ userName, userInitials, xp, level, musicOn, onT
           title="Command palette (Ctrl+K)"
           className="flex items-center gap-2 h-7 pl-2.5 pr-2 transition-all hover:scale-[1.03]"
           style={{
-            background: 'rgba(29,158,117,0.08)',
-            border: '1px solid rgba(29,158,117,0.22)',
+            background: c('chrome-accent', 0.08),
+            border: `1px solid ${c('chrome-accent', 0.22)}`,
             borderRadius: 5,
           }}
         >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4dffb0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={c('chrome-text')} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
-          <span className="text-[10px] font-bold" style={{ color: '#2a5c40' }}>Search</span>
-          <kbd className="text-[8px] font-extrabold px-1 py-0.5 rounded" style={{ background: 'rgba(29,158,117,0.15)', color: '#4dffb0', border: '1px solid rgba(29,158,117,0.25)' }}>
+          <span className="text-[10px] font-bold" style={{ color: c('chrome-dim') }}>Search</span>
+          <kbd className="text-[8px] font-extrabold px-1 py-0.5 rounded" style={{ background: c('chrome-accent', 0.15), color: c('chrome-text'), border: `1px solid ${c('chrome-accent', 0.25)}` }}>
             ⌘K
           </kbd>
         </button>
@@ -80,13 +107,30 @@ export default function Topbar({ userName, userInitials, xp, level, musicOn, onT
           title="Refresh daily brief"
           className="w-7 h-7 flex items-center justify-center transition-all hover:scale-110 disabled:opacity-30"
           style={{
-            background: 'rgba(29,158,117,0.08)',
-            border: '1px solid rgba(29,158,117,0.2)',
+            background: c('chrome-accent', 0.08),
+            border: `1px solid ${c('chrome-accent', 0.2)}`,
             borderRadius: 4,
-            color: '#4dffb0',
+            color: c('chrome-text'),
           }}
         >
           <RefreshIcon />
+        </button>
+
+        {/* Holiday lights toggle */}
+        <button
+          type="button"
+          onClick={onToggleLights}
+          aria-pressed={!!lightsOn}
+          aria-label="Holiday lights"
+          title={lightsOn ? 'Turn holiday lights off' : 'Turn holiday lights on'}
+          className="w-8 h-8 flex items-center justify-center transition-all hover:scale-110"
+          style={{
+            background: c('chrome-accent', lightsOn ? 0.14 : 0.06),
+            border: `1px solid ${c('chrome-accent', 0.3)}`,
+            borderRadius: 4,
+          }}
+        >
+          <LightsIcon on={lightsOn} />
         </button>
 
         {/* Music toggle */}
@@ -95,10 +139,10 @@ export default function Topbar({ userName, userInitials, xp, level, musicOn, onT
           title={musicOn ? 'Stop music' : 'Play BGM 🎵'}
           className="w-8 h-8 flex items-center justify-center text-[16px] transition-all hover:scale-110"
           style={{
-            background: musicOn ? '#1D9E75' : 'rgba(29,158,117,0.12)',
-            border: '1px solid rgba(29,158,117,0.25)',
+            background: musicOn ? c('primary') : c('chrome-accent', 0.12),
+            border: `1px solid ${c('chrome-accent', 0.25)}`,
             borderRadius: 4,
-            boxShadow: musicOn ? '2px 2px 0 #085041' : 'none',
+            boxShadow: musicOn ? `2px 2px 0 ${c('primary-shadow')}` : 'none',
           }}
         >
           {musicOn ? '🎵' : '🎮'}
@@ -106,31 +150,31 @@ export default function Topbar({ userName, userInitials, xp, level, musicOn, onT
 
         {/* XP bar */}
         <div className="flex flex-col items-end gap-1">
-          <span className="text-[10px] font-extrabold font-mono whitespace-nowrap" style={{ color: '#4dffb0' }}>
+          <span className="text-[10px] font-extrabold font-mono whitespace-nowrap" style={{ color: c('chrome-text') }}>
             {level >= 5
               ? `Level ${level} · ${xp} XP · MAX`
               : `Level ${level} · ${xp} / ${xpForNextLevel(level)} XP`}
           </span>
           {/* HP-style segmented bar */}
           <div
-            className="relative w-[140px] overflow-hidden"
+            className="nl-xp-track relative w-[140px] overflow-hidden"
             style={{
               height: 8,
               background: 'rgba(0,0,0,0.35)',
               borderRadius: 2,
-              border: '1px solid rgba(29,158,117,0.2)',
+              border: `1px solid ${c('chrome-accent', 0.2)}`,
             }}
           >
             <div
-              className="absolute inset-y-0 left-0 progress-fill"
+              className="nl-xp-fill absolute inset-y-0 left-0 progress-fill"
               style={{
                 width: `${pct}%`,
                 borderRadius: 2,
                 background: pct > 70
-                  ? 'linear-gradient(90deg,#1D9E75,#2dd4a0)'
+                  ? `linear-gradient(90deg,${c('primary')},${c('x-xp-high-end')})`
                   : pct > 35
-                    ? 'linear-gradient(90deg,#EF9F27,#f5c044)'
-                    : 'linear-gradient(90deg,#e52521,#f55553)',
+                    ? `linear-gradient(90deg,${c('amber')},${c('x-xp-mid-end')})`
+                    : `linear-gradient(90deg,${c('x-xp-low-start')},${c('x-xp-low-end')})`,
               }}
             />
             {[25, 50, 75].map(t => (
@@ -145,27 +189,27 @@ export default function Topbar({ userName, userInitials, xp, level, musicOn, onT
 
         {/* Level badge — gold coin */}
         <div
-          className="w-8 h-8 rounded-full flex items-center justify-center coin-wobble flex-shrink-0"
+          className="nl-coin w-8 h-8 rounded-full flex items-center justify-center coin-wobble flex-shrink-0"
           style={{
-            background: 'linear-gradient(135deg,#EF9F27,#f5c842)',
-            boxShadow: '0 2px 0 #b36a00, 0 0 10px rgba(239,159,39,0.4)',
+            background: `linear-gradient(135deg,${c('amber')},${c('x-xp-coin-hi')})`,
+            boxShadow: `0 2px 0 ${c('x-xp-coin-shadow')}, 0 0 10px ${c('amber', 0.4)}`,
           }}
         >
-          <span className="text-[12px] font-extrabold text-white" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.4)' }}>
+          <span className="text-[12px] font-extrabold text-on-amber" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.4)' }}>
             {level}
           </span>
         </div>
 
         {/* Avatar */}
         <div
-          className="w-8 h-8 flex items-center justify-center flex-shrink-0"
+          className="nl-avatar w-8 h-8 flex items-center justify-center flex-shrink-0"
           style={{
-            background: 'rgba(29,158,117,0.15)',
-            border: '2px solid rgba(29,158,117,0.3)',
+            background: c('chrome-accent', 0.15),
+            border: `2px solid ${c('chrome-accent', 0.3)}`,
             borderRadius: 4,
           }}
         >
-          <span className="text-[11px] font-extrabold" style={{ color: '#4dffb0' }}>{userInitials}</span>
+          <span className="text-[11px] font-extrabold" style={{ color: c('chrome-text') }}>{userInitials}</span>
         </div>
       </div>
     </header>

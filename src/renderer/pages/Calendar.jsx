@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react'
+import { c, withAlpha } from '../utils/colors'
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
 const DAYS_H = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
-const COLOR_HEX = { teal: '#1D9E75', amber: '#EF9F27', purple: '#7F77DD' }
+const COLOR_HEX = { teal: c('primary'), amber: c('amber'), purple: c('purple') }
 
 function toDateStr(date) {
   const y = date.getFullYear()
@@ -34,9 +35,9 @@ function fmtTime(t) {
 }
 
 // ── Dot legend ────────────────────────────────────────────────────────────────
-// green  (#1D9E75) = task due
-// amber  (#EF9F27) = reminder
-// red    (#ef4444) = epic deadline
+// green  (primary) = task due
+// amber  (amber)   = reminder
+// red    (danger)  = epic deadline
 
 export default function Calendar({ awardXp }) {
   const today = new Date(); today.setHours(0,0,0,0)
@@ -168,13 +169,13 @@ export default function Calendar({ awardXp }) {
         </div>
         <div className="flex items-center gap-2">
           {/* View toggle */}
-          <div className="flex rounded overflow-hidden" style={{ border: '2px solid #b3e8d3' }}>
+          <div className="flex rounded overflow-hidden" style={{ border: `2px solid ${c('line-strong')}` }}>
             {['month','year'].map(v => (
               <button key={v} onClick={() => { setView(v); setSelDay(null); setDayItems(null) }}
                 className="px-3 py-1 text-[11px] font-bold transition-colors capitalize"
                 style={{
-                  background: view === v ? '#1D9E75' : 'white',
-                  color:      view === v ? 'white'   : '#1D9E75',
+                  background: view === v ? c('primary')    : c('surface'),
+                  color:      view === v ? c('on-primary') : c('primary'),
                 }}>
                 {v}
               </button>
@@ -182,7 +183,7 @@ export default function Calendar({ awardXp }) {
           </div>
           <button onClick={goToday}
             className="px-3 py-1.5 text-[11px] font-bold game-btn"
-            style={{ background: '#eefaf4', color: '#1D9E75', border: '2px solid #b3e8d3', boxShadow: '2px 2px 0 rgba(8,80,65,0.15)', borderRadius: 4 }}>
+            style={{ background: c('screen'), color: c('primary'), border: `2px solid ${c('line-strong')}`, boxShadow: `2px 2px 0 ${c('primary-shadow', 0.15)}`, borderRadius: 4 }}>
             Today
           </button>
         </div>
@@ -192,8 +193,8 @@ export default function Calendar({ awardXp }) {
       <div className="flex items-center justify-between mb-4">
         <button onClick={prevPeriod}
           className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-teal-light transition-colors"
-          style={{ border: '2px solid #b3e8d3' }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          style={{ border: `2px solid ${c('line-strong')}` }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={c('primary')} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
@@ -202,8 +203,8 @@ export default function Calendar({ awardXp }) {
         </h2>
         <button onClick={nextPeriod}
           className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-teal-light transition-colors"
-          style={{ border: '2px solid #b3e8d3' }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          style={{ border: `2px solid ${c('line-strong')}` }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={c('primary')} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="9 18 15 12 9 6" />
           </svg>
         </button>
@@ -216,9 +217,9 @@ export default function Calendar({ awardXp }) {
 
       {/* Legend */}
       <div className="flex items-center gap-4 mt-4 px-1">
-        <LegendDot color="#1D9E75" label="Task due" />
-        <LegendDot color="#EF9F27" label="Reminder" />
-        <LegendDot color="#ef4444" label="Epic deadline" />
+        <LegendDot color={c('primary')} label="Task due" />
+        <LegendDot color={c('amber')}   label="Reminder" />
+        <LegendDot color={c('danger')}  label="Epic deadline" />
       </div>
 
       {/* Day detail panel */}
@@ -232,12 +233,12 @@ export default function Calendar({ awardXp }) {
 // ── Month grid ─────────────────────────────────────────────────────────────────
 function MonthGrid({ grid, month, todayStr, selDay, dotData, onClickDay }) {
   return (
-    <div className="bg-white retro-card overflow-hidden">
+    <div className="bg-surface retro-card overflow-hidden">
       {/* Day headers */}
       <div className="grid grid-cols-7 border-b border-teal-border">
         {DAYS_H.map(d => (
           <div key={d} className="py-2 text-center text-[10px] font-extrabold uppercase tracking-wider"
-            style={{ color: '#9bbdaa' }}>
+            style={{ color: c('hint-alt') }}>
             {d}
           </div>
         ))}
@@ -257,17 +258,17 @@ function MonthGrid({ grid, month, todayStr, selDay, dotData, onClickDay }) {
             <button key={str} onClick={() => onClickDay(str)}
               className="relative flex flex-col items-center pt-2 pb-1.5 transition-all hover:bg-teal-light"
               style={{
-                borderRight:  (i + 1) % 7 !== 0 ? '1px solid #eef9f4' : 'none',
-                borderBottom: !isLastRow ? '1px solid #eef9f4' : 'none',
-                background:   isSel ? '#eefaf4' : isToday ? '#f4fdf8' : 'white',
+                borderRight:  (i + 1) % 7 !== 0 ? `1px solid ${c('screen')}` : 'none',
+                borderBottom: !isLastRow ? `1px solid ${c('screen')}` : 'none',
+                background:   isSel ? c('primary', 0.07) : isToday ? c('x-calendar-today-cell') : c('surface'),
                 minHeight: 72,
               }}
             >
               {/* Date number */}
               <span className="w-6 h-6 flex items-center justify-center rounded-full text-[12px] font-bold mb-1"
                 style={{
-                  background: isToday ? '#1D9E75' : isSel ? '#d4f0e6' : 'transparent',
-                  color: isToday ? 'white' : inMonth ? (isSel ? '#085041' : '#085041') : '#c5dfd2',
+                  background: isToday ? c('primary') : isSel ? c('line') : 'transparent',
+                  color: isToday ? c('on-primary') : inMonth ? (isSel ? c('ink') : c('ink')) : c('x-calendar-day-outside'),
                   fontWeight: isToday || isSel ? 800 : 600,
                 }}>
                 {date.getDate()}
@@ -277,13 +278,13 @@ function MonthGrid({ grid, month, todayStr, selDay, dotData, onClickDay }) {
               {hasDots && (
                 <div className="flex gap-0.5 flex-wrap justify-center px-1">
                   {info.tasks > 0 && Array.from({ length: Math.min(info.tasks, 3) }).map((_, di) => (
-                    <span key={`t${di}`} className="w-1.5 h-1.5 rounded-full" style={{ background: '#1D9E75' }} />
+                    <span key={`t${di}`} className="w-1.5 h-1.5 rounded-full" style={{ background: c('primary') }} />
                   ))}
                   {info.reminders > 0 && Array.from({ length: Math.min(info.reminders, 2) }).map((_, di) => (
-                    <span key={`r${di}`} className="w-1.5 h-1.5 rounded-full" style={{ background: '#EF9F27' }} />
+                    <span key={`r${di}`} className="w-1.5 h-1.5 rounded-full" style={{ background: c('amber') }} />
                   ))}
-                  {info.epics?.length > 0 && info.epics.slice(0, 2).map((c, di) => (
-                    <span key={`e${di}`} className="w-1.5 h-1.5 rounded-full" style={{ background: '#ef4444' }} />
+                  {info.epics?.length > 0 && info.epics.slice(0, 2).map((_, di) => (
+                    <span key={`e${di}`} className="w-1.5 h-1.5 rounded-full" style={{ background: c('danger') }} />
                   ))}
                 </div>
               )}
@@ -291,7 +292,7 @@ function MonthGrid({ grid, month, todayStr, selDay, dotData, onClickDay }) {
               {/* Selected indicator */}
               {isSel && (
                 <div className="absolute inset-0 pointer-events-none"
-                  style={{ border: '2px solid #1D9E75', borderRadius: 0 }} />
+                  style={{ border: `2px solid ${c('primary')}`, borderRadius: 0 }} />
               )}
             </button>
           )
@@ -316,16 +317,16 @@ function YearGrid({ year, todayStr, selDay, dotData, onClickDay, onGoMonth }) {
 function MiniMonth({ year, month, todayStr, selDay, dotData, onClickDay, onGoMonth }) {
   const grid = buildMonthGrid(year, month)
   return (
-    <div className="bg-white rounded-lg overflow-hidden" style={{ border: '2px solid #b3e8d3', boxShadow: '2px 2px 0 #085041' }}>
+    <div className="bg-surface rounded-lg overflow-hidden" style={{ border: `2px solid ${c('line-strong')}`, boxShadow: `2px 2px 0 ${c('primary-shadow')}` }}>
       <button onClick={() => onGoMonth(month)}
         className="w-full py-1.5 text-[10px] font-extrabold text-center uppercase tracking-wider hover:bg-teal-light transition-colors"
-        style={{ color: '#085041', borderBottom: '1px solid #b3e8d3' }}>
+        style={{ color: c('ink'), borderBottom: `1px solid ${c('line-strong')}` }}>
         {MONTHS[month].slice(0, 3)}
       </button>
       {/* mini day headers */}
       <div className="grid grid-cols-7 px-0.5 pt-1">
         {['M','T','W','T','F','S','S'].map((d, i) => (
-          <div key={i} className="text-center text-[7px] font-bold" style={{ color: '#9bbdaa' }}>{d}</div>
+          <div key={i} className="text-center text-[7px] font-bold" style={{ color: c('hint-alt') }}>{d}</div>
         ))}
       </div>
       {/* mini cells */}
@@ -344,17 +345,17 @@ function MiniMonth({ year, month, todayStr, selDay, dotData, onClickDay, onGoMon
             >
               <span className="w-4 h-4 flex items-center justify-center rounded-full text-[8px] font-bold"
                 style={{
-                  background: isToday ? '#1D9E75' : isSel ? '#d4f0e6' : 'transparent',
-                  color: isToday ? 'white' : inMonth ? '#085041' : '#d4e8dc',
+                  background: isToday ? c('primary') : isSel ? c('line') : 'transparent',
+                  color: isToday ? c('on-primary') : inMonth ? c('ink') : c('x-calendar-mini-outside'),
                   fontWeight: isToday || isSel ? 800 : 500,
                 }}>
                 {date.getDate()}
               </span>
               {hasDots && (
                 <div className="flex gap-px justify-center">
-                  {info.tasks > 0      && <span className="w-1 h-1 rounded-full" style={{ background: '#1D9E75' }} />}
-                  {info.reminders > 0  && <span className="w-1 h-1 rounded-full" style={{ background: '#EF9F27' }} />}
-                  {info.epics?.length > 0 && <span className="w-1 h-1 rounded-full" style={{ background: '#ef4444' }} />}
+                  {info.tasks > 0      && <span className="w-1 h-1 rounded-full" style={{ background: c('primary') }} />}
+                  {info.reminders > 0  && <span className="w-1 h-1 rounded-full" style={{ background: c('amber') }} />}
+                  {info.epics?.length > 0 && <span className="w-1 h-1 rounded-full" style={{ background: c('danger') }} />}
                 </div>
               )}
             </button>
@@ -378,7 +379,7 @@ function DayPanel({ dateStr, items, loading, onClose }) {
   const total     = tasks.length + reminders.length + epics.length
 
   return (
-    <div className="mt-4 bg-white retro-card p-5 pop-in">
+    <div className="mt-4 bg-surface retro-card p-5 pop-in">
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="text-[14px] font-extrabold text-teal-dark">{label}</h3>
@@ -397,14 +398,14 @@ function DayPanel({ dateStr, items, loading, onClose }) {
         <div className="flex flex-col gap-4">
           {/* Epic deadlines */}
           {epics.length > 0 && (
-            <Section label="Epic Deadlines" dot="#ef4444">
+            <Section label="Epic Deadlines" dot={c('danger')}>
               {epics.map(e => (
                 <div key={e.id} className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full flex-shrink-0"
-                    style={{ background: COLOR_HEX[e.color] || '#1D9E75' }} />
+                    style={{ background: COLOR_HEX[e.color] || c('primary') }} />
                   <span className="text-[12px] font-bold text-text-pri">{e.name}</span>
                   <span className="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full"
-                    style={{ background: '#ef444418', color: '#ef4444' }}>
+                    style={{ background: c('danger', 0.094), color: c('danger') }}>
                     {e.status === 'done' ? 'Done' : 'Deadline'}
                   </span>
                 </div>
@@ -414,18 +415,18 @@ function DayPanel({ dateStr, items, loading, onClose }) {
 
           {/* Reminders */}
           {reminders.length > 0 && (
-            <Section label="Reminders" dot="#EF9F27">
+            <Section label="Reminders" dot={c('amber')}>
               {reminders.map(r => (
                 <div key={r.id} className="flex items-center gap-2">
                   <div className="w-3.5 h-3.5 rounded border-2 flex-shrink-0 flex items-center justify-center"
-                    style={{ borderColor: r.is_done ? '#1D9E75' : '#b3e8d3', background: r.is_done ? '#1D9E75' : 'white' }}>
-                    {!!r.is_done && <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>}
+                    style={{ borderColor: r.is_done ? c('primary') : c('line-strong'), background: r.is_done ? c('primary') : c('surface') }}>
+                    {!!r.is_done && <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke={c('on-primary')} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>}
                   </div>
                   {r.remind_time && (
                     <span className="text-[10px] font-bold text-text-hint w-16 flex-shrink-0">{fmtTime(r.remind_time)}</span>
                   )}
                   <span className="text-[12px]"
-                    style={{ color: r.is_done ? '#9bbdaa' : '#085041', textDecoration: r.is_done ? 'line-through' : 'none' }}>
+                    style={{ color: r.is_done ? c('hint-alt') : c('ink'), textDecoration: r.is_done ? 'line-through' : 'none' }}>
                     {r.title}
                   </span>
                 </div>
@@ -435,17 +436,17 @@ function DayPanel({ dateStr, items, loading, onClose }) {
 
           {/* Tasks */}
           {tasks.length > 0 && (
-            <Section label="Tasks Due" dot="#1D9E75">
+            <Section label="Tasks Due" dot={c('primary')}>
               {tasks.map(t => (
                 <div key={t.id} className="flex items-center gap-2">
                   <div className="w-3.5 h-3.5 rounded border-2 flex-shrink-0"
-                    style={{ borderColor: t.status === 'done' ? '#1D9E75' : '#b3e8d3', background: t.status === 'done' ? '#1D9E75' : 'white' }} />
+                    style={{ borderColor: t.status === 'done' ? c('primary') : c('line-strong'), background: t.status === 'done' ? c('primary') : c('surface') }} />
                   <span className="text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0"
-                    style={{ background: (COLOR_HEX[t.epic_color] || '#1D9E75') + '18', color: COLOR_HEX[t.epic_color] || '#1D9E75' }}>
+                    style={{ background: withAlpha(COLOR_HEX[t.epic_color] || c('primary'), '18'), color: COLOR_HEX[t.epic_color] || c('primary') }}>
                     {t.epic_name}
                   </span>
                   <span className="text-[12px] text-text-pri"
-                    style={{ textDecoration: t.status === 'done' ? 'line-through' : 'none', color: t.status === 'done' ? '#9bbdaa' : '#085041' }}>
+                    style={{ textDecoration: t.status === 'done' ? 'line-through' : 'none', color: t.status === 'done' ? c('hint-alt') : c('ink') }}>
                     {t.title}
                   </span>
                 </div>

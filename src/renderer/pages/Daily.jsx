@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { buildSystemPrompt, fetchMemories } from '../utils/systemPrompt'
+import { c, withAlpha } from '../utils/colors'
 
 const SCHEDULE_EXTRA_RULES = `TASK: Generate a daily schedule.
 Return ONLY a valid JSON array — no markdown, no code fences, no explanation before or after it.
@@ -20,7 +21,7 @@ Rules:
 const DAY_ABBR  = ['S','M','T','W','T','F','S']
 const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
 const MONTHS    = ['January','February','March','April','May','June','July','August','September','October','November','December']
-const COLOR_HEX = { teal: '#1D9E75', amber: '#EF9F27', purple: '#7F77DD' }
+const COLOR_HEX = { teal: c('primary'), amber: c('amber'), purple: c('purple') }
 
 function toDateStr(date) {
   const y = date.getFullYear()
@@ -385,7 +386,7 @@ export default function Daily({ awardXp }) {
             </h1>
             {isToday && (
               <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full"
-                style={{ background: '#1D9E7520', color: '#1D9E75' }}>TODAY</span>
+                style={{ background: c('primary', 0.125), color: c('primary') }}>TODAY</span>
             )}
           </div>
           <p className="text-[12px] text-text-muted mt-0.5">
@@ -404,16 +405,16 @@ export default function Daily({ awardXp }) {
           {/* Generate my day button */}
           {confirmRegenerate ? (
             <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg"
-              style={{ background: '#FFF8EC', border: '1.5px solid #EF9F2740' }}>
-              <span className="text-[10px] font-bold" style={{ color: '#a65c00' }}>Replace schedule?</span>
+              style={{ background: c('amber-tint'), border: `1.5px solid ${c('amber', 0.25)}` }}>
+              <span className="text-[10px] font-bold" style={{ color: c('x-daily-amber-text') }}>Replace schedule?</span>
               <button onClick={generateSchedule}
                 className="text-[10px] font-extrabold px-2 py-0.5 rounded transition-all"
-                style={{ background: '#EF9F27', color: 'white', border: '1.5px solid #a65c00' }}>
+                style={{ background: c('amber'), color: c('on-amber'), border: `1.5px solid ${c('amber-shadow')}` }}>
                 Yes
               </button>
               <button onClick={() => setConfirmRegenerate(false)}
                 className="text-[10px] font-bold px-2 py-0.5 rounded transition-all"
-                style={{ background: '#f4fdf8', color: '#4a7060', border: '1.5px solid #b3e8d3' }}>
+                style={{ background: c('screen'), color: c('muted-alt'), border: `1.5px solid ${c('line-strong')}` }}>
                 Cancel
               </button>
             </div>
@@ -423,10 +424,10 @@ export default function Daily({ awardXp }) {
               disabled={scheduleLoading}
               className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-extrabold rounded-[10px] transition-all disabled:opacity-50"
               style={{
-                background: '#EF9F27',
-                color: 'white',
-                border: '2px solid #a65c00',
-                boxShadow: '2px 2px 0 #a65c00',
+                background: c('amber'),
+                color: c('on-amber'),
+                border: `2px solid ${c('amber-shadow')}`,
+                boxShadow: `2px 2px 0 ${c('amber-shadow')}`,
               }}
             >
               {scheduleLoading ? (
@@ -450,7 +451,7 @@ export default function Daily({ awardXp }) {
       </div>
 
       {/* Week strip */}
-      <div className="mb-6 p-4 bg-white retro-card">
+      <div className="mb-6 p-4 bg-surface retro-card">
         <div className="flex items-center justify-between mb-3">
           <button onClick={() => shiftWeek(-1)}
             className="p-1 text-text-hint hover:text-primary transition-colors rounded">
@@ -479,23 +480,23 @@ export default function Daily({ awardXp }) {
               <button key={str} onClick={() => setSelDate(new Date(d))}
                 className="flex flex-col items-center gap-1 py-2.5 rounded-lg transition-all"
                 style={{
-                  background: isSel ? '#1D9E75' : isT ? '#eefaf4' : 'transparent',
-                  border: `2px solid ${isSel ? '#085041' : isT ? '#b3e8d3' : 'transparent'}`,
-                  boxShadow: isSel ? '2px 2px 0 #085041' : 'none',
+                  background: isSel ? c('primary') : isT ? c('screen') : 'transparent',
+                  border: `2px solid ${isSel ? c('primary-shadow') : isT ? c('line-strong') : 'transparent'}`,
+                  boxShadow: isSel ? `2px 2px 0 ${c('primary-shadow')}` : 'none',
                 }}
               >
                 <span className="text-[8px] font-extrabold uppercase"
-                  style={{ color: isSel ? 'rgba(255,255,255,0.65)' : '#9bbdaa' }}>
+                  style={{ color: isSel ? c('on-primary', 0.65) : c('hint-alt') }}>
                   {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][i]}
                 </span>
                 <span className="text-[15px] font-extrabold leading-none"
-                  style={{ color: isSel ? 'white' : isT ? '#1D9E75' : '#085041' }}>
+                  style={{ color: isSel ? c('on-primary') : isT ? c('primary') : c('ink') }}>
                   {d.getDate()}
                 </span>
                 <div className="flex gap-0.5 h-1.5">
                   {Array.from({ length: Math.min(dotCount, 3) }).map((_, di) => (
                     <span key={di} className="w-1.5 h-1.5 rounded-full"
-                      style={{ background: isSel ? 'rgba(255,255,255,0.55)' : '#1D9E75' }} />
+                      style={{ background: isSel ? c('on-primary', 0.55) : c('primary') }} />
                   ))}
                 </div>
               </button>
@@ -512,7 +513,7 @@ export default function Daily({ awardXp }) {
             <h2 className="text-[13px] font-extrabold text-teal-dark">Reminders</h2>
             {reminders.length > 0 && (
               <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
-                style={{ background: '#1D9E7520', color: '#1D9E75' }}>
+                style={{ background: c('primary', 0.125), color: c('primary') }}>
                 {reminders.filter(r => !r.is_done).length} left
               </span>
             )}
@@ -523,9 +524,9 @@ export default function Daily({ awardXp }) {
           </button>
         </div>
 
-        <div className="bg-white retro-card p-4">
+        <div className="bg-surface retro-card p-4">
           {addingRem && (
-            <div className="flex gap-2 mb-3 pb-3" style={{ borderBottom: '1px solid #eef9f4' }}>
+            <div className="flex gap-2 mb-3 pb-3" style={{ borderBottom: `1px solid ${c('screen')}` }}>
               <input autoFocus
                 value={remTitle}
                 onChange={e => setRemTitle(e.target.value)}
@@ -539,8 +540,8 @@ export default function Daily({ awardXp }) {
                 style={{ width: 100 }}
               />
               <button onClick={addReminder} disabled={!remTitle.trim()}
-                className="px-3 py-1.5 text-[11px] font-bold text-white game-btn disabled:opacity-40"
-                style={{ background: '#1D9E75', border: '2px solid #085041', boxShadow: '2px 2px 0 #085041', borderRadius: 6 }}>
+                className="px-3 py-1.5 text-[11px] font-bold text-on-primary game-btn disabled:opacity-40"
+                style={{ background: c('primary'), border: `2px solid ${c('primary-shadow')}`, boxShadow: `2px 2px 0 ${c('primary-shadow')}`, borderRadius: 6 }}>
                 Add
               </button>
             </div>
@@ -558,9 +559,9 @@ export default function Daily({ awardXp }) {
               <div key={r.id} className="flex items-center gap-2.5 group">
                 <button onClick={() => toggleReminder(r.id, r.is_done)} className="flex-shrink-0 mt-0.5">
                   <div className="w-4 h-4 rounded border-2 flex items-center justify-center transition-all"
-                    style={{ borderColor: r.is_done ? '#1D9E75' : '#b3e8d3', background: r.is_done ? '#1D9E75' : 'transparent' }}>
+                    style={{ borderColor: r.is_done ? c('primary') : c('line-strong'), background: r.is_done ? c('primary') : 'transparent' }}>
                     {!!r.is_done && (
-                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke={c('on-primary')} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
                     )}
@@ -570,11 +571,11 @@ export default function Daily({ awardXp }) {
                   <span className="text-[10px] font-bold text-text-hint w-16 flex-shrink-0">{fmtTime(r.remind_time)}</span>
                 )}
                 <span className="flex-1 text-[12px]"
-                  style={{ color: r.is_done ? '#9bbdaa' : '#085041', textDecoration: r.is_done ? 'line-through' : 'none' }}>
+                  style={{ color: r.is_done ? c('hint-alt') : c('ink'), textDecoration: r.is_done ? 'line-through' : 'none' }}>
                   {r.title}
                 </span>
                 <button onClick={() => deleteReminder(r.id)}
-                  className="opacity-0 group-hover:opacity-100 text-text-hint hover:text-red-400 transition-all">
+                  className="opacity-0 group-hover:opacity-100 text-text-hint hover:text-[rgb(var(--c-x-daily-delete-hover))] transition-all">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                     <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                   </svg>
@@ -594,13 +595,13 @@ export default function Daily({ awardXp }) {
           </h2>
           {tasks.length > 0 && (
             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
-              style={{ background: '#EF9F2720', color: '#EF9F27' }}>
+              style={{ background: c('amber', 0.125), color: c('amber') }}>
               {tasks.length}
             </span>
           )}
         </div>
 
-        <div className="bg-white retro-card p-4">
+        <div className="bg-surface retro-card p-4">
           {tasks.length === 0 ? (
             <p className="text-[12px] text-text-hint py-1">
               No tasks due {isToday ? 'today' : 'on this day'}. 🎉
@@ -610,9 +611,9 @@ export default function Daily({ awardXp }) {
               {tasks.map(t => (
                 <div key={t.id} className="flex items-center gap-2.5">
                   <div className="w-2 h-2 rounded-full flex-shrink-0"
-                    style={{ background: COLOR_HEX[t.epic_color] || '#1D9E75' }} />
+                    style={{ background: COLOR_HEX[t.epic_color] || c('primary') }} />
                   <span className="text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0"
-                    style={{ background: (COLOR_HEX[t.epic_color] || '#1D9E75') + '18', color: COLOR_HEX[t.epic_color] || '#1D9E75', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    style={{ background: withAlpha(COLOR_HEX[t.epic_color] || c('primary'), '18'), color: COLOR_HEX[t.epic_color] || c('primary'), maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {t.epic_name}
                   </span>
                   <span className="text-[12px] text-text-pri flex-1">{t.title}</span>
@@ -632,14 +633,14 @@ export default function Daily({ awardXp }) {
               <h2 className="text-[13px] font-extrabold text-teal-dark">Habits</h2>
               {habits.length > 0 && (
                 <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
-                  style={{ background: allDone ? '#22c55e20' : '#EF9F2720', color: allDone ? '#22c55e' : '#EF9F27' }}>
+                  style={{ background: allDone ? c('success', 0.125) : c('amber', 0.125), color: allDone ? c('success') : c('amber') }}>
                   {allDone ? 'All done! 🎉' : `${doneCount}/${habits.length}`}
                 </span>
               )}
             </div>
           </div>
 
-          <div className="bg-white retro-card p-4">
+          <div className="bg-surface retro-card p-4">
             {habits.length === 0 ? (
               <p className="text-[12px] text-text-hint py-1">No habits set up yet. Add some in Streaks!</p>
             ) : (
@@ -650,25 +651,25 @@ export default function Daily({ awardXp }) {
                     <div key={h.id} className="flex items-center gap-2.5">
                       <button onClick={() => logHabit(h.id)} disabled={done} className="flex-shrink-0">
                         <div className="w-4 h-4 rounded border-2 flex items-center justify-center transition-all"
-                          style={{ borderColor: done ? '#EF9F27' : '#b3e8d3', background: done ? '#EF9F27' : 'transparent' }}>
+                          style={{ borderColor: done ? c('amber') : c('line-strong'), background: done ? c('amber') : 'transparent' }}>
                           {done && (
-                            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke={c('on-amber')} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
                               <polyline points="20 6 9 17 4 12" />
                             </svg>
                           )}
                         </div>
                       </button>
                       <span className="flex-1 text-[12px]"
-                        style={{ color: done ? '#9bbdaa' : '#085041' }}>
+                        style={{ color: done ? c('hint-alt') : c('ink') }}>
                         {h.name}
                       </span>
-                      <span className="text-[11px] font-extrabold" style={{ color: '#EF9F27' }}>
+                      <span className="text-[11px] font-extrabold" style={{ color: c('amber') }}>
                         🔥 {h.current_streak}d
                       </span>
                       {!done && (
                         <button onClick={() => logHabit(h.id)}
                           className="text-[10px] font-bold px-2 py-0.5 rounded-full transition-all hover:opacity-80"
-                          style={{ background: '#EF9F2720', color: '#EF9F27', border: '1px solid #EF9F2740' }}>
+                          style={{ background: c('amber', 0.125), color: c('amber'), border: `1px solid ${c('amber', 0.25)}` }}>
                           Log
                         </button>
                       )}
@@ -688,13 +689,13 @@ export default function Daily({ awardXp }) {
             <span className="text-[14px]">🗓️</span>
             <h2 className="text-[13px] font-extrabold text-teal-dark">AI Schedule</h2>
             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
-              style={{ background: '#7F77DD20', color: '#7F77DD' }}>
+              style={{ background: c('purple', 0.125), color: c('purple') }}>
               drag to reorder
             </span>
           </div>
 
           {scheduleError && (
-            <p className="text-[11px] font-bold mb-2" style={{ color: '#e05050' }}>
+            <p className="text-[11px] font-bold mb-2" style={{ color: c('x-daily-error') }}>
               ⚠ {scheduleError}
             </p>
           )}
@@ -723,7 +724,7 @@ export default function Daily({ awardXp }) {
 
       {/* Error shown when schedule is empty but something went wrong */}
       {!schedule.length && !scheduleLoading && scheduleError && (
-        <p className="text-[11px] font-bold mb-4" style={{ color: '#e05050' }}>
+        <p className="text-[11px] font-bold mb-4" style={{ color: c('x-daily-error') }}>
           ⚠ {scheduleError}
         </p>
       )}
@@ -748,8 +749,8 @@ function TimeBlock({ block, index, isDragOver, onDone, onDragStart, onDragOver, 
   const isDone   = !!block.done
   const isBreak  = !isTask
 
-  const barColor = isDone ? '#9bbdaa' : isBreak ? '#c8e6d9' : '#1D9E75'
-  const bg       = isDone ? '#f9fefb' : isBreak ? '#f9fefb' : 'white'
+  const barColor = isDone ? c('hint-alt') : isBreak ? c('x-daily-break-bar') : c('primary')
+  const bg       = isDone ? c('surface-2') : isBreak ? c('surface-2') : c('surface')
 
   return (
     <div
@@ -761,8 +762,8 @@ function TimeBlock({ block, index, isDragOver, onDone, onDragStart, onDragOver, 
       className="flex items-start gap-3 p-3 rounded-[10px] transition-all select-none"
       style={{
         background: bg,
-        border: `1.5px solid ${isDragOver ? '#1D9E75' : isDone ? '#d4f0e6' : '#e8f5ee'}`,
-        boxShadow: isDragOver ? '0 0 0 2px rgba(29,158,117,0.2)' : '1px 1px 0 rgba(8,80,65,0.06)',
+        border: `1.5px solid ${isDragOver ? c('primary') : isDone ? c('line') : c('tint')}`,
+        boxShadow: isDragOver ? `0 0 0 2px ${c('primary', 0.2)}` : `1px 1px 0 ${c('primary-shadow', 0.06)}`,
         opacity: isDone ? 0.6 : 1,
         cursor: 'grab',
       }}
@@ -784,12 +785,12 @@ function TimeBlock({ block, index, isDragOver, onDone, onDragStart, onDragOver, 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-[10px] font-extrabold tabular-nums"
-            style={{ color: isDone ? '#9bbdaa' : '#4a7060' }}>
+            style={{ color: isDone ? c('hint-alt') : c('muted-alt') }}>
             {block.start_time}–{block.end_time}
           </span>
           <span className="text-[12px] font-bold flex-1 min-w-0 truncate"
             style={{
-              color: isDone ? '#9bbdaa' : '#085041',
+              color: isDone ? c('hint-alt') : c('ink'),
               textDecoration: isDone ? 'line-through' : 'none',
             }}>
             {block.label}
@@ -799,9 +800,9 @@ function TimeBlock({ block, index, isDragOver, onDone, onDragStart, onDragOver, 
               onClick={e => { e.stopPropagation(); onDone() }}
               className="flex-shrink-0 flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold transition-all hover:opacity-80 active:scale-95"
               style={{
-                background: '#1D9E7518',
-                color: '#1D9E75',
-                border: '1.5px solid #b3e8d3',
+                background: c('primary', 0.094),
+                color: c('primary'),
+                border: `1.5px solid ${c('line-strong')}`,
               }}
             >
               <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -811,12 +812,12 @@ function TimeBlock({ block, index, isDragOver, onDone, onDragStart, onDragOver, 
             </button>
           )}
           {isDone && (
-            <span className="flex-shrink-0 text-[10px] font-bold" style={{ color: '#22c55e' }}>✓ Done</span>
+            <span className="flex-shrink-0 text-[10px] font-bold" style={{ color: c('success') }}>✓ Done</span>
           )}
         </div>
         {block.reason && (
           <p className="text-[10px] mt-0.5 truncate"
-            style={{ color: '#9bbdaa' }}>
+            style={{ color: c('hint-alt') }}>
             {block.reason}
           </p>
         )}

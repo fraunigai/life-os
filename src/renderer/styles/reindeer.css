@@ -1,0 +1,32 @@
+/* =========================================================================
+   RUDOLPH (components/ReindeerSprite.jsx): nose-glow pulse, Neon Noel scarf
+   tint, and the generic .sprite-bob used by the AI button.
+   @imported by globals.css. No colour literals: the glow gradient is set
+   inline from the sprite palette, and theme tints read the --c-* tokens.
+   Animates opacity/transform only.
+   ========================================================================= */
+
+/* Nose glow: soft radial halo behind the N pixels. Opacity .45 -> 1 -> .45 over 1.6s (in step with the bob). */
+@keyframes rdNosePulse {
+  0%, 100% { opacity: .45; }
+  50%      { opacity: 1; }
+}
+.rd-nose-glow {
+  pointer-events: none;
+  animation: rdNosePulse 1.6s ease-in-out infinite;
+}
+
+/* Neon Noel: the scarf follows the theme's primary (CSS fill beats the SVG fill attribute) */
+html[data-theme="noel"] .rd-scarf { fill: rgb(var(--c-primary)); }
+
+/* Sprite bob for the AI button (gentle float + 4% pulse, 1.6s) */
+@keyframes spriteBob {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%       { transform: translateY(-4px) scale(1.04); }
+}
+.sprite-bob { animation: spriteBob 1.6s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rd-nose-glow { animation: none; opacity: .8; }   /* steady glow */
+  .sprite-bob   { animation: none; }
+}

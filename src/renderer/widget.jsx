@@ -1,25 +1,38 @@
 import React, { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
+import './styles/tokens.css'
+import { c } from './utils/colors'
+import { applyTheme } from './utils/themes'
 
-// ── Design tokens (mirrors CLAUDE.md palette) ───────────────────────────────
+// ── Design tokens (theme-aware, defined in styles/tokens.css) ───────────────
 const C = {
-  chrome:     '#061710',
-  chromeMid:  '#0a2318',
-  primary:    '#1D9E75',
-  tealDark:   '#085041',
-  tealMed:    '#2a8a67',
-  tealBorder: '#b3e8d3',
-  tealLight:  '#e8f8f1',
-  tealPale:   '#f0faf6',
-  amber:      '#EF9F27',
-  amberDark:  '#a65c00',
-  purple:     '#7F77DD',
-  content:    '#f4fdf8',
-  textPri:    '#1a3a2a',
-  textMuted:  '#4a7060',
-  textHint:   '#9bbdaa',
-  done:       '#22c55e',
-  red:        '#ef4444',
+  chrome:       c('chrome'),
+  chromeMid:    c('shell'),
+  chromeAccent: c('chrome-accent'),
+  chromeLabel:  c('chrome-label'),
+  primary:      c('primary'),
+  onPrimary:    c('on-primary'),
+  shadow:       c('primary-shadow'),
+  tealDark:     c('ink'),
+  tealMed:      c('primary-hover'),
+  tealBorder:   c('line-strong'),
+  tealLight:    c('tint'),
+  tealPale:     c('surface-2'),
+  surface:      c('surface'),
+  amber:        c('amber'),
+  amberDark:    c('amber-shadow'),
+  purple:       c('purple'),
+  content:      c('screen'),
+  xpBar:        c('x-widget-xpbar-bg'),
+  xpText:       c('x-widget-xpbar-text'),
+  textMuted:    c('muted-alt'),
+  textHint:     c('hint-alt'),
+  done:         c('success'),
+  onDone:       c('on-success'),
+  doneBg:       c('surface-2'),
+  doneLine:     c('x-widget-done-line'),
+  flashBg:      c('x-widget-flash'),
+  red:          c('danger'),
 }
 
 const LEVEL_XP    = [0, 200, 500, 1000, 2000]
@@ -73,7 +86,7 @@ function Widget() {
 
   async function load() {
     try {
-      const [habitRows, logRows, epicRows, xpVal, lvlVal, energyRow, pinnedVal] = await Promise.all([
+      const [habitRows, logRows, epicRows, xpVal, lvlVal, energyRow, pinnedVal, themeVal] = await Promise.all([
         window.electronAPI.db.query('SELECT * FROM streak_habits ORDER BY id', []),
         window.electronAPI.db.query('SELECT habit_id FROM streak_logs WHERE logged_date = ?', [today]),
         window.electronAPI.db.query(
@@ -83,7 +96,9 @@ function Widget() {
         window.electronAPI.settings.get('xp_level'),
         window.electronAPI.db.get('SELECT energy_rating FROM energy_logs WHERE log_date = ?', [today]),
         window.electronAPI.settings.get('widget_pinned'),
+        window.electronAPI.settings.get('app_theme'),
       ])
+      applyTheme(themeVal || 'dynamic')
       setHabits(habitRows)
       setLogged(new Set(logRows.map(r => r.habit_id)))
       setEpic(epicRows[0] || null)
@@ -147,7 +162,7 @@ function Widget() {
       width: 280,
       background: C.content,
       border: `2px solid ${C.primary}`,
-      boxShadow: `4px 4px 0 ${C.tealDark}`,
+      boxShadow: `4px 4px 0 ${C.shadow}`,
       borderRadius: 6,
       overflow: 'hidden',
       fontFamily: "'Nunito', sans-serif",
@@ -162,11 +177,11 @@ function Widget() {
         WebkitAppRegion: 'drag', cursor: 'grab',
       }}>
         <span style={{ fontSize: 15, marginRight: 7 }}>🎮</span>
-        <span style={{ color: C.primary, fontWeight: 900, fontSize: 12, letterSpacing: '0.08em', flex: 1 }}>LIFE OS</span>
+        <span style={{ color: C.chromeAccent, fontWeight: 900, fontSize: 12, letterSpacing: '0.08em', flex: 1 }}>LIFE OS</span>
         <div style={{ display: 'flex', gap: 3, WebkitAppRegion: 'no-drag' }}>
           <WinBtn
             title={pinned ? 'Unpin (floating)' : 'Pin (always on top)'}
-            color={pinned ? C.amber : C.textHint}
+            color={pinned ? C.chromeLabel : C.textHint}
             onClick={togglePin}
           >
             📌
@@ -174,7 +189,7 @@ function Widget() {
           <WinBtn title="Minimise" color={C.textHint} onClick={() => window.electronAPI.widget.minimize()}>
             <span style={{ fontSize: 16, lineHeight: 1, marginBottom: 4 }}>−</span>
           </WinBtn>
-          <WinBtn title="Hide widget" color={C.red} hoverBg="rgba(239,68,68,0.18)" onClick={() => window.electronAPI.widget.hide()}>
+          <WinBtn title="Hide widget" color={C.red} hoverBg={c('danger', 0.18)} onClick={() => window.electronAPI.widget.hide()}>
             <span style={{ fontSize: 13 }}>✕</span>
           </WinBtn>
         </div>
@@ -182,19 +197,19 @@ function Widget() {
 
       {/* ── XP bar ───────────────────────────────────────────────────── */}
       <div style={{
-        background: C.tealDark,
+        background: C.xpBar,
         padding: '6px 10px',
         display: 'flex', alignItems: 'center', gap: 8,
       }}>
         <div style={{
-          background: C.primary, color: 'white', fontWeight: 900, fontSize: 10,
+          background: C.primary, color: C.onPrimary, fontWeight: 900, fontSize: 10,
           padding: '2px 8px', borderRadius: 3, letterSpacing: '0.06em', flexShrink: 0,
           border: `1px solid ${C.tealMed}`, boxShadow: '0 1px 0 rgba(0,0,0,0.3)',
         }}>
           LV.{level}
         </div>
         {/* segmented XP bar */}
-        <div style={{ flex: 1, position: 'relative', height: 9, borderRadius: 2, overflow: 'hidden', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(29,158,117,0.25)' }}>
+        <div style={{ flex: 1, position: 'relative', height: 9, borderRadius: 2, overflow: 'hidden', background: 'rgba(255,255,255,0.08)', border: `1px solid ${c('chrome-accent', 0.25)}` }}>
           <div style={{
             position: 'absolute', left: 0, top: 0, bottom: 0,
             width: `${xpPct}%`,
@@ -206,7 +221,7 @@ function Widget() {
             <div key={t} style={{ position: 'absolute', left: `${t}%`, top: 0, bottom: 0, width: 1, background: 'rgba(0,0,0,0.25)' }} />
           ))}
         </div>
-        <span style={{ color: C.tealBorder, fontSize: 10, fontWeight: 800, flexShrink: 0 }}>{xp} XP</span>
+        <span style={{ color: C.xpText, fontSize: 10, fontWeight: 800, flexShrink: 0 }}>{xp} XP</span>
       </div>
 
       {/* ── Today's quests ───────────────────────────────────────────── */}
@@ -227,8 +242,8 @@ function Widget() {
                   onClick={() => tickHabit(h)}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 8, padding: '5px 8px',
-                    borderRadius: 4, border: `1.5px solid ${done ? '#86efac' : C.tealBorder}`,
-                    background: isFlashing ? '#d1fae5' : done ? '#f0fdf4' : 'white',
+                    borderRadius: 4, border: `1.5px solid ${done ? C.doneLine : C.tealBorder}`,
+                    background: isFlashing ? C.flashBg : done ? C.doneBg : C.surface,
                     cursor: done ? 'default' : 'pointer',
                     textAlign: 'left', WebkitAppRegion: 'no-drag',
                     transition: 'all 0.15s', transform: isFlashing ? 'scale(1.02)' : 'scale(1)',
@@ -242,7 +257,7 @@ function Widget() {
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     transition: 'all 0.15s',
                   }}>
-                    {done && <span style={{ color: 'white', fontSize: 9, fontWeight: 900, lineHeight: 1 }}>✓</span>}
+                    {done && <span style={{ color: C.onDone, fontSize: 9, fontWeight: 900, lineHeight: 1 }}>✓</span>}
                   </div>
                   <span style={{ fontSize: 13 }}>{icon}</span>
                   <span style={{
@@ -275,7 +290,7 @@ function Widget() {
       {epic && (
         <Section label="ACTIVE EPIC">
           <div style={{
-            background: 'white', border: `1.5px solid ${C.tealBorder}`,
+            background: C.surface, border: `1.5px solid ${C.tealBorder}`,
             borderRadius: 4, padding: '7px 10px',
           }}>
             <div style={{ fontSize: 11, fontWeight: 800, color: C.tealDark, marginBottom: 5, display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -303,8 +318,8 @@ function Widget() {
               style={{
                 flex: 1, padding: '5px 0', borderRadius: 4, fontSize: 16, cursor: 'pointer',
                 border: `2px solid ${energy === n ? C.primary : C.tealBorder}`,
-                background: energy === n ? C.tealLight : 'white',
-                boxShadow: energy === n ? `0 2px 0 ${C.tealDark}` : 'none',
+                background: energy === n ? C.tealLight : C.surface,
+                boxShadow: energy === n ? `0 2px 0 ${C.shadow}` : 'none',
                 transform: energy === n ? 'translateY(-1px)' : 'none',
                 transition: 'all 0.12s', WebkitAppRegion: 'no-drag',
               }}
@@ -324,13 +339,13 @@ function Widget() {
       <div style={{ padding: '4px 10px 12px', WebkitAppRegion: 'no-drag' }}>
         <button
           onClick={() => window.electronAPI.widget.openMain()}
-          onMouseDown={e => { e.currentTarget.style.transform = 'translateY(3px)'; e.currentTarget.style.boxShadow = `0 0 0 ${C.tealDark}` }}
-          onMouseUp={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = `0 3px 0 ${C.tealDark}` }}
-          onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = `0 3px 0 ${C.tealDark}` }}
+          onMouseDown={e => { e.currentTarget.style.transform = 'translateY(3px)'; e.currentTarget.style.boxShadow = `0 0 0 ${C.shadow}` }}
+          onMouseUp={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = `0 3px 0 ${C.shadow}` }}
+          onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = `0 3px 0 ${C.shadow}` }}
           style={{
             width: '100%', padding: '9px', borderRadius: 4, cursor: 'pointer',
-            background: C.primary, color: 'white', fontWeight: 900, fontSize: 12,
-            border: `2px solid ${C.tealDark}`, boxShadow: `0 3px 0 ${C.tealDark}`,
+            background: C.primary, color: C.onPrimary, fontWeight: 900, fontSize: 12,
+            border: `2px solid ${C.shadow}`, boxShadow: `0 3px 0 ${C.shadow}`,
             letterSpacing: '0.08em', transition: 'all 0.08s',
           }}
         >

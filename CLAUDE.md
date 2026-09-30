@@ -22,41 +22,70 @@ A personal productivity operating system built as an Electron desktop app. Gamif
 
 ## Design System
 
-### Colors (Tailwind custom tokens + raw hex)
+### Colors — theme tokens
 
-| Token | Hex | Usage |
-|---|---|---|
-| `primary` | `#1D9E75` | Primary teal, CTAs, active states |
-| `teal-dark` | `#085041` | Dark teal text, headings |
-| `teal-med` | `#2a8a67` | Medium teal, hover states |
-| `teal-border` | `#b3e8d3` | Light teal borders |
-| `teal-light` | `#e8f8f1` | Very light teal backgrounds |
-| `amber` | `#EF9F27` | Amber accent (warnings, XP coins) |
-| `amber-dark` | `#a65c00` | Dark amber shadows/text |
-| `purple` | `#7F77DD` | Purple accent |
-| `purple-dark` | `#3d3a9e` | Dark purple shadows/text |
-| `green-done` | `#22c55e` | Completed states |
-| `text-muted` | `#4a7060` | Secondary text |
-| `text-hint` | `#9bbdaa` | Hint / placeholder text |
-| Game chrome bg | `#061710` | Sidebar + Topbar dark background |
-| App outer bg | `#0d1f14` | Outermost shell background |
-| Content bg | `#f4fdf8` | Main content area (light) |
+**Rule: no hardcoded colors in renderer code.** Every color is a theme token, so a palette theme (Neon Noel) can restyle the whole app while **classic stays pixel-identical**.
+
+- **`styles/tokens.css`** defines each token as space-separated RGB channels (`--c-primary: 29 158 117;`). `:root` = classic palette; `html[data-theme="noel"]` = Neon Noel overrides. `applyTheme(themeId)` in `utils/themes.js` sets `<html data-theme>` (`paletteFor()` → `'classic'` | `'noel'`); call it *before* the React state update.
+- **Tailwind** (`tailwind.config.js`) maps every color name to `rgb(var(--c-<token>) / <alpha-value>)`, so utilities (incl. `/NN` opacity) follow the theme. Legacy names still work: `teal-dark`/`text-pri` → `ink`, `teal-med` → `primary-deep`, `teal-light` → `tint`, `teal-border` → `line`, `teal-pale` → `surface-2`, `green-done` → `done`, `text-sec`/`text-muted`/`text-hint` → `text`/`muted`/`hint`.
+- **`utils/colors.js`** helpers for inline styles, SVG and charts:
+
+```js
+import { c, withAlpha, tokenHex, useTokenHex } from '../utils/colors'
+c('ink')                 // 'rgb(var(--c-ink))'           → inline styles, SVG fill/stroke, Recharts props
+c('primary', 0.08)       // 'rgb(var(--c-primary) / 0.08)'
+withAlpha(color, '18')   // alpha for ANY CSS color (replaces `color + '18'` hex-suffix math); also withAlpha(color, 0.2)
+tokenHex('primary')      // live '#rrggbb' — ONLY for canvas (canvas-confetti) / libs that must parse hex
+useTokenHex(['primary']) // hook version, re-resolves on theme change (via ThemeContext from App)
+```
+
+| Token (`--c-*`) | Classic | Neon Noel | Tailwind | Role |
+|---|---|---|---|---|
+| `chrome` / `shell` | `#061710` / `#0d1f14` | `#0B0915` / `#06050E` | `chrome`, `chrome-shell` | Sidebar + Topbar bezel / outermost shell |
+| `chrome-accent` `-text` `-soft` `-hover` `-mid` `-dim` `-label` | `#1D9E75` `#4dffb0` `#7dc4a4` `#a8e8c8` `#3d7058` `#2a5c40` `#EF9F27` | `#A66BFF` `#7DF9FF` `#C9B8F0` `#FFA8E8` `#8D82AE` `#756C98` `#E8FF27` | `chrome-*` | Anything painted on the dark chrome |
+| `screen` | `#f4fdf8` | `#110E1B` | `screen` | Content "screen" |
+| `surface` / `surface-2` | `#ffffff` / `#f7fdfb` | `#1A1627` / `#15121F` | `surface`, `surface-2` | Cards, panels, modals / pale inputs |
+| `tint` / `line` / `line-strong` | `#E1F5EE` / `#d4f0e6` / `#b3e8d3` | `#2B1F42` / `#383152` / `#71679C` | `tint`, `line`, `line-strong` | Teal tints / borders |
+| `ink` / `text` / `muted` / `hint` | `#085041` / `#444441` / `#888780` / `#B4B2A9` | `#F7F1FF` / `#DCD4EE` / `#A39ABF` / `#857CAB` | `ink`, `text-sec`, `text-muted`, `text-hint` | Text |
+| `muted-alt` / `hint-alt` | `#4a7060` / `#9bbdaa` | `#8CB9D4` / `#6A8BA6` | via `c()` | Teal-grey secondary / hint text |
+| `primary` `-deep` `-hover` `-shadow` | `#1D9E75` `#0F6E56` `#2a8a67` `#085041` | `#FF71CE` `#FFA3E0` `#FF8AD6` `#9C35E1` | `primary`, `primary-*` | CTAs, active states, hard shadows |
+| `amber` `-shadow` `-ink` `-tint` `-line` | `#EF9F27` `#a65c00` `#7a4800` `#fff8ec` `#f5d28a` | `#FFA53D` `#B0620A` `#FFE08F` `#2A2010` `#6E5420` | `amber`, `amber-*` | XP coins, warnings |
+| `purple` `-shadow` `-tint` `-line` | `#7F77DD` `#3d3a9e` `#f5f4ff` `#cac8f5` | `#4FE6FF` `#1A66B8` `#10263A` `#1F5C7A` | `purple`, `purple-*` | Third accent (ice in noel) |
+| `danger` `-deep` `-tint` `-line` | `#ef4444` `#b91c1c` `#fef2f2` `#fecaca` | `#FF3D4A` `#FF7A85` `#2E1018` `#7A2034` | `danger`, `danger-*` | Errors, delete, overdue |
+| `success` / `done` | `#22c55e` / `#639922` | `#36F59A` / `#C3F23A` | `success`, `done` | Completed states |
+| `on-primary` `on-amber` `on-purple` `on-danger` `on-success` `on-done` | white | near-black | `on-*` | Text/icons on a solid fill of that color |
+
+- **Extension tokens** `x-<area>-<name>` (e.g. `x-journal-mood-1`, `x-xp-high-end`) cover feature-specific colors with no base token; they're defined for both palettes in `tokens.css` and used as `c('x-…')` or `bg-[rgb(var(--c-x-…))]`.
+- **Map by role, not hex.** Text on a colored fill → the matching `on-*` (never literal white). A dark background that classic painted `#085041` → `primary-shadow` or `chrome` (in noel `ink` is near-white). Anything on the dark chrome → `chrome-*`.
+- **Allowed literals only:** `rgba(0,0,0,a)` drop shadows/scrims, `rgba(255,255,255,a)` sheen/ripples on colored fills, `transparent`/`currentColor`/`inherit`/`none`; pixel-art sprite palettes (`ReindeerSprite.jsx`); holiday-light bulb colors (`HolidayLights.jsx`, `holiday-lights.css`); background presets in `utils/themes.js`; finishes in `noel.css`.
+- `widget.jsx` (separate window) imports `tokens.css` itself and calls `applyTheme()` from the `app_theme` setting.
+
+### Neon Noel theme (`app_theme = 'noel'`)
+- Dark oil-slick / pearlescent vaporwave with laser neon and Christmas accents: chrome `#0B0915`, screen `#110E1B`, surfaces `#1A1627`, ink `#F7F1FF`; laser pink primary `#FF71CE`, tang amber `#FFA53D`, ice `#4FE6FF` (purple slot), Rudolph red danger `#FF3D4A`, green `#36F59A`, citron-lime done `#C3F23A`, lilac chrome accent `#A66BFF`.
+- On dark, `-deep`/`-hover` variants are **more** luminous than the base, and every `on-*` is near-black.
+- **`styles/noel.css`** adds what a flat token can't (holo borders, pearl sheen, glows), all scoped to `html[data-theme="noel"]`. Gradient vars: `--g-holo`, `--g-holo-conic`, `--g-holo-pink`, `--g-holo-ice`, `--g-tinsel`, `--g-pearl`, `--g-sheen`, `--glow-primary`.
+  - Opt-in hook classes (`nl-*`): `nl-sidebar`, `nl-navlabel`, `nl-nav-active`, `nl-brand`, `nl-logo`, `nl-streak-box` (Sidebar); `nl-topbar`, `nl-xp-track`, `nl-xp-fill`, `nl-coin`, `nl-avatar` (Topbar); `nl-ai-fab` (App); `nl-progress-fill` (ProgressBar). Several use `!important` to beat inline styles.
+  - Automatic: `main h1` gradient text, holo borders on `.retro-card*`, pearl sheen on `.bg-surface`, pearl `.game-btn.bg-primary`, input focus glow, `::selection`.
+- **Holiday lights** (`HolidayLights.jsx` + `holiday-lights.css`, classes `hl-*`; work in every theme, default on only in noel): C9 string lights hung from the topbar, a laser fairy frame (top edge + sidebar seam) and a pearl fairy strand. Portalled to `<body>` at **z-30**, `pointer-events: none`, animates only opacity/transform, pauses while `document.hidden` or while any `[data-hl-pause]` element (Modal, CommandPalette) is open; reduced-motion = static glow. Mounted only when on (`{lightsOn && <HolidayLights />}`); hangs from `<main data-hl-screen>`. Toggle: Topbar bulb button, Settings → Appearance, ⌘K "Toggle holiday lights".
+  - **Layering contract:** sprite (z-20) < lights (z-30) < AI FAB (z-40) < Modal/AIPanel (z-50) < XPToast (z-60) < CommandPalette (z-100). Never add `isolate`, `transform`, `filter`, `z-index` or `will-change` to `<main>` or its wrappers. `Modal` portals to `<body>`. Sidebar must stay `w-[200px]` (or pass `sidebarWidth`).
+- **Rudolph** (`ReindeerSprite.jsx` + `reindeer.css`; all themes, replaced the old Mario sprite): pixel-art reindeer mascot with a pulsing red nose glow — `ReindeerFaceIcon` on the AI button (`.sprite-bob`) and chat header, `WalkingReindeer` on the Dashboard floor. In noel its scarf follows `primary`.
 
 ### Typography
 - Font: **Nunito** (Google Fonts, loaded in `index.html`)
 - Base: 14px, line-height 1.6
 
 ### Retro card style (`.retro-card`)
-- `border: 2px solid #1D9E75`
-- `box-shadow: 3px 3px 0 #085041` (hard drop shadow, no blur = pixel-art look)
+- `border: 2px solid` `primary` (classic `#1D9E75`)
+- `box-shadow: 3px 3px 0` `primary-shadow` (classic `#085041`) — hard drop shadow, no blur = pixel-art look
 - Hover: `translate(-1px, -1px)` + shadow expands to `4px 4px 0`
-- Amber variant: `.retro-card-amber` (`#EF9F27` / `#a65c00`)
-- Purple variant: `.retro-card-purple` (`#7F77DD` / `#3d3a9e`)
+- Amber variant: `.retro-card-amber` (`amber` / `amber-shadow`)
+- Purple variant: `.retro-card-purple` (`purple` / `purple-shadow`)
+- Neon Noel swaps the borders for holo gradients (`noel.css`)
 
 ### Game chrome pattern
-- Sidebar + Topbar: dark `#061710` (the "bezel")
-- Content area: light `#f4fdf8` (the "screen")
-- `.game-bg`: radial dot pattern `rgba(29,158,117,0.07)` on content area
+- Sidebar + Topbar: dark `chrome` (classic `#061710`) — the "bezel"
+- Content area: `screen` (classic light `#f4fdf8`) — the "screen"
+- `.game-bg`: radial dot pattern `c('primary', 0.07)` on content area
 
 ---
 
@@ -234,6 +263,8 @@ CREATE TABLE IF NOT EXISTS weekly_ai_reviews (       -- WeeklyReview.jsx (cached
 | `reminder_time` | `'20:00'` | |
 | `xp_total` | `'0'` | Cumulative XP |
 | `xp_level` | `'1'` | Current level 1–5 |
+| `app_theme` | *(not seeded → `'dynamic'`)* | `'dynamic'` \| `'noel'` \| `'forest'` \| `'ocean'` \| `'synthwave'` \| `'pixel'`. `'noel'` (Neon Noel) is the only one that swaps the color palette (`<html data-theme="noel">`); the rest only change backgrounds. Set from Settings → Appearance |
+| `holiday_lights` | *(not seeded → auto)* | `'true'` \| `'false'` once the user chooses. Missing = auto: on only in Neon Noel. Switching the theme to `'noel'` sets it to `'true'`. **Do not seed it** |
 
 ---
 
@@ -286,13 +317,25 @@ d:\Dashboard\
 │       ├── main.jsx
 │       ├── App.jsx          # Root: MemoryRouter, layout shell, AI panel toggle
 │       ├── styles/
-│       │   └── globals.css  # Tailwind + custom animations + retro-card classes
+│       │   ├── globals.css        # Tailwind + custom animations + retro-card classes (@imports the files below)
+│       │   ├── tokens.css         # Theme color tokens (RGB channels): classic :root + html[data-theme="noel"]
+│       │   ├── noel.css           # Neon Noel finishes (holo borders, pearl sheen, glows) via nl-* hooks
+│       │   ├── holiday-lights.css # hl-* overlay styles for HolidayLights (+ Topbar bulb icon colors)
+│       │   └── reindeer.css       # Rudolph nose-glow pulse, noel scarf tint, .sprite-bob
+│       ├── utils/
+│       │   ├── colors.js        # c() / withAlpha() / tokenHex() / useTokenHex() + ThemeContext
+│       │   ├── themes.js        # THEMES, applyTheme(), paletteFor(), computeBg() background presets
+│       │   ├── systemPrompt.js  # buildSystemPrompt() + fetchMemories() (shared LLM personality layer)
+│       │   ├── dailyBrief.js    # Topbar daily brief (AI + template fallback)
+│       │   └── dates.js
 │       ├── components/
 │       │   ├── Sidebar.jsx
-│       │   ├── Topbar.jsx
-│       │   ├── AIPanel.jsx       # Slide-in AI chat with persistent memory + actions
-│       │   ├── CommandPalette.jsx# Global ⌘K command center (fuzzy search + actions)
-│       │   ├── MarioSprite.jsx   # Pixel-art walking Mario + MarioFaceIcon
+│       │   ├── Topbar.jsx           # Brief, ⌘K trigger, holiday-lights + music toggles, XP bar
+│       │   ├── AIPanel.jsx          # Slide-in AI chat with persistent memory + actions
+│       │   ├── CommandPalette.jsx   # Global ⌘K command center (fuzzy search + actions)
+│       │   ├── ReindeerSprite.jsx   # Rudolph: ReindeerFaceIcon (AI button/header) + WalkingReindeer (Dashboard)
+│       │   ├── HolidayLights.jsx    # Neon Noel string + fairy lights overlay (portal, z-30)
+│       │   ├── Modal.jsx            # Shared modal (portalled to <body>)
 │       │   ├── EpicCard.jsx
 │       │   ├── ProgressBar.jsx
 │       │   ├── StatusPill.jsx
@@ -388,7 +431,7 @@ Electron loads that URL in dev mode; `dist/index.html` in production.
 
 ### ✅ Phase 3 — Dashboard + gamification + AI
 - `Dashboard.jsx`: stat cards, Epic cards with horizon tabs, daily streak log
-- `MarioSprite.jsx`: pixel-art walking Mario (RAF loop), interactive hover/click
+- `MarioSprite.jsx`: pixel-art walking Mario (RAF loop), interactive hover/click *(replaced by Rudolph / `ReindeerSprite.jsx` in Phase 13)*
 - `AIPanel.jsx`: slide-in chat panel with persistent `ai_messages` DB memory
 - `EpicCard.jsx`: retro-card style
 - `XPToast.jsx`, `ConfettiCelebration.jsx`: XP feedback
@@ -436,3 +479,9 @@ Electron loads that URL in dev mode; `dist/index.html` in production.
 - `Insights.jsx` (`/insights`): premium analytics page — animated count-ups, a **level/XP progress ring**, a **GitHub-style 17-week activity heatmap** synthesising tasks + streak logs + recurring completions + journal + energy into a per-day intensity, a **Mood vs Energy** 30-day line chart, **30-day habit-consistency** bars, **epic momentum** bars, and **weekday productivity** analysis. All Recharts; graceful empty states + loading skeleton
 - `CommandPalette.jsx`: global **⌘K / Ctrl+K** command center (toggle wired in `App.jsx`, rendered inside `MemoryRouter` so `useNavigate` works). Fuzzy-search (subsequence scoring) across all pages, active epics, and habits, plus quick actions. Arrow/Enter/Esc keyboard nav, grouped results, log-a-streak inline (+10 XP, stays open). Topbar has a discoverable "Search ⌘K" trigger
 - `Epics.jsx`: opens the create-epic modal when reached via `?new=1` (used by the palette's "Create a new epic")
+
+### ✅ Phase 13 — Neon Noel theme
+- **Token migration:** every renderer color moved to theme tokens — `styles/tokens.css` (RGB channels, classic `:root` + `html[data-theme="noel"]`), Tailwind colors mapped to `rgb(var(--c-*) / <alpha-value>)`, `utils/colors.js` helpers (`c`, `withAlpha`, `tokenHex`, `useTokenHex`, `ThemeContext`). Classic is pixel-identical; feature-specific colors are `x-<area>-<name>` extension tokens. `widget.jsx` loads the tokens and applies the saved theme too
+- **Neon Noel** (`app_theme = 'noel'`, 0 XP, listed in `THEMES`): dark oil-slick / pearlescent palette with laser neon + Christmas accents; `styles/noel.css` adds holo borders, pearl sheen and glows through `nl-*` hook classes
+- **Holiday lights** (`HolidayLights.jsx` + `styles/holiday-lights.css`): C9 string lights on the topbar edge, laser fairy frame, pearl fairy strand. Setting `holiday_lights` (unset = on only in noel; switching to noel turns it on). Toggles: Topbar bulb button, Settings → Appearance, ⌘K "Toggle holiday lights". Portalled overlay at z-30 with `pointer-events: none`; pauses under `[data-hl-pause]` (Modal, CommandPalette) and when the window is hidden; `Modal` now portals to `<body>`
+- **Rudolph** (`ReindeerSprite.jsx` + `styles/reindeer.css`) replaces the Mario sprite everywhere: `ReindeerFaceIcon` on the floating AI button (`.sprite-bob`) and the AI chat header, `WalkingReindeer` on the Dashboard. `MarioSprite.jsx` deleted

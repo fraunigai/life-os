@@ -1,13 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { MarioFaceIcon } from './MarioSprite'
+import { ReindeerFaceIcon } from './ReindeerSprite'
 import { buildSystemPrompt, fetchMemories } from '../utils/systemPrompt'
+import { c } from '../utils/colors'
 
+// `color` fills the active provider pill; `onColor` is the text on that fill.
 const PROVIDERS = [
-  { value: 'anthropic', label: 'Claude',  color: '#1D9E75' },
-  { value: 'openai',    label: 'GPT',     color: '#74aa9c' },
-  { value: 'gemini',    label: 'Gemini',  color: '#4285f4' },
-  { value: 'ollama',    label: 'Ollama',  color: '#EF9F27' },
+  { value: 'anthropic', label: 'Claude',  color: c('primary'),           onColor: c('on-primary') },
+  { value: 'openai',    label: 'GPT',     color: c('x-aipanel-openai'),  onColor: c('on-success') },
+  { value: 'gemini',    label: 'Gemini',  color: c('x-aipanel-gemini'),  onColor: c('on-purple') },
+  { value: 'ollama',    label: 'Ollama',  color: c('amber'),             onColor: c('on-amber') },
 ]
 
 const DEFAULT_MODELS = {
@@ -594,12 +596,12 @@ export default function AIPanel({ open, onClose, playSound, awardXp }) {
   const activeProv = PROVIDERS.find(p => p.value === provider)
 
   return (
-    <div className="fixed bottom-24 right-6 z-50 w-[380px] h-[530px] bg-white rounded-card shadow-2xl border border-teal-border flex flex-col slide-up">
+    <div className="fixed bottom-24 right-6 z-50 w-[380px] h-[530px] bg-surface rounded-card shadow-2xl border border-teal-border flex flex-col slide-up">
 
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-teal-border">
         <div className="flex items-center gap-2">
-          <MarioFaceIcon px={3} />
+          <ReindeerFaceIcon px={3} glow={0.8} />
           <div>
             <span className="font-bold text-[13px] text-teal-dark">Life OS AI</span>
             <div className="text-[9px] font-bold text-primary" style={{ marginTop: -1 }}>💾 memory · ⚡ actions</div>
@@ -611,14 +613,14 @@ export default function AIPanel({ open, onClose, playSound, awardXp }) {
               key={p.value}
               onClick={() => switchProvider(p.value)}
               className={`px-2 py-0.5 rounded-full text-[9px] font-bold transition-all ${
-                provider === p.value ? 'text-white' : 'text-text-hint hover:text-text-sec'
+                provider === p.value ? '' : 'text-text-hint hover:text-text-sec'
               }`}
-              style={provider === p.value ? { background: p.color } : {}}
+              style={provider === p.value ? { background: p.color, color: p.onColor } : {}}
             >
               {p.label}
             </button>
           ))}
-          <button onClick={clearHistory} title="Clear chat memory" className="ml-1 text-text-hint hover:text-red-400 transition-colors p-1">
+          <button onClick={clearHistory} title="Clear chat memory" className="ml-1 text-text-hint hover:text-[rgb(var(--c-x-aipanel-danger-soft))] transition-colors p-1">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
               <path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4h6v2" />
@@ -637,15 +639,15 @@ export default function AIPanel({ open, onClose, playSound, awardXp }) {
         {provider === 'ollama' ? (
           <>
             <input value={ollamaUrl} onChange={e => setOllamaUrl(e.target.value)} placeholder="http://localhost:11434"
-              className="flex-1 text-[10px] px-2 py-1 bg-white border border-teal-border rounded-[6px] outline-none focus:border-primary text-text-sec" />
+              className="flex-1 text-[10px] px-2 py-1 bg-surface border border-teal-border rounded-[6px] outline-none focus:border-primary text-text-sec" />
             <input value={ollamaModel} onChange={e => setOllamaModel(e.target.value)} placeholder="llama3"
-              className="w-20 text-[10px] px-2 py-1 bg-white border border-teal-border rounded-[6px] outline-none focus:border-primary text-text-sec" />
+              className="w-20 text-[10px] px-2 py-1 bg-surface border border-teal-border rounded-[6px] outline-none focus:border-primary text-text-sec" />
           </>
         ) : (
           <input value={model} onChange={e => setModel(e.target.value)}
-            className="flex-1 text-[10px] px-2 py-1 bg-white border border-teal-border rounded-[6px] outline-none focus:border-primary text-text-sec" />
+            className="flex-1 text-[10px] px-2 py-1 bg-surface border border-teal-border rounded-[6px] outline-none focus:border-primary text-text-sec" />
         )}
-        <div className="text-[9px] font-bold px-1.5 py-0.5 rounded-full text-white" style={{ background: activeProv?.color || '#1D9E75' }}>
+        <div className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: activeProv?.color || c('primary'), color: activeProv?.onColor || c('on-primary') }}>
           {activeProv?.label}
         </div>
       </div>
@@ -656,7 +658,7 @@ export default function AIPanel({ open, onClose, playSound, awardXp }) {
           <div key={i} className={`flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
             <div className={`max-w-[88%] px-3 py-2 rounded-[14px] text-[12px] leading-relaxed whitespace-pre-wrap ${
               m.role === 'user'
-                ? 'bg-primary text-white rounded-br-sm'
+                ? 'bg-primary text-on-primary rounded-br-sm'
                 : 'bg-teal-light text-text-pri rounded-bl-sm'
             }`}>
               {m.content}
@@ -684,13 +686,13 @@ export default function AIPanel({ open, onClose, playSound, awardXp }) {
       <div className="px-3 pb-3 pt-2 border-t border-teal-border">
         {attachedDoc && (
           <div className="flex items-center gap-1.5 mb-2 px-2 py-1 rounded-[8px]"
-            style={{ background: '#fff8ec', border: '1.5px solid #EF9F2760' }}>
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#EF9F27" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            style={{ background: c('amber-tint'), border: `1.5px solid ${c('amber', 0.376)}` }}>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={c('amber')} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
             </svg>
             <span className="text-[10px] font-bold text-amber-dark flex-1 truncate">{attachedDoc.name}</span>
             <span className="text-[9px] text-text-hint">in context</span>
-            <button onClick={() => setAttachedDoc(null)} className="ml-1 text-text-hint hover:text-red-400 transition-colors" title="Remove">
+            <button onClick={() => setAttachedDoc(null)} className="ml-1 text-text-hint hover:text-[rgb(var(--c-x-aipanel-danger-soft))] transition-colors" title="Remove">
               <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
                 <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
               </svg>
@@ -700,7 +702,7 @@ export default function AIPanel({ open, onClose, playSound, awardXp }) {
         <div className="flex gap-2">
           <button onClick={pickDocument} title="Attach a document"
             className="w-8 h-8 rounded-[10px] flex items-center justify-center transition-colors hover:bg-teal-light"
-            style={{ color: attachedDoc ? '#EF9F27' : '#9bbdaa', border: `1.5px solid ${attachedDoc ? '#EF9F2780' : '#d4f0e6'}` }}>
+            style={{ color: attachedDoc ? c('amber') : c('hint-alt'), border: `1.5px solid ${attachedDoc ? c('amber', 0.502) : c('line')}` }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
             </svg>
@@ -713,7 +715,7 @@ export default function AIPanel({ open, onClose, playSound, awardXp }) {
             className="flex-1 text-[12px] px-3 py-2 bg-teal-pale border border-teal-border rounded-[10px] outline-none focus:border-primary text-text-pri placeholder:text-text-hint"
           />
           <button onClick={send} disabled={loading || !input.trim()}
-            className="w-8 h-8 rounded-[10px] bg-primary text-white flex items-center justify-center disabled:opacity-40 hover:bg-teal-med transition-colors">
+            className="w-8 h-8 rounded-[10px] bg-primary text-on-primary flex items-center justify-center disabled:opacity-40 hover:bg-teal-med transition-colors">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
             </svg>

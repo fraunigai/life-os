@@ -1,3 +1,5 @@
+import { c } from './colors'
+
 // Pass epic.end_date as first arg (takes priority), fall back to horizon computation
 export function getHorizonDeadline(horizon, endDate) {
   if (endDate) return new Date(endDate)
@@ -56,10 +58,10 @@ export function fmtDateFull(date) {
   return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
-// Returns hex color based on urgency
+// Returns a theme-token color based on urgency (apply alpha with withAlpha(), not a hex suffix)
 export function deadlineColor(days) {
-  if (days < 0)   return '#ef4444' // overdue
-  if (days <= 7)  return '#ef4444' // < 1 week
-  if (days <= 30) return '#EF9F27' // < 1 month
-  return '#1D9E75'                 // healthy
+  if (days < 0)   return c('danger')  // overdue
+  if (days <= 7)  return c('danger')  // < 1 week
+  if (days <= 30) return c('amber')   // < 1 month
+  return c('primary')                 // healthy
 }

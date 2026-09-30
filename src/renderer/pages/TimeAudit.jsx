@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
+import { c, useThemePalette } from '../utils/colors'
 
 const CATEGORIES = [
-  { key: 'deep_work_hours', label: 'Deep Work',  color: '#1D9E75' },
-  { key: 'learning_hours',  label: 'Learning',   color: '#7F77DD' },
-  { key: 'admin_hours',     label: 'Admin',      color: '#EF9F27' },
-  { key: 'social_hours',    label: 'Social',     color: '#085041' },
-  { key: 'rest_hours',      label: 'Rest',       color: '#B4B2A9' },
+  { key: 'deep_work_hours', label: 'Deep Work',  color: c('primary') },
+  { key: 'learning_hours',  label: 'Learning',   color: c('purple') },
+  { key: 'admin_hours',     label: 'Admin',      color: c('amber') },
+  { key: 'social_hours',    label: 'Social',     color: c('x-timeaudit-social') },
+  { key: 'rest_hours',      label: 'Rest',       color: c('hint') },
 ]
 
 function getWeekStart(offset = 0) {
@@ -21,6 +22,7 @@ export default function TimeAudit() {
   const [form, setForm]             = useState({ deep_work_hours: '', learning_hours: '', admin_hours: '', social_hours: '', rest_hours: '', notes: '' })
   const [saving, setSaving]         = useState(false)
   const [saved, setSaved]           = useState(false)
+  const palette                     = useThemePalette()
 
   const weekStart = getWeekStart(weekOffset)
 
@@ -109,7 +111,7 @@ export default function TimeAudit() {
 
       <div className="grid grid-cols-2 gap-6">
         {/* Input form */}
-        <div className="bg-white border border-teal-border rounded-card p-5">
+        <div className="bg-surface border border-teal-border rounded-card p-5">
           <p className="text-[13px] font-bold text-teal-dark mb-4">Hours this week</p>
           <div className="flex flex-col gap-3">
             {CATEGORIES.map(cat => (
@@ -143,14 +145,14 @@ export default function TimeAudit() {
           <button
             onClick={save}
             disabled={saving}
-            className="mt-4 w-full py-2 bg-primary text-white text-[12px] font-bold rounded-[10px] hover:bg-teal-med disabled:opacity-40 transition-colors"
+            className="mt-4 w-full py-2 bg-primary text-on-primary text-[12px] font-bold rounded-[10px] hover:bg-teal-med disabled:opacity-40 transition-colors"
           >
             {saved ? '✓ Saved!' : saving ? 'Saving…' : 'Save Week'}
           </button>
         </div>
 
         {/* Chart */}
-        <div className="bg-white border border-teal-border rounded-card p-5">
+        <div className="bg-surface border border-teal-border rounded-card p-5">
           <div className="flex items-center justify-between mb-4">
             <p className="text-[13px] font-bold text-teal-dark">Breakdown</p>
             <span className="text-[12px] font-extrabold text-primary">{totalHours.toFixed(1)}h total</span>
@@ -158,14 +160,16 @@ export default function TimeAudit() {
           {chartData.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={chartData} margin={{ top: 0, right: 0, bottom: 0, left: -20 }}>
-                <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#888780' }} />
-                <YAxis tick={{ fontSize: 10, fill: '#888780' }} />
+                <XAxis dataKey="name" tick={{ fontSize: 10, fill: c('muted') }} />
+                <YAxis tick={{ fontSize: 10, fill: c('muted') }} />
                 <Tooltip
-                  contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #d4f0e6' }}
+                  cursor={{ fill: c('x-chart-cursor') }}
+                  contentStyle={{ fontSize: 11, borderRadius: 8, border: `1px solid ${c('line')}`, backgroundColor: c('surface') }}
+                  itemStyle={{ color: c('x-chart-tooltip-ink') }}
                   formatter={v => [`${v}h`, 'Hours']}
                 />
                 <Bar dataKey="hours" radius={[4, 4, 0, 0]}>
-                  {chartData.map((d, i) => <Cell key={i} fill={d.color} />)}
+                  {chartData.map((d, i) => <Cell key={i} fill={d.color} fillOpacity={palette === 'noel' ? 0.85 : 1} />)}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>

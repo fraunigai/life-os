@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
+import { c } from '../utils/colors'
 
 // Icons inherit color from parent text via currentColor
 function makeIcon(d) {
@@ -127,26 +128,26 @@ export default function Sidebar() {
 
   return (
     <aside
-      className="w-[200px] min-w-[200px] h-screen flex flex-col select-none"
-      style={{ background: '#061710', borderRight: '1px solid rgba(29,158,117,0.18)' }}
+      className="nl-sidebar w-[200px] min-w-[200px] h-screen flex flex-col select-none"
+      style={{ background: c('chrome'), borderRight: `1px solid ${c('chrome-accent', 0.18)}` }}
     >
       {/* Logo */}
       <div className="px-4 pt-5 pb-4 flex items-center gap-2.5">
         <div
-          className="w-8 h-8 flex items-center justify-center flex-shrink-0"
+          className="nl-logo w-8 h-8 flex items-center justify-center flex-shrink-0"
           style={{
-            background: '#1D9E75',
+            background: c('primary'),
             borderRadius: 4,
-            boxShadow: '2px 2px 0 #085041',
+            boxShadow: `2px 2px 0 ${c('primary-shadow')}`,
           }}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={c('on-primary')} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
           </svg>
         </div>
         <div>
-          <div className="font-extrabold text-[15px] tracking-tight" style={{ color: '#4dffb0' }}>Life OS</div>
-          <div className="text-[8px] font-bold tracking-widest uppercase" style={{ color: '#2a5c40' }}>LEVEL UP YOUR LIFE</div>
+          <div className="nl-brand font-extrabold text-[15px] tracking-tight" style={{ color: c('chrome-text') }}>Life OS</div>
+          <div className="text-[8px] font-bold tracking-widest uppercase" style={{ color: c('chrome-dim') }}>LEVEL UP YOUR LIFE</div>
         </div>
       </div>
 
@@ -165,17 +166,17 @@ export default function Sidebar() {
       {/* Streak mini-widget */}
       {streaks.length > 0 && (
         <div
-          className="mx-3 mb-4 px-3 py-3 rounded"
-          style={{ background: 'rgba(29,158,117,0.07)', border: '1px solid rgba(29,158,117,0.18)' }}
+          className="nl-streak-box mx-3 mb-4 px-3 py-3 rounded"
+          style={{ background: c('chrome-accent', 0.07), border: `1px solid ${c('chrome-accent', 0.18)}` }}
         >
-          <p className="text-[9px] font-extrabold uppercase tracking-widest mb-2" style={{ color: '#EF9F27' }}>
+          <p className="nl-navlabel text-[9px] font-extrabold uppercase tracking-widest mb-2" style={{ color: c('chrome-label') }}>
             🔥 Streaks
           </p>
           <div className="flex flex-col gap-1.5">
             {streaks.map(s => (
               <div key={s.id} className="flex items-center justify-between gap-1">
-                <span className="text-[11px] font-semibold truncate" style={{ color: '#7dc4a4' }}>{s.name}</span>
-                <span className="text-[11px] font-extrabold whitespace-nowrap font-mono" style={{ color: '#4dffb0' }}>
+                <span className="text-[11px] font-semibold truncate" style={{ color: c('chrome-soft') }}>{s.name}</span>
+                <span className="text-[11px] font-extrabold whitespace-nowrap font-mono" style={{ color: c('chrome-text') }}>
                   {s.current_streak}d
                 </span>
               </div>
@@ -192,8 +193,8 @@ function NavSection({ label, children }) {
     <div className="mb-1">
       {label && (
         <p
-          className="px-3 pt-4 pb-1 text-[9px] font-extrabold uppercase tracking-widest"
-          style={{ color: '#EF9F27' }}
+          className="nl-navlabel px-3 pt-4 pb-1 text-[9px] font-extrabold uppercase tracking-widest"
+          style={{ color: c('chrome-label') }}
         >
           {label}
         </p>
@@ -209,14 +210,14 @@ function SideNavItem({ to, label, Icon }) {
       to={to}
       className={({ isActive }) =>
         `flex items-center gap-2 py-[9px] text-[12px] font-bold transition-colors ${
-          isActive ? 'text-[#4dffb0]' : 'text-[#3d7058] hover:text-[#a8e8c8]'
+          isActive ? 'nl-nav-active text-chrome-text' : 'text-chrome-mid hover:text-chrome-hover'
         }`
       }
       style={({ isActive }) => ({
-        borderLeft: isActive ? '3px solid #1D9E75' : '3px solid transparent',
+        borderLeft: isActive ? `3px solid ${c('chrome-accent')}` : '3px solid transparent',
         paddingLeft: isActive ? 9 : 12,
         paddingRight: 12,
-        background: isActive ? 'rgba(29,158,117,0.1)' : 'transparent',
+        background: isActive ? c('chrome-accent', 0.1) : 'transparent',
       })}
     >
       {({ isActive }) => (

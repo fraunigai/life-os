@@ -1,15 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { c, withAlpha } from '../utils/colors'
 
+// Onboarding is a full-screen dark "bezel" in every palette: chrome bg, light text, brand accents.
 const C = {
-  bg:        '#061710',
-  primary:   '#1D9E75',
-  tealDark:  '#085041',
-  amber:     '#EF9F27',
-  amberDark: '#a65c00',
-  content:   '#f4fdf8',
-  muted:     '#4a7060',
-  hint:      '#9bbdaa',
-  purple:    '#7F77DD',
+  bg:        c('chrome'),
+  primary:   c('primary'),
+  tealDark:  c('primary-shadow'),        // hard pixel shadows + accent-bar ends
+  onPrimary: c('x-welcome-on-primary'),  // label on the solid primary NEXT button
+  amber:     c('amber'),
+  amberDark: c('amber-shadow'),
+  content:   c('x-welcome-text'),        // light text on the dark screen
+  muted:     c('x-welcome-muted'),       // dimmest text (disabled, footer) — must stay below hint in every palette
+  hint:      c('hint-alt'),
+  purple:    c('purple'),
 }
 
 // ── Shared primitives ─────────────────────────────────────────────────────────
@@ -18,7 +21,7 @@ function PixelAvatar({ initials, size = 72 }) {
   return (
     <div style={{
       width: size, height: size, borderRadius: 4,
-      background: `${C.primary}22`,
+      background: withAlpha(C.primary, '22'),
       border: `3px solid ${C.primary}`,
       boxShadow: `3px 3px 0 ${C.tealDark}`,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -58,7 +61,7 @@ function RetroInput({ autoFocus, value, onChange, onKeyDown, placeholder, maxLen
         width: '100%', boxSizing: 'border-box',
         background: 'rgba(0,0,0,0.35)',
         border: `2px solid ${focused ? C.primary : 'rgba(255,255,255,0.12)'}`,
-        boxShadow: focused ? `0 0 14px ${C.primary}44` : 'none',
+        boxShadow: focused ? `0 0 14px ${withAlpha(C.primary, '44')}` : 'none',
         borderRadius: 4, padding: '12px 14px',
         fontSize: type === 'text' ? 18 : 14,
         fontWeight: 700, color: C.content,
@@ -81,7 +84,7 @@ function NavButton({ onClick, disabled, primary, children }) {
         background: disabled ? 'rgba(255,255,255,0.06)'
           : primary ? C.primary : 'transparent',
         color: disabled ? C.muted
-          : primary ? C.tealDark : C.hint,
+          : primary ? C.onPrimary : C.hint,
         border: `2px solid ${disabled ? 'rgba(255,255,255,0.1)'
           : primary ? C.primary : 'rgba(255,255,255,0.15)'}`,
         boxShadow: disabled ? '2px 2px 0 rgba(0,0,0,0.3)'
@@ -185,9 +188,9 @@ function StepSplash({ onNext }) {
       ))}
 
       <div style={{
-        background: `${C.primary}14`,
+        background: withAlpha(C.primary, '14'),
         border: `3px solid ${C.primary}`,
-        boxShadow: `0 0 40px ${C.primary}44, 6px 6px 0 ${C.tealDark}`,
+        boxShadow: `0 0 40px ${withAlpha(C.primary, '44')}, 6px 6px 0 ${C.tealDark}`,
         borderRadius: 8, padding: '44px 72px',
         textAlign: 'center', position: 'relative',
       }}>
@@ -201,7 +204,7 @@ function StepSplash({ onNext }) {
 
         <div style={{
           fontSize: 64, fontWeight: 900, letterSpacing: 6, color: C.content,
-          textShadow: `0 0 20px ${C.primary}, 0 0 40px ${C.primary}66, 4px 4px 0 ${C.tealDark}`,
+          textShadow: `0 0 20px ${C.primary}, 0 0 40px ${withAlpha(C.primary, '66')}, 4px 4px 0 ${C.tealDark}`,
           lineHeight: 1,
         }}>
           LIFE OS
@@ -267,7 +270,7 @@ function StepName({ name, initials, onNameChange, onNext }) {
             }}>
               <span>INITIALS:</span>
               <span style={{
-                background: `${C.primary}22`, border: `1px solid ${C.primary}`,
+                background: withAlpha(C.primary, '22'), border: `1px solid ${C.primary}`,
                 borderRadius: 2, padding: '2px 10px',
                 color: C.primary, fontWeight: 900, fontSize: 12,
               }}>
@@ -377,7 +380,7 @@ function StepStreak({ habitName, onHabitNameChange, onNext, onBack }) {
               key={ex}
               onClick={() => onHabitNameChange(ex)}
               style={{
-                background: habitName === ex ? `${C.primary}28` : 'rgba(255,255,255,0.05)',
+                background: habitName === ex ? withAlpha(C.primary, '28') : 'rgba(255,255,255,0.05)',
                 border: `1px solid ${habitName === ex ? C.primary : 'rgba(255,255,255,0.12)'}`,
                 color: habitName === ex ? C.primary : C.hint,
                 borderRadius: 3, padding: '4px 10px',
@@ -445,7 +448,7 @@ function StepXPIntro({ onComplete, onBack }) {
               <span style={{
                 fontSize: 12, fontWeight: 900, letterSpacing: 1,
                 color: C.amber,
-                textShadow: `0 0 8px ${C.amber}66`,
+                textShadow: `0 0 8px ${withAlpha(C.amber, '66')}`,
               }}>
                 +{row.xp} XP
               </span>
@@ -466,7 +469,7 @@ function StepXPIntro({ onComplete, onBack }) {
                 }}>
                   <div style={{
                     width: 32, height: 32, borderRadius: 4,
-                    background: lv === 1 ? `${C.primary}30` : 'rgba(255,255,255,0.05)',
+                    background: lv === 1 ? withAlpha(C.primary, '30') : 'rgba(255,255,255,0.05)',
                     border: `2px solid ${lv === 1 ? C.primary : 'rgba(255,255,255,0.12)'}`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 12, fontWeight: 900, color: lv === 1 ? C.primary : C.muted,
@@ -534,7 +537,7 @@ function StepReady({ name, initials }) {
         </div>
         <div style={{
           fontSize: 36, fontWeight: 900, color: C.content,
-          textShadow: `4px 4px 0 ${C.tealDark}, 0 0 24px ${C.primary}66`,
+          textShadow: `4px 4px 0 ${C.tealDark}, 0 0 24px ${withAlpha(C.primary, '66')}`,
           letterSpacing: 2,
         }}>
           {name.toUpperCase()}
@@ -638,7 +641,7 @@ export default function Welcome({ onComplete }) {
       {/* Dot grid */}
       <div style={{
         position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
-        backgroundImage: `radial-gradient(circle, ${C.primary}10 1px, transparent 1px)`,
+        backgroundImage: `radial-gradient(circle, ${withAlpha(C.primary, '10')} 1px, transparent 1px)`,
         backgroundSize: '28px 28px',
       }} />
 

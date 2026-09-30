@@ -3,15 +3,16 @@ import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer, CartesianGrid, Cell,
 } from 'recharts'
+import { c, withAlpha, useThemePalette } from '../utils/colors'
 
 // ── Constants ───────────────────────────────────────────────────────────────────
 
 const LEVEL_THRESHOLDS = { 1: 0, 2: 200, 3: 500, 4: 1000, 5: 2000 }
 const MAX_LEVEL = 5
 
-const HEAT = ['#eef6f2', '#cdebdd', '#8fd9b7', '#3fb589', '#1D9E75'] // 0–4 intensity (teal ramp)
+const HEAT = [c('x-insights-heat-0'), c('x-insights-heat-1'), c('x-insights-heat-2'), c('x-insights-heat-3'), c('x-insights-heat-4')] // 0–4 intensity (teal ramp)
 const MOOD_EMOJI = { 1: '😞', 2: '😔', 3: '😐', 4: '🙂', 5: '😄' }
-const EPIC_HEX = { teal: '#1D9E75', amber: '#EF9F27', purple: '#7F77DD' }
+const EPIC_HEX = { teal: c('primary'), amber: c('amber'), purple: c('purple') }
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 // ── Date helpers ────────────────────────────────────────────────────────────────
@@ -47,7 +48,7 @@ function CountUp({ value, decimals = 0, className, style }) {
 
 // ── Progress ring ───────────────────────────────────────────────────────────────
 
-function Ring({ pct, size = 96, stroke = 9, color = '#1D9E75', track = '#e3f4ec', children }) {
+function Ring({ pct, size = 96, stroke = 9, color = c('primary'), track = c('tint'), children }) {
   const r = (size - stroke) / 2
   const circ = 2 * Math.PI * r
   const animated = useCountUp(pct, 1200)
@@ -206,23 +207,23 @@ export default function Insights() {
       <div className="grid grid-cols-4 gap-4 mb-5">
         {/* Level ring */}
         <div className="relative overflow-hidden flex items-center gap-3 px-4 py-4"
-          style={{ background: 'linear-gradient(135deg,#063a2c,#0a5e44)', borderRadius: 10, boxShadow: '3px 3px 0 #04231a' }}>
-          <Ring pct={data.levelPct} size={68} stroke={7} color="#4dffb0" track="rgba(255,255,255,0.12)">
-            <span className="text-[16px] font-extrabold text-white leading-none">{data.lvl}</span>
-            <span className="text-[7px] font-bold tracking-widest" style={{ color: '#4dffb0' }}>LVL</span>
+          style={{ background: `linear-gradient(135deg,${c('x-insights-level-from')},${c('x-insights-level-to')})`, borderRadius: 10, boxShadow: `3px 3px 0 ${c('x-insights-level-shadow')}` }}>
+          <Ring pct={data.levelPct} size={68} stroke={7} color={c('chrome-text')} track="rgba(255,255,255,0.12)">
+            <span className="text-[16px] font-extrabold leading-none" style={{ color: c('x-insights-level-ink') }}>{data.lvl}</span>
+            <span className="text-[7px] font-bold tracking-widest" style={{ color: c('chrome-text') }}>LVL</span>
           </Ring>
           <div>
-            <p className="text-[9px] font-bold uppercase tracking-widest" style={{ color: '#6fdcae' }}>Level {data.lvl}</p>
-            <p className="text-[15px] font-extrabold text-white leading-tight"><CountUp value={data.xp} /> XP</p>
-            <p className="text-[9px]" style={{ color: '#7dc4a4' }}>
+            <p className="text-[9px] font-bold uppercase tracking-widest" style={{ color: c('x-insights-level-label') }}>Level {data.lvl}</p>
+            <p className="text-[15px] font-extrabold leading-tight" style={{ color: c('x-insights-level-ink') }}><CountUp value={data.xp} /> XP</p>
+            <p className="text-[9px]" style={{ color: c('chrome-soft') }}>
               {data.next ? `${data.xpForLevel - data.xpIntoLevel} to Lv ${data.lvl + 1}` : 'Max level 🏆'}
             </p>
           </div>
         </div>
 
-        <HeroStat icon="✅" label="Tasks Completed" value={data.tasksDone} tint="#eafaf2" border="#b3e8d3" color="#085041" />
-        <HeroStat icon="🔥" label="Longest Streak" value={data.longest} suffix=" days" tint="#fff7e8" border="#f5d28a" color="#a65c00" />
-        <HeroStat icon="📖" label="Journal Entries" value={data.journalCount} tint="#f5f4ff" border="#cac8f5" color="#3d3a9e" />
+        <HeroStat icon="✅" label="Tasks Completed" value={data.tasksDone} tint={c('x-insights-teal-tint')} border={c('line-strong')} color={c('ink')} />
+        <HeroStat icon="🔥" label="Longest Streak" value={data.longest} suffix=" days" tint={c('amber-tint')} border={c('amber-line')} color={c('x-insights-amber-text')} />
+        <HeroStat icon="📖" label="Journal Entries" value={data.journalCount} tint={c('purple-tint')} border={c('purple-line')} color={c('x-insights-purple-text')} />
       </div>
 
       {/* Activity heatmap */}
@@ -247,7 +248,7 @@ export default function Insights() {
 
 function HeroStat({ icon, label, value, suffix = '', tint, border, color }) {
   return (
-    <div className="relative overflow-hidden px-4 py-4" style={{ background: tint, border: `2px solid ${border}`, borderRadius: 10, boxShadow: `3px 3px 0 ${border}66` }}>
+    <div className="relative overflow-hidden px-4 py-4" style={{ background: tint, border: `2px solid ${border}`, borderRadius: 10, boxShadow: `3px 3px 0 ${withAlpha(border, '66')}` }}>
       <p className="text-[9px] font-bold uppercase tracking-widest mb-1" style={{ color, opacity: 0.7 }}>{label}</p>
       <p className="text-[24px] font-extrabold leading-none font-mono" style={{ color }}>
         <CountUp value={value} />{suffix}
@@ -286,7 +287,7 @@ function Heatmap({ cells, activeDays }) {
   })
 
   return (
-    <div className="bg-white border border-teal-border rounded-card p-5">
+    <div className="bg-surface border border-teal-border rounded-card p-5">
       <div className="flex items-center justify-between mb-4">
         <div>
           <p className="text-[13px] font-bold text-teal-dark">Activity over the last 17 weeks</p>
@@ -330,7 +331,7 @@ function Heatmap({ cells, activeDays }) {
                         style={{
                           width: 13, height: 13, borderRadius: 3,
                           background: HEAT[lvl],
-                          border: lvl === 0 ? '1px solid #e6f1ec' : 'none',
+                          border: lvl === 0 ? `1px solid ${c('x-insights-heat-0-line')}` : 'none',
                           transition: 'transform 0.1s',
                         }}
                         className="hover:scale-125"
@@ -347,8 +348,8 @@ function Heatmap({ cells, activeDays }) {
       {/* Legend */}
       <div className="flex items-center justify-end gap-1.5 mt-3">
         <span className="text-[9px] font-bold text-text-hint">Less</span>
-        {HEAT.map((c, i) => (
-          <div key={i} style={{ width: 11, height: 11, borderRadius: 3, background: c, border: i === 0 ? '1px solid #e6f1ec' : 'none' }} />
+        {HEAT.map((col, i) => (
+          <div key={i} style={{ width: 11, height: 11, borderRadius: 3, background: col, border: i === 0 ? `1px solid ${c('x-insights-heat-0-line')}` : 'none' }} />
         ))}
         <span className="text-[9px] font-bold text-text-hint">More</span>
       </div>
@@ -361,23 +362,23 @@ function Heatmap({ cells, activeDays }) {
 function MoodEnergyTrend({ trend }) {
   const hasData = trend.some(t => t.mood != null || t.energy != null)
   return (
-    <div className="bg-white border border-teal-border rounded-card p-5">
+    <div className="bg-surface border border-teal-border rounded-card p-5">
       <div className="flex items-center justify-between mb-3">
         <p className="text-[13px] font-bold text-teal-dark">Mood vs Energy</p>
         <div className="flex items-center gap-3">
-          <Legend color="#1D9E75" label="Mood" />
-          <Legend color="#EF9F27" label="Energy" />
+          <Legend color={c('primary')} label="Mood" />
+          <Legend color={c('amber')} label="Energy" />
         </div>
       </div>
       {hasData ? (
         <ResponsiveContainer width="100%" height={180}>
           <LineChart data={trend} margin={{ top: 4, right: 8, bottom: 0, left: -24 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#eef6f2" />
-            <XAxis dataKey="date" tick={{ fontSize: 9, fill: '#9bbdaa' }} interval={6} />
-            <YAxis domain={[1, 5]} ticks={[1, 2, 3, 4, 5]} tick={{ fontSize: 9, fill: '#9bbdaa' }} />
-            <Tooltip contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #d4f0e6' }} />
-            <Line type="monotone" dataKey="mood" stroke="#1D9E75" strokeWidth={2.5} dot={false} connectNulls />
-            <Line type="monotone" dataKey="energy" stroke="#EF9F27" strokeWidth={2.5} dot={false} connectNulls />
+            <CartesianGrid strokeDasharray="3 3" stroke={c('screen')} />
+            <XAxis stroke={c('x-insights-axis')} dataKey="date" tick={{ fontSize: 9, fill: c('hint-alt') }} interval={6} />
+            <YAxis stroke={c('x-insights-axis')} domain={[1, 5]} ticks={[1, 2, 3, 4, 5]} tick={{ fontSize: 9, fill: c('hint-alt') }} />
+            <Tooltip contentStyle={{ fontSize: 11, borderRadius: 8, border: `1px solid ${c('line')}`, backgroundColor: c('surface') }} />
+            <Line type="monotone" dataKey="mood" stroke={c('primary')} strokeWidth={2.5} dot={false} activeDot={{ stroke: c('surface') }} connectNulls />
+            <Line type="monotone" dataKey="energy" stroke={c('amber')} strokeWidth={2.5} dot={false} activeDot={{ stroke: c('surface') }} connectNulls />
           </LineChart>
         </ResponsiveContainer>
       ) : (
@@ -391,7 +392,7 @@ function MoodEnergyTrend({ trend }) {
 
 function HabitConsistency({ habits }) {
   return (
-    <div className="bg-white border border-teal-border rounded-card p-5">
+    <div className="bg-surface border border-teal-border rounded-card p-5">
       <p className="text-[13px] font-bold text-teal-dark mb-3">30-day consistency</p>
       {habits.length === 0 ? (
         <EmptyMini icon="🔥" text="No habits yet — build a streak to track consistency." />
@@ -403,14 +404,14 @@ function HabitConsistency({ habits }) {
               <div key={h.id}>
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-[11px] font-bold text-teal-dark truncate">{h.name}</span>
-                  <span className="text-[10px] font-extrabold" style={{ color: pct >= 70 ? '#1D9E75' : pct >= 40 ? '#EF9F27' : '#9bbdaa' }}>
+                  <span className="text-[10px] font-extrabold" style={{ color: pct >= 70 ? c('primary') : pct >= 40 ? c('amber') : c('hint-alt') }}>
                     {pct}% · 🔥{h.current_streak}
                   </span>
                 </div>
-                <div style={{ height: 7, background: '#eef6f2', borderRadius: 4, overflow: 'hidden' }}>
+                <div style={{ height: 7, background: c('screen'), borderRadius: 4, overflow: 'hidden' }}>
                   <div style={{
                     height: '100%', width: `${pct}%`, borderRadius: 4,
-                    background: pct >= 70 ? '#1D9E75' : pct >= 40 ? '#EF9F27' : '#cdebdd',
+                    background: pct >= 70 ? c('primary') : pct >= 40 ? c('amber') : c('x-insights-bar-low'),
                     transition: 'width 0.9s cubic-bezier(0.34,1.56,0.64,1)',
                   }} />
                 </div>
@@ -427,22 +428,22 @@ function HabitConsistency({ habits }) {
 
 function EpicProgress({ epics }) {
   return (
-    <div className="bg-white border border-teal-border rounded-card p-5">
+    <div className="bg-surface border border-teal-border rounded-card p-5">
       <p className="text-[13px] font-bold text-teal-dark mb-3">Epic momentum</p>
       {epics.length === 0 ? (
         <EmptyMini icon="🚀" text="No active epics. Create a goal to start tracking progress." />
       ) : (
         <div className="flex flex-col gap-3">
           {epics.map((e, i) => {
-            const c = EPIC_HEX[e.color] || '#1D9E75'
+            const col = EPIC_HEX[e.color] || c('primary')
             return (
               <div key={i}>
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-[11px] font-bold text-teal-dark truncate">{e.name}</span>
-                  <span className="text-[10px] font-extrabold" style={{ color: c }}>{e.progress}%</span>
+                  <span className="text-[10px] font-extrabold" style={{ color: col }}>{e.progress}%</span>
                 </div>
-                <div style={{ height: 7, background: '#eef6f2', borderRadius: 4, overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${e.progress}%`, background: c, borderRadius: 4, transition: 'width 0.9s cubic-bezier(0.34,1.56,0.64,1)' }} />
+                <div style={{ height: 7, background: c('screen'), borderRadius: 4, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${e.progress}%`, background: col, borderRadius: 4, transition: 'width 0.9s cubic-bezier(0.34,1.56,0.64,1)' }} />
                 </div>
               </div>
             )
@@ -456,25 +457,33 @@ function EpicProgress({ epics }) {
 // ── Weekday productivity ──────────────────────────────────────────────────────────
 
 function WeekdayProductivity({ weekday }) {
+  const noel = useThemePalette() === 'noel'
   const max = Math.max(...weekday.map(w => w.count), 1)
   const peak = weekday.reduce((a, b) => (b.count > a.count ? b : a), weekday[0])
   const hasData = weekday.some(w => w.count > 0)
   return (
-    <div className="bg-white border border-teal-border rounded-card p-5">
+    <div className="bg-surface border border-teal-border rounded-card p-5">
       <div className="flex items-center justify-between mb-3">
         <p className="text-[13px] font-bold text-teal-dark">When you get things done</p>
-        {hasData && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: '#eafaf2', color: '#1D9E75' }}>Peak: {peak.day}</span>}
+        {hasData && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: c('x-insights-teal-tint'), color: c('primary') }}>Peak: {peak.day}</span>}
       </div>
       {hasData ? (
         <ResponsiveContainer width="100%" height={170}>
           <BarChart data={weekday} margin={{ top: 4, right: 8, bottom: 0, left: -28 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#eef6f2" vertical={false} />
-            <XAxis dataKey="day" tick={{ fontSize: 9, fill: '#9bbdaa' }} />
-            <YAxis tick={{ fontSize: 9, fill: '#9bbdaa' }} allowDecimals={false} />
-            <Tooltip cursor={{ fill: '#f4fbf8' }} contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #d4f0e6' }} formatter={v => [v, 'tasks']} />
+            {/* Peak bar: solid in classic; fades toward the base in noel so a tall neon fill doesn't glare */}
+            <defs>
+              <linearGradient id="insights-peak-bar" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={c('primary')} stopOpacity={1} />
+                <stop offset="100%" stopColor={c('primary')} stopOpacity={noel ? 0.72 : 1} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke={c('screen')} vertical={false} />
+            <XAxis stroke={c('x-insights-axis')} dataKey="day" tick={{ fontSize: 9, fill: c('hint-alt') }} />
+            <YAxis stroke={c('x-insights-axis')} tick={{ fontSize: 9, fill: c('hint-alt') }} allowDecimals={false} />
+            <Tooltip cursor={{ fill: c('screen') }} contentStyle={{ fontSize: 11, borderRadius: 8, border: `1px solid ${c('line')}`, backgroundColor: c('surface') }} itemStyle={{ color: c('x-chart-tooltip-ink') }} formatter={v => [v, 'tasks']} />
             <Bar dataKey="count" radius={[4, 4, 0, 0]}>
               {weekday.map((w, i) => (
-                <Cell key={i} fill={w.count === max ? '#1D9E75' : '#a8ddc4'} />
+                <Cell key={i} fill={w.count === max ? 'url(#insights-peak-bar)' : c('x-insights-bar-rest')} />
               ))}
             </Bar>
           </BarChart>
@@ -509,15 +518,15 @@ function EmptyMini({ icon, text }) {
 function InsightsSkeleton() {
   return (
     <div className="page-enter max-w-[920px]">
-      <div className="h-6 w-32 rounded mb-6" style={{ background: '#e8f5ee' }} />
+      <div className="h-6 w-32 rounded mb-6" style={{ background: c('tint') }} />
       <div className="grid grid-cols-4 gap-4 mb-5">
         {[0, 1, 2, 3].map(i => (
-          <div key={i} className="h-[88px] rounded-[10px]" style={{ background: '#f0faf4', animation: 'shimmer 1.5s ease-in-out infinite', animationDelay: `${i * 0.1}s` }} />
+          <div key={i} className="h-[88px] rounded-[10px]" style={{ background: c('surface-2'), animation: 'shimmer 1.5s ease-in-out infinite', animationDelay: `${i * 0.1}s` }} />
         ))}
       </div>
-      <div className="h-[200px] rounded-card mb-5" style={{ background: '#f0faf4', animation: 'shimmer 1.5s ease-in-out infinite' }} />
+      <div className="h-[200px] rounded-card mb-5" style={{ background: c('surface-2'), animation: 'shimmer 1.5s ease-in-out infinite' }} />
       <div className="grid grid-cols-2 gap-4">
-        {[0, 1].map(i => <div key={i} className="h-[220px] rounded-card" style={{ background: '#f0faf4', animation: 'shimmer 1.5s ease-in-out infinite', animationDelay: `${i * 0.15}s` }} />)}
+        {[0, 1].map(i => <div key={i} className="h-[220px] rounded-card" style={{ background: c('surface-2'), animation: 'shimmer 1.5s ease-in-out infinite', animationDelay: `${i * 0.15}s` }} />)}
       </div>
     </div>
   )
@@ -525,7 +534,7 @@ function InsightsSkeleton() {
 
 function ChartIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={c('primary')} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" />
     </svg>
   )

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
+import { c } from '../utils/colors'
 
 const ENERGY_EMOJI = { 1: '😩', 2: '😕', 3: '😐', 4: '😊', 5: '🔥' }
-const ENERGY_COLOR = { 1: '#ef4444', 2: '#f97316', 3: '#EF9F27', 4: '#1D9E75', 5: '#085041' }
+const ENERGY_COLOR = { 1: c('danger'), 2: c('x-energy-level-2'), 3: c('amber'), 4: c('primary'), 5: c('primary-shadow') }
 
 export default function EnergyLog({ awardXp }) {
   const [logs, setLogs]       = useState([])
@@ -71,7 +72,7 @@ export default function EnergyLog({ awardXp }) {
 
       <div className="grid grid-cols-[1fr_260px] gap-6">
         {/* Left: Log today */}
-        <div className="bg-white border border-teal-border rounded-card p-5">
+        <div className="bg-surface border border-teal-border rounded-card p-5">
           <p className="text-[13px] font-bold text-teal-dark mb-4">
             {today ? 'Update today\'s log' : 'How\'s your energy today?'}
           </p>
@@ -105,14 +106,14 @@ export default function EnergyLog({ awardXp }) {
           <button
             onClick={save}
             disabled={saving}
-            className="w-full py-2 bg-primary text-white text-[12px] font-bold rounded-[10px] hover:bg-teal-med disabled:opacity-40 transition-colors"
+            className="w-full py-2 bg-primary text-on-primary text-[12px] font-bold rounded-[10px] hover:bg-teal-med disabled:opacity-40 transition-colors"
           >
             {saved ? '✓ Logged!' : saving ? 'Saving…' : today ? 'Update Log' : 'Log Energy'}
           </button>
         </div>
 
         {/* Right: Recent logs */}
-        <div className="bg-white border border-teal-border rounded-card p-5">
+        <div className="bg-surface border border-teal-border rounded-card p-5">
           <p className="text-[13px] font-bold text-teal-dark mb-3">Recent</p>
           <div className="flex flex-col gap-1.5 max-h-[280px] overflow-y-auto">
             {logs.slice(0, 14).map(r => (
@@ -124,7 +125,7 @@ export default function EnergyLog({ awardXp }) {
                     <div
                       key={n}
                       className="w-2 h-2 rounded-full"
-                      style={{ background: n <= r.energy_rating ? ENERGY_COLOR[r.energy_rating] : '#E1F5EE' }}
+                      style={{ background: n <= r.energy_rating ? ENERGY_COLOR[r.energy_rating] : c('x-energy-dot-empty') }}
                     />
                   ))}
                 </div>
@@ -139,18 +140,18 @@ export default function EnergyLog({ awardXp }) {
 
       {/* Chart */}
       {chartData.length > 2 && (
-        <div className="mt-6 bg-white border border-teal-border rounded-card p-5">
+        <div className="mt-6 bg-surface border border-teal-border rounded-card p-5">
           <p className="text-[13px] font-bold text-teal-dark mb-4">Energy trend (last 30 days)</p>
           <ResponsiveContainer width="100%" height={160}>
             <LineChart data={chartData} margin={{ top: 0, right: 10, bottom: 0, left: -20 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E1F5EE" />
-              <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#888780' }} interval="preserveStartEnd" />
-              <YAxis domain={[1, 5]} ticks={[1,2,3,4,5]} tick={{ fontSize: 10, fill: '#888780' }} />
+              <CartesianGrid strokeDasharray="3 3" stroke={c('x-energy-grid')} />
+              <XAxis dataKey="date" tick={{ fontSize: 10, fill: c('muted') }} interval="preserveStartEnd" />
+              <YAxis domain={[1, 5]} ticks={[1,2,3,4,5]} tick={{ fontSize: 10, fill: c('muted') }} />
               <Tooltip
-                contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #d4f0e6' }}
+                contentStyle={{ fontSize: 11, borderRadius: 8, border: `1px solid ${c('line')}`, backgroundColor: c('surface') }}
                 formatter={v => [ENERGY_EMOJI[v] + ' ' + v, 'Energy']}
               />
-              <Line type="monotone" dataKey="energy" stroke="#1D9E75" strokeWidth={2} dot={{ r: 3, fill: '#1D9E75' }} />
+              <Line type="monotone" dataKey="energy" stroke={c('primary')} strokeWidth={2} dot={{ r: 3, fill: c('primary') }} activeDot={{ stroke: c('surface') }} />
             </LineChart>
           </ResponsiveContainer>
         </div>

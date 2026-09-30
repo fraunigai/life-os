@@ -1,4 +1,6 @@
 import React, { useEffect } from 'react'
+import { createPortal } from 'react-dom'
+import { c } from '../utils/colors'
 
 export default function Modal({ open, onClose, title, children, width = 480 }) {
   useEffect(() => {
@@ -10,15 +12,17 @@ export default function Modal({ open, onClose, title, children, width = 480 }) {
 
   if (!open) return null
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+  // Portalled to <body> so no page ancestor (e.g. the .page-enter transform) can trap it under the
+  // holiday lights (z-30). data-hl-pause pauses the lights while the blurred backdrop is up.
+  return createPortal(
+    <div data-hl-pause className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px]" onClick={onClose} />
 
       {/* Panel */}
       <div
-        className="relative bg-white flex flex-col max-h-[90vh] pop-in"
-        style={{ width, border: '2px solid #1D9E75', boxShadow: '5px 5px 0 #085041', borderRadius: 4 }}
+        className="relative bg-surface flex flex-col max-h-[90vh] pop-in"
+        style={{ width, border: `2px solid ${c('primary')}`, boxShadow: `5px 5px 0 ${c('primary-shadow')}`, borderRadius: 4 }}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-teal-border">
@@ -35,6 +39,7 @@ export default function Modal({ open, onClose, title, children, width = 480 }) {
           {children}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

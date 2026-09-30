@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { c } from '../utils/colors'
 
 const STATES = {
   idle:        'idle',
@@ -48,27 +49,27 @@ export default function UpdateBanner() {
     <div
       className="flex items-center gap-3 px-5 py-2.5"
       style={{
-        background:   isError ? '#1a0a0a' : '#071a10',
-        borderBottom: `1px solid ${isError ? 'rgba(239,68,68,0.25)' : 'rgba(29,158,117,0.3)'}`,
+        background:   isError ? c('x-update-error-bg') : c('chrome'),
+        borderBottom: `1px solid ${isError ? c('danger', 0.25) : c('chrome-accent', 0.3)}`,
         minHeight:    42,
       }}
     >
       {/* Icon */}
       <div
         className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full"
-        style={{ background: isError ? 'rgba(239,68,68,0.15)' : 'rgba(29,158,117,0.15)' }}
+        style={{ background: isError ? c('danger', 0.15) : c('chrome-accent', 0.15) }}
       >
         {isError ? (
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={c('danger')} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
             <circle cx="12" cy="12" r="10"/>
           </svg>
         ) : isDownloaded ? (
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#4dffb0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={c('chrome-text')} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="20 6 9 17 4 12"/>
           </svg>
         ) : (
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#4dffb0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={c('chrome-text')} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/>
             <path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/>
           </svg>
@@ -78,29 +79,29 @@ export default function UpdateBanner() {
       {/* Message */}
       <div className="flex-1 min-w-0">
         {isError && (
-          <span className="text-[11px] font-semibold" style={{ color: '#ef4444' }}>
+          <span className="text-[11px] font-semibold" style={{ color: c('danger') }}>
             Update check failed — check your connection and try again.
           </span>
         )}
         {state === STATES.available && (
-          <span className="text-[11px] font-semibold" style={{ color: '#a8e8c8' }}>
-            Version <strong style={{ color: '#4dffb0' }}>v{version}</strong> is available.
+          <span className="text-[11px] font-semibold" style={{ color: c('chrome-hover') }}>
+            Version <strong style={{ color: c('chrome-text') }}>v{version}</strong> is available.
           </span>
         )}
         {isDownloading && (
           <div className="flex items-center gap-3">
-            <span className="text-[11px] font-semibold" style={{ color: '#a8e8c8' }}>
+            <span className="text-[11px] font-semibold" style={{ color: c('chrome-hover') }}>
               Downloading update… {percent}%
             </span>
             <div
               className="flex-1 max-w-[160px]"
-              style={{ height: 4, background: 'rgba(29,158,117,0.15)', borderRadius: 2 }}
+              style={{ height: 4, background: c('chrome-accent', 0.15), borderRadius: 2 }}
             >
               <div
                 style={{
                   height: '100%',
                   width:  `${percent}%`,
-                  background: 'linear-gradient(90deg,#1D9E75,#4dffb0)',
+                  background: `linear-gradient(90deg,${c('chrome-accent')},${c('chrome-text')})`,
                   borderRadius: 2,
                   transition: 'width 0.3s ease',
                 }}
@@ -109,8 +110,8 @@ export default function UpdateBanner() {
           </div>
         )}
         {isDownloaded && (
-          <span className="text-[11px] font-semibold" style={{ color: '#a8e8c8' }}>
-            Version <strong style={{ color: '#4dffb0' }}>v{version}</strong> is ready to install.
+          <span className="text-[11px] font-semibold" style={{ color: c('chrome-hover') }}>
+            Version <strong style={{ color: c('chrome-text') }}>v{version}</strong> is ready to install.
           </span>
         )}
       </div>
@@ -120,11 +121,11 @@ export default function UpdateBanner() {
         {state === STATES.available && (
           <button
             onClick={() => window.electronAPI.updater.download()}
-            className="px-3 py-1 text-[10px] font-extrabold text-white game-btn transition-all hover:scale-105"
+            className="px-3 py-1 text-[10px] font-extrabold text-on-primary game-btn transition-all hover:scale-105"
             style={{
-              background: '#1D9E75',
-              border: '1.5px solid #085041',
-              boxShadow: '2px 2px 0 #085041',
+              background: c('primary'),
+              border: `1.5px solid ${c('primary-shadow')}`,
+              boxShadow: `2px 2px 0 ${c('primary-shadow')}`,
               borderRadius: 4,
             }}
           >
@@ -134,11 +135,11 @@ export default function UpdateBanner() {
         {isDownloaded && (
           <button
             onClick={() => window.electronAPI.updater.install()}
-            className="px-3 py-1 text-[10px] font-extrabold text-white game-btn transition-all hover:scale-105"
+            className="px-3 py-1 text-[10px] font-extrabold text-on-primary game-btn transition-all hover:scale-105"
             style={{
-              background: '#1D9E75',
-              border: '1.5px solid #085041',
-              boxShadow: '2px 2px 0 #085041',
+              background: c('primary'),
+              border: `1.5px solid ${c('primary-shadow')}`,
+              boxShadow: `2px 2px 0 ${c('primary-shadow')}`,
               borderRadius: 4,
             }}
           >
@@ -149,7 +150,7 @@ export default function UpdateBanner() {
           <button
             onClick={() => setDismissed(true)}
             className="text-[10px] font-semibold transition-opacity hover:opacity-80"
-            style={{ color: '#2a5c40' }}
+            style={{ color: c('chrome-dim') }}
           >
             {isDownloaded ? 'Later' : 'Dismiss'}
           </button>
