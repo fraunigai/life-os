@@ -71,6 +71,7 @@ export default function EpicDetail({ awardXp }) {
   const [editing, setEditing]             = useState(false)
   const [editForm, setEditForm]           = useState({})
   const [confetti, setConfetti]           = useState(0)
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   useEffect(() => {
     if (!window.electronAPI) return
@@ -285,8 +286,9 @@ export default function EpicDetail({ awardXp }) {
     await load()
   }
 
+  // Inline confirm instead of window.confirm(): native dialogs in Electron on
+  // Windows leave the page without keyboard focus, so inputs stop accepting text.
   async function deleteEpic() {
-    if (!window.confirm(`Delete "${epic.name}"? This will also delete all its tasks.`)) return
     await window.electronAPI.db.run('DELETE FROM epics WHERE id = ?', [id])
     navigate('/epics')
   }
@@ -327,14 +329,31 @@ export default function EpicDetail({ awardXp }) {
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
               </svg>
             </button>
-            <button onClick={deleteEpic} className="p-1.5 rounded transition-colors hover:bg-red-50" title="Delete epic" style={{ color: '#b91c1c', opacity: 0.55 }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="3 6 5 6 21 6" />
-                <path d="M19 6l-1 14H6L5 6" />
-                <path d="M10 11v6M14 11v6" />
-                <path d="M9 6V4h6v2" />
-              </svg>
-            </button>
+            {confirmDelete ? (
+              <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg"
+                style={{ background: '#FEF2F2', border: '1.5px solid #b91c1c40' }}>
+                <span className="text-[10px] font-bold" style={{ color: '#b91c1c' }}>Delete epic and all its tasks?</span>
+                <button onClick={deleteEpic}
+                  className="text-[10px] font-extrabold px-2 py-0.5 rounded transition-all"
+                  style={{ background: '#dc2626', color: 'white', border: '1.5px solid #b91c1c' }}>
+                  Delete
+                </button>
+                <button onClick={() => setConfirmDelete(false)}
+                  className="text-[10px] font-bold px-2 py-0.5 rounded transition-all"
+                  style={{ background: '#f4fdf8', color: '#4a7060', border: '1.5px solid #b3e8d3' }}>
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button onClick={() => setConfirmDelete(true)} className="p-1.5 rounded transition-colors hover:bg-red-50" title="Delete epic" style={{ color: '#b91c1c', opacity: 0.55 }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6l-1 14H6L5 6" />
+                  <path d="M10 11v6M14 11v6" />
+                  <path d="M9 6V4h6v2" />
+                </svg>
+              </button>
+            )}
           </div>
         </div>
 
