@@ -10,6 +10,11 @@ A retro-styled desktop productivity app that turns your goals, habits, and daily
 
 ---
 
+> **This repository is a fork.** Original project: [frederickpolana-dotcom/life-os](https://github.com/frederickpolana-dotcom/life-os) (MIT).
+> This fork adds the *Neon Noel* holiday theme set, inline delete confirmation on Epic detail, and the 1.1.0 release build configuration.
+
+---
+
 ## What is this?
 
 Life OS is a **personal operating system** for ambitious people who think spreadsheets are boring and Notion is too slow. It gamifies the things that actually matter:
@@ -190,6 +195,13 @@ Retro cards have a `3px 3px 0` hard drop shadow (no blur) — pure pixel-art ene
 
 ---
 
+## Fork
+
+Maintained fork: [@fraunigai/life-os](https://github.com/fraunigai/life-os).
+Upstream remains [@frederickpolana-dotcom/life-os](https://github.com/frederickpolana-dotcom/life-os) — all original design and code belong to its author.
+
+---
+
 ## Author
 
 **Frederick Polana**
@@ -200,7 +212,8 @@ Retro cards have a `3px 3px 0` hard drop shadow (no blur) — pure pixel-art ene
 
 ## License
 
-MIT — do whatever you want with it, just don't claim you built it from scratch.
+MIT — see [LICENSE](LICENSE). Copyright (c) 2026 Frederick Polana.
+Do whatever you want with it, just don't claim you built it from scratch.
 
 ---
 
