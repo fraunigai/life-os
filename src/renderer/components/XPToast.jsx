@@ -31,6 +31,12 @@ function ToastItem({ toast, onDone }) {
     exit:  { opacity: 0, transform: 'scale(0.85) translateY(-8px)' },
   }
 
+  const STYLES = {
+    idle:  { opacity: 0, transform: 'scale(0.6) translateY(10px)' },
+    enter: { opacity: 1, transform: 'scale(1) translateY(0)' },
+    exit:  { opacity: 0, transform: 'scale(0.85) translateY(-8px)' },
+  }
+
   return (
     <div
       className={`px-3 py-1.5 rounded-full text-[12px] font-extrabold shadow-lg ${COLOR}`}

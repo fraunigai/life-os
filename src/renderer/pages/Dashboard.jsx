@@ -216,6 +216,12 @@ export default function Dashboard({ awardXp, onOpenAI }) {
       {/* Live clock + date */}
       <LiveClock now={now} />
 
+      {/* Today's Focus strip — top 3 priority tasks */}
+      <TopFocusStrip tasks={topTasks} onDone={completeTask} />
+
+      {/* Live clock + date */}
+      <LiveClock now={now} />
+
       {/* Stats row */}
       <div className="grid grid-cols-4 gap-4 mb-8">
         <StatCard label="Active Epics"   value={inProgressEpics.length}                     color="teal"   icon="⚔️" />

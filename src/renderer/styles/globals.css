@@ -246,3 +246,38 @@ button, [role="button"] {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 }
+
+/* Active click press for retro cards */
+.retro-card:active       { transform: translate(1px, 1px) !important; box-shadow: 1px 1px 0 #085041 !important; }
+.retro-card-amber:active { transform: translate(1px, 1px) !important; box-shadow: 1px 1px 0 #a65c00 !important; }
+.retro-card-purple:active{ transform: translate(1px, 1px) !important; box-shadow: 1px 1px 0 #3d3a9e !important; }
+
+/* Modal / panel pop-in */
+@keyframes popIn {
+  0%   { opacity: 0; transform: scale(0.88) translateY(8px); }
+  70%  { transform: scale(1.03) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.pop-in { animation: popIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+/* Hover lift for interactive rows/cards */
+.hover-lift {
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(29,158,117,0.12);
+}
+
+/* Pulse ring on XP award */
+@keyframes pulseRing {
+  0%   { box-shadow: 0 0 0 0 rgba(29,158,117,0.55); }
+  70%  { box-shadow: 0 0 0 10px rgba(29,158,117,0); }
+  100% { box-shadow: 0 0 0 0 rgba(29,158,117,0); }
+}
+.pulse-ring { animation: pulseRing 0.6s ease-out; }
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
