@@ -290,7 +290,7 @@ function setSetting(key, value) {
 }
 
 function getDecryptedApiKey(provider) {
-  const keyMap = { anthropic: 'ai_api_key', openai: 'openai_api_key', gemini: 'gemini_api_key' }
+  const keyMap = { anthropic: 'ai_api_key', openai: 'openai_api_key', routerai: 'routerai_api_key', gemini: 'gemini_api_key' }
   const settingKey = keyMap[provider]
   if (!settingKey) return ''
   const encrypted = getSetting(settingKey)
@@ -298,7 +298,7 @@ function getDecryptedApiKey(provider) {
 }
 
 function setEncryptedApiKey(provider, plaintext) {
-  const keyMap = { anthropic: 'ai_api_key', openai: 'openai_api_key', gemini: 'gemini_api_key' }
+  const keyMap = { anthropic: 'ai_api_key', openai: 'openai_api_key', routerai: 'routerai_api_key', gemini: 'gemini_api_key' }
   const settingKey = keyMap[provider]
   if (!settingKey) return
   setSetting(settingKey, xorEncrypt(plaintext))
