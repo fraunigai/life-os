@@ -4,9 +4,15 @@ import { THEMES, THEME_PREVIEW_BG } from '../utils/themes'
 const PROVIDERS = [
   { value: 'anthropic', label: 'Anthropic (Claude)', keyLabel: 'API Key', keyPlaceholder: 'sk-ant-…' },
   { value: 'openai',    label: 'OpenAI (GPT)',        keyLabel: 'API Key', keyPlaceholder: 'sk-…'     },
+  { value: 'routerai',  label: 'RouterAI',            keyLabel: 'API Key', keyPlaceholder: 'ваш ключ routerai.ru' },
   { value: 'gemini',    label: 'Google Gemini',       keyLabel: 'API Key', keyPlaceholder: 'AI…'      },
   { value: 'ollama',    label: 'Ollama (Local)',      keyLabel: null,      keyPlaceholder: null        },
 ]
+
+const BASE_URL_DEFAULTS = {
+  openai:   'https://api.openai.com/v1',
+  routerai: 'https://routerai.ru/api/v1',
+}
 
 const ANTHROPIC_MODELS = ['claude-sonnet-4-20250514', 'claude-opus-4-5', 'claude-haiku-4-5']
 const OPENAI_MODELS    = ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo']
@@ -19,11 +25,13 @@ function modelsFor(provider) {
   return []
 }
 
+const ROUTERAI_DEFAULT_MODEL = 'openai/gpt-4o'
+
 const inputCls = 'w-full px-3 py-2 text-[12px] bg-teal-pale border border-teal-border rounded-sm outline-none focus:border-primary text-text-pri placeholder:text-text-hint'
 
 export default function Settings({ onProfileUpdate, appTheme = 'dynamic', xp = 0, onThemeChange, lightsOn = false, onLightsChange }) {
   const [profile, setProfile] = useState({ name: '', initials: '' })
-  const [ai, setAi]           = useState({ provider: 'anthropic', model: 'claude-sonnet-4-20250514', key: '', ollamaEndpoint: 'http://localhost:11434', ollamaModel: 'llama3' })
+  const [ai, setAi]           = useState({ provider: 'anthropic', model: 'claude-sonnet-4-20250514', key: '', ollamaEndpoint: 'http://localhost:11434', ollamaModel: 'llama3', baseUrl: '' })
   const [prefs, setPrefs]     = useState({ launch_on_startup: 'true', start_minimized: 'false', nudge_dnd: 'false' })
   const [saved, setSaved]     = useState('')
   const [showKey, setShowKey] = useState(false)
@@ -33,7 +41,7 @@ export default function Settings({ onProfileUpdate, appTheme = 'dynamic', xp = 0
 
   async function load() {
     try {
-      const [name, initials, provider, model, ollamaEndpoint, ollamaModel, startup, minimized, dnd] = await Promise.all([
+      const [name, initials, provider, model, ollamaEndpoint, ollamaModel, startup, minimized, dnd, openaiBase, routeraiBase] = await Promise.all([
         window.electronAPI.settings.get('user_name'),
         window.electronAPI.settings.get('user_initials'),
         window.electronAPI.settings.get('ai_provider'),
@@ -43,10 +51,17 @@ export default function Settings({ onProfileUpdate, appTheme = 'dynamic', xp = 0
         window.electronAPI.settings.get('launch_on_startup'),
         window.electronAPI.settings.get('start_minimized'),
         window.electronAPI.settings.get('nudge_dnd'),
+        window.electronAPI.settings.get('openai_base_url'),
+        window.electronAPI.settings.get('routerai_base_url'),
       ])
       setProfile({ name: name || '', initials: initials || '' })
       const prov = provider || 'anthropic'
-      setAi({ provider: prov, model: model || 'claude-sonnet-4-20250514', key: '', ollamaEndpoint: ollamaEndpoint || 'http://localhost:11434', ollamaModel: ollamaModel || 'llama3' })
+      const baseUrl = prov === 'routerai'
+        ? (routeraiBase || BASE_URL_DEFAULTS.routerai)
+        : prov === 'openai'
+          ? (openaiBase  || BASE_URL_DEFAULTS.openai)
+          : ''
+      setAi({ provider: prov, model: model || 'claude-sonnet-4-20250514', key: '', ollamaEndpoint: ollamaEndpoint || 'http://localhost:11434', ollamaModel: ollamaModel || 'llama3', baseUrl })
       setPrefs({ launch_on_startup: startup || 'true', start_minimized: minimized || 'false', nudge_dnd: dnd || 'false' })
     } catch {}
   }
@@ -64,12 +79,15 @@ export default function Settings({ onProfileUpdate, appTheme = 'dynamic', xp = 0
 
   async function saveAi() {
     try {
-      await Promise.all([
+      const jobs = [
         window.electronAPI.settings.set('ai_provider', ai.provider),
         window.electronAPI.settings.set('ai_model', ai.model),
         window.electronAPI.settings.set('ollama_endpoint', ai.ollamaEndpoint),
         window.electronAPI.settings.set('ollama_model', ai.ollamaModel),
-      ])
+      ]
+      if (ai.provider === 'openai')   jobs.push(window.electronAPI.settings.set('openai_base_url', ai.baseUrl))
+      if (ai.provider === 'routerai') jobs.push(window.electronAPI.settings.set('routerai_base_url', ai.baseUrl))
+      await Promise.all(jobs)
       if (ai.key.trim()) {
         await window.electronAPI.settings.setApiKey(ai.provider, ai.key.trim())
         setAi(a => ({ ...a, key: '' }))
@@ -137,8 +155,10 @@ export default function Settings({ onProfileUpdate, appTheme = 'dynamic', xp = 0
                   <button
                     key={p.value}
                     onClick={() => {
-                      const firstModel = modelsFor(p.value)[0] || ai.model
-                      setAi(a => ({ ...a, provider: p.value, model: firstModel, key: '' }))
+                      const firstModel = p.value === 'routerai'
+                        ? (ai.model.includes('/') ? ai.model : ROUTERAI_DEFAULT_MODEL)
+                        : (modelsFor(p.value)[0] || ai.model)
+                      setAi(a => ({ ...a, provider: p.value, model: firstModel, key: '', baseUrl: BASE_URL_DEFAULTS[p.value] || '' }))
                     }}
                     className={`px-3 py-1.5 rounded-[10px] text-[11px] font-bold transition-all border ${
                       ai.provider === p.value
@@ -152,11 +172,35 @@ export default function Settings({ onProfileUpdate, appTheme = 'dynamic', xp = 0
               </div>
             </Field>
 
-            {models.length > 0 && (
+            {ai.provider === 'routerai' ? (
+              <Field label="Model">
+                <input
+                  value={ai.model}
+                  onChange={e => setAi(a => ({...a, model: e.target.value}))}
+                  placeholder={ROUTERAI_DEFAULT_MODEL}
+                  className={inputCls}
+                />
+                <p className="text-[10px] text-text-hint mt-1">Точное название модели — в личном кабинете routerai.ru (например openai/gpt-4o).</p>
+              </Field>
+            ) : models.length > 0 && (
               <Field label="Model">
                 <select value={ai.model} onChange={e => setAi(a => ({...a, model: e.target.value}))} className={inputCls}>
                   {models.map(m => <option key={m} value={m}>{m}</option>)}
                 </select>
+              </Field>
+            )}
+
+            {(ai.provider === 'openai' || ai.provider === 'routerai') && (
+              <Field label="Base URL">
+                <input
+                  value={ai.baseUrl}
+                  onChange={e => setAi(a => ({...a, baseUrl: e.target.value}))}
+                  placeholder={BASE_URL_DEFAULTS[ai.provider]}
+                  className={inputCls}
+                />
+                <p className="text-[10px] text-text-hint mt-1">
+                  Адрес AI-сервиса. Пусто = {BASE_URL_DEFAULTS[ai.provider]}. Можно указать свой сервис, совместимый с OpenAI.
+                </p>
               </Field>
             )}
 

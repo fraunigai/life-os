@@ -168,7 +168,11 @@ ipcMain.handle('settings:setApiKey', (_e, provider, plain)  => { db.setEncrypted
 ipcMain.handle('ai:chat', async (_e, payload) => {
   const { messages, provider, model, ollamaEndpoint, systemPrompt } = payload
   const apiKey = db.getDecryptedApiKey(provider)
-  return routeAiChat({ messages, provider, model, apiKey, ollamaEndpoint, systemPrompt })
+  // Base URL берём из настроек, чтобы адрес можно было менять без правки кода
+  const openaiBaseUrl = provider === 'routerai'
+    ? (db.getSetting('routerai_base_url') || 'https://routerai.ru/api/v1')
+    : (db.getSetting('openai_base_url') || '')
+  return routeAiChat({ messages, provider, model, apiKey, ollamaEndpoint, openaiBaseUrl, systemPrompt })
 })
 
 // ── IPC: XP ──────────────────────────────────────────────────────────────────
