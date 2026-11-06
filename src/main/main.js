@@ -15,6 +15,8 @@ if (!gotLock) { app.quit(); process.exit(0) }
 let mainWindow   = null
 let widgetWindow = null
 let tray         = null
+// true пока идёт настоящий выход (обновление/выход из трея) — иначе close() прячет окно в трей
+let isQuitting   = false
 
 app.on('second-instance', () => {
   if (mainWindow) {
@@ -60,8 +62,9 @@ function createWindow() {
     if (!startMinimized) mainWindow.show()
   })
 
-  // Close → minimize to tray
+  // Close → minimize to tray (но не мешаем настоящему выходу и установке обновления)
   mainWindow.on('close', (e) => {
+    if (isQuitting) return
     if (tray) {
       e.preventDefault()
       mainWindow.hide()
@@ -325,8 +328,16 @@ ipcMain.handle('update:download', () => {
 })
 
 ipcMain.handle('update:install', () => {
-  autoUpdater.quitAndInstall(false, true)
+  // Иначе close→hide в трей отменяет выход, и quitAndInstall молча ничего не делает
+  isQuitting = true
+  tray?.destroy();          tray = null
+  widgetWindow?.destroy();  widgetWindow = null
+  // true = тихая установка: инсталлятор не ждёт клика в невидимом окне позади приложения
+  autoUpdater.quitAndInstall(true, true)
 })
+
+// Настоящий выход (трей → «Выход», система) тоже не должен упираться в hide-обработчик
+app.on('before-quit', () => { isQuitting = true })
 
 ipcMain.handle('update:check', () => {
   if (app.isPackaged) autoUpdater.checkForUpdates().catch(() => {})
