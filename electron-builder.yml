@@ -5,7 +5,7 @@ directories:
 afterPack: scripts/afterPack.js
 publish:
   provider: github
-  owner: frederickpolana-dotcom
+  owner: fraunigai
   repo: life-os
   releaseType: release
 win:

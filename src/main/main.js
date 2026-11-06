@@ -304,7 +304,13 @@ function initAutoUpdater() {
   })
 
   autoUpdater.on('error', (err) => {
-    mainWindow?.webContents.send('update:error', err.message)
+    const msg = String(err?.message || '')
+    // «Нет ни одного релиза» / 404 — это не поломка обновления, а просто «обновлений нет».
+    if (/404|cannot find|latest\.ya?ml|no published|releases/i.test(msg)) {
+      mainWindow?.webContents.send('update:not-available')
+      return
+    }
+    mainWindow?.webContents.send('update:error', msg)
   })
 
   // Check after 5 seconds so the window has time to load first
